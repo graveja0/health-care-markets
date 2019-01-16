@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+private-data/
+input/
+R/ignore/
