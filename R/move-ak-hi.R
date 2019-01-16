@@ -1,4 +1,14 @@
+#' This function moves Alaska and Hawaii to faciliate better mapping. NOote that 
+#' this function would need to be updated evey time a new geographic unit is added.
+#'
+#' @param dt Data
+#' @param type The level of hte map (e.g., state, county, rating, etc.)
+#'
+#' @return
+#' @export
+#'
 move_ak_hi <- function(dt,type) {
+  
   # convert it to Albers equal area
   us_aea <- spTransform(dt, CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))
   us_aea@data$id <- rownames(us_aea@data)

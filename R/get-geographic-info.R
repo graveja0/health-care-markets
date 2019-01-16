@@ -1,4 +1,13 @@
+#' This function extracts various geographic information (e.g., centroid, contiguous geographies from a shapefile.)
+#'
+#' @param shape Shapefile
+#'
+#' @return data frame
+#' @export
+#'
+
 get_geograhic_info <- function(shape) {
+  
   df_map <-
     shape@data %>% rownames_to_column()  %>%
     rename(polygon_id = rowname) %>%
