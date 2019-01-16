@@ -34,8 +34,6 @@ df_county_map = fortify(county_map,region = "fips_code") %>%
   dplyr::select(fips_code,everything()) %>% 
   tbl_df()
 
-write_rds(df_county_map,here("output/tidy-mapping-files/county/","df_county.rds"))
-
 df_county_map %>%
   filter(grepl("^47",fips_code)) %>%
   tbl_df() %>%
@@ -49,3 +47,6 @@ df_county_map %>%
   theme(legend.position = "none") +
   remove_all_axes
 
+# Write the final output.
+write_rds(df_county_info,here("output/tidy-mapping-files/county/","df_county_info.rds"))
+write_rds(df_county_map,here("output/tidy-mapping-files/county/","df_county.rds"))
