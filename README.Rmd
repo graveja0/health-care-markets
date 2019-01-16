@@ -16,6 +16,6 @@ The objective of this document is to lay out some thoughts, analytics, and data 
 
 ## Patient Sharing Files
 
-- The file [R/read-and-tidy-cms-hospital-service-areas.R](R/read-and-tidy-cms-hospital-service-areas.R) reads in the CMS Hospital Service Area file for 2017. Note the source of these data are downloaded csv files from the interactive CMS data explorer available at the links at [this link](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html). The final file is rolled up to the FIPS county level and is storeed in `output/hospital-county-patient-data/2017/hospital-county-patient-data.rds`.
+- The file [R/read-and-tidy-cms-hospital-service-areas.R](R/read-and-tidy-cms-hospital-service-areas.R) reads in the CMS Hospital Service Area file for 2017. Note the source of these data are downloaded csv files from the interactive CMS data explorer available at the links at [this link](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html). The final file is rolled up to the FIPS county level and is storeed in `output/hospital-county-patient-data/2017/hospital-county-patient-data.rds`. 
 
 
