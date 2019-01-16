@@ -14,8 +14,10 @@ U.S.
     contiguous counties and estimates county centroids
     (`output/tidy-mapping-files/county/df_county_info.rds`).
 
+## Patient Sharing Files
+
   - The file
-    [R/read-and-tidy-cms-hospital-service-areas.R](read-and-tidy-cms-hospital-service-areas.R)
+    [R/read-and-tidy-cms-hospital-service-areas.R](R/read-and-tidy-cms-hospital-service-areas.R)
     reads in the CMS Hospital Service Area file for 2017. Note the
     source of these data are downloaded csv files from the interactive
     CMS data explorer available at the links at [this
