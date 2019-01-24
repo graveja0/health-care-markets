@@ -1,8 +1,9 @@
-#' ---
-#' output: github_document
-#' ---
-#' 
+---
+output: github_document
+---
 
+
+```{r }
 ####################################################
 ####################################################
 ####################################################
@@ -309,5 +310,11 @@ zcta_map_final2 <-
   if (!dir.exists(here("output/tidy-mapping-files/pcsa"))) dir.create(here("output/tidy-mapping-files/pcsa"))
   write_rds(df_pcsa_info,here("output/tidy-mapping-files/pcsa/","df_pcsa_info.rds"))
   write_rds(df_pcsa_map %>% left_join(df_pcsa_info, "pcsa"),here("output/tidy-mapping-files/pcsa/","df_pcsa.rds"))
-  
-  
+```
+
+
+---
+title: "construct-dartmouth-geography-data.R"
+author: "johngraves"
+date: "Thu Jan 24 09:18:21 2019"
+---

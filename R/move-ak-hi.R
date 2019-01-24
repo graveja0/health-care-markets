@@ -51,6 +51,15 @@ move_ak_hi <- function(dt,type) {
     alaska <- elide(alaska, rotate=-50)
     alaska <- elide(alaska, scale=max(apply(bbox(alaska), 1, diff)) / 2.3)
     alaska <- elide(alaska, shift=c(-2100000, -2500000))
+  } else if (type == "cz") {
+    alaska <- us_aea[us_aea$commuting_zone_id_2000 %in% 
+                       c("660", "171", "103" ,"692" ,"639" ,"378" ,"701", "378" ,"638" ,"638",
+                         "103" ,"649", "667", "668" ,"103", "706" ,"901" ,"901" ,"649","638",
+                         "638", "679" ,"645" ,"707" ,"696","638", "378"),]
+    hawaii <- us_aea[us_aea$commuting_zone_id_2000 %in% c("290" ,"290","290", "702", "290"),]
+    alaska <- elide(alaska, rotate=-50)
+    alaska <- elide(alaska, scale=max(apply(bbox(alaska), 1, diff)) / 2.3)
+    alaska <- elide(alaska, shift=c(-2100000, -2500000))
   } else stop("type error")
 
   # extract, then rotate, shrink & move alaska (and reset projection)
@@ -73,6 +82,10 @@ move_ak_hi <- function(dt,type) {
     us_aea <- us_aea[!us_aea$hsastate %in% c("AK","HI"),]
   } else if (type=="pcsa") {
     us_aea <- us_aea[!us_aea$pcsa_st %in% c("AK","HI"),]
+  } else if (type=="cz") {
+    us_aea <- us_aea[!us_aea$commuting_zone_id_2000 %in% c("660","171" ,"103", "692", "639" ,"378", "701", "378" ,"638" ,
+                                                           "638" ,"103", "649", "667", "668" ,"103", "706" ,"901" ,"901" ,"649", "638", "638" ,
+                                                           "679" ,"645", "707" ,"696" ,"638","378" ,"290", "290", "290" ,"702" ,"290"),]
   } else stop("type error")
 
   us_aea <- rbind(us_aea, alaska, hawaii)
