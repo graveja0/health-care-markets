@@ -6,8 +6,6 @@
 # The basis of the COUNTY to COMMUTING ZONE conversion is the crosswalk file downloaded from
 # https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/ on 2019-01-24.
 
-
-
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 source(here("R/move-ak-hi.R"))
 source(here("R/get-geographic-info.R"))
@@ -26,7 +24,7 @@ suppressWarnings({
   county_map <- gBuffer(county_map, byid=TRUE, width=0)
 })
 
-# Assign the ZIP code as the polygon identifier. 
+# Assign the FIPS code as the polygon identifier. 
 county_map_a <- 
   spChFIDs(county_map,paste0(county_map@data$GEOID))
 

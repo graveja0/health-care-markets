@@ -15,9 +15,9 @@ move_ak_hi <- function(dt,type) {
   us_aea@data$id <- rownames(us_aea@data)
 
   ###rules to filter states
-  if(type=="rating" ) {
-    alaska <- us_aea[grepl("AK_*",us_aea$name),]
-    hawaii <- us_aea[grepl("HI_*",us_aea$name),]
+  if(type=="rating_area" ) {
+    alaska <- us_aea[grepl("AK",us_aea$rating_area),]
+    hawaii <- us_aea[grepl("HI",us_aea$rating_area),]
     alaska <- elide(alaska, rotate=-50)
     alaska <- elide(alaska, scale=max(apply(bbox(alaska), 1, diff)) / 2.3)
     alaska <- elide(alaska, shift=c(-1870000, -2500000))
@@ -70,8 +70,8 @@ move_ak_hi <- function(dt,type) {
   hawaii <- elide(hawaii, shift=c(5400000, -1400000))
   proj4string(hawaii) <- proj4string(us_aea)
 
-  if(type=="rating") {
-    us_aea <- us_aea[!grepl("AK_*",us_aea$name) & !grepl("HI_*",us_aea$name),]
+  if(type=="rating_area") {
+    us_aea <- us_aea[!grepl("AK",us_aea$rating_area) & !grepl("HI",us_aea$rating_area),]
   } else if (type=="county") {
     us_aea <- us_aea[!us_aea$STATEFP %in% c("02", "15", "72"),]
   } else if (type=="state") {

@@ -1,5 +1,7 @@
 ---
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +19,21 @@ The objective of this repository and README is to lay out some thoughts, analyti
 The maps below show various geographic market definitions that appear in Tennessee. 
 
 ```{r,echo = FALSE}
+df_ra_map <- read_rds(here("output/tidy-mapping-files/rating-area/","df_rating-area.rds"))
+p_ra <- df_ra_map  %>%
+  filter(grepl("TN",rating_area)) %>% 
+  tbl_df() %>%
+  mutate(test = factor(sample(1:5,nrow(.),replace=TRUE))) %>%
+  ggplot() +
+  aes(long,lat,group=group) +
+  geom_polygon(aes(fill = test)) +
+  geom_path(color="black") +
+  coord_equal() +
+  ggthemes::theme_tufte(base_family = "Gill Sans") +
+  theme(legend.position = "none") +
+  remove_all_axes +
+  ggtitle("Marketplace Rating Area\n(RA)" ) 
+
 df_hrr_map <- read_rds(here("output/tidy-mapping-files/hrr/","df_hrr.rds"))
 p_hrr <- 
   df_hrr_map %>%
@@ -92,10 +109,10 @@ p_cz <-
   ggthemes::theme_tufte(base_family = "Gill Sans") +
   theme(legend.position = "none") +
   remove_all_axes +
-  ggtitle("Commuting Zone\n(CZ-2000)") 
+  ggtitle("Commuting Zone\n(CZ)") 
   
 
-p_hrr + p_hsa + p_pcsa + p_cz + plot_layout(nrow=2)
+p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 ```
 
 # File Descriptions

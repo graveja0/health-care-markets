@@ -140,7 +140,7 @@ zcta_map_final2 <-
     hrr_map %>% 
     get_geograhic_info(hrrnum, get_contiguous = TRUE) 
   
-  hrr_map_simple <- gSimplify(hrr_map, tol = 300)
+  hrr_map_simple <- gSimplify(hrr_map, tol = 100)
   
   df_hrr_map = fortify(hrr_map_simple,region = "hrrnum") %>%
     rename(hrrnum = id) %>%
@@ -204,7 +204,7 @@ zcta_map_final2 <-
     get_geograhic_info(hsanum, get_contiguous = TRUE) 
   
   # Simplify the polygon
-  hsa_map_simple <- gSimplify(hsa_map, tol = 300)
+  hsa_map_simple <- gSimplify(hsa_map, tol = 100)
   
   # Convert to a regular data frame object for ggplot mapping. 
   df_hsa_map = fortify(hsa_map_simple,region = "hsanum") %>%
@@ -280,7 +280,7 @@ zcta_map_final2 <-
     get_geograhic_info(pcsa, get_contiguous = TRUE)  %>% 
     filter(pcsa_st != "NA")
   
-  pcsa_map_simple <- gSimplify(pcsa_map, tol = 300)
+  pcsa_map_simple <- gSimplify(pcsa_map, tol = 100)
   
   df_pcsa_map = fortify(pcsa_map_simple,region = "pcsa") %>%
     rename(pcsa = id) %>%
