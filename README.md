@@ -1,89 +1,14 @@
 
-The objective of this document is to lay out some thoughts, analytics,
-and data for defining geographic markets for health care services in the
-U.S.
+# Defining Geographic Markets for Health Care Services
 
-``` r
-df_hrr_map <- read_rds(here("output/tidy-mapping-files/hrr/","df_hrr.rds"))
-p_hrr <- 
-  df_hrr_map %>%
-    filter(hrrstate %in% c("TN")) %>% 
-    tbl_df() %>%
-    mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-    ggplot() +
-    aes(long,lat,group=group) +
-    geom_polygon(aes(fill = test)) +
-    geom_path(color="black") +
-    coord_equal() +
-  ggthemes::theme_tufte(base_family = "Gill Sans") +
-  theme(legend.position = "none") +
-  remove_all_axes +
-  ggtitle("Hospital Referral Region\n(HRR)" ) 
+The objective of this repository and README is to lay out some thoughts,
+analytics, and data for defining geographic markets for health care
+services in the U.S.
 
+# Mapping Geographic Markets
 
-df_hsa_map <- 
-  read_rds(here("output/tidy-mapping-files/hsa/","df_hsa.rds")) 
-p_hsa <- 
-  df_hsa_map %>%
-    filter(hsastate %in% c("TN")) %>% 
-    tbl_df() %>%
-    mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-    ggplot() +
-    aes(long,lat,group=group) +
-    geom_polygon(aes(fill = test)) +
-    geom_path(color="black") +
-    coord_equal() +
-  ggthemes::theme_tufte(base_family = "Gill Sans") +
-  theme(legend.position = "none") +
-  remove_all_axes +
-  ggtitle("Hospital Service Area\n(HSA)") 
-
-df_pcsa_map <- read_rds(here("output/tidy-mapping-files/pcsa/","df_pcsa.rds"))
-p_pcsa <- 
-  df_pcsa_map %>%
-    filter(pcsa_st %in% c("TN")) %>% 
-    filter(id != "" & !is.na(id)) %>% 
-    tbl_df() %>%
-    mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-    ggplot() +
-    aes(long,lat,group=group) +
-    geom_polygon(aes(fill = test)) +
-    geom_path(color="black") +
-    coord_equal() +
-  ggthemes::theme_tufte(base_family = "Gill Sans") +
-  theme(legend.position = "none") +
-  remove_all_axes +
-  ggtitle("Primary Care Service Area\n(PCSA)") 
-
-df_cz_map <- read_rds(here("output/tidy-mapping-files/commuting-zone/","df_cz.rds"))
-
-
-county_to_cz <- readxl::read_xls(here("public-data/shape-files/commuting-zones/cz00_eqv_v1.xls")) %>% 
-  janitor::clean_names()  %>% 
-  rename(fips_code = fips) 
-
-tn_czs <- 
-  county_to_cz %>% mutate(commuting_zone_id_2000 = paste0(commuting_zone_id_2000)) %>% filter(str_sub(fips_code,1,2) %in% c("47")) %>% pull(commuting_zone_id_2000)
-
-
-p_cz <- 
-  df_cz_map %>%
-  filter(commuting_zone_id_2000 %in% tn_czs) %>% 
-  tbl_df() %>%
-  mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-  ggplot() +
-  aes(long,lat,group=group) +
-  geom_polygon(aes(fill = test)) +
-  geom_path(color="black") +
-  coord_equal() +
-  ggthemes::theme_tufte(base_family = "Gill Sans") +
-  theme(legend.position = "none") +
-  remove_all_axes +
-  ggtitle("Commuting Zone\n(CZ-2000)") 
-  
-
-p_hrr + p_hsa + p_pcsa + p_cz + plot_layout(nrow=2)
-```
+The maps below show various geographic market definitions that appear in
+Tennessee.
 
 ![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
@@ -102,7 +27,27 @@ p_hrr + p_hsa + p_pcsa + p_cz + plot_layout(nrow=2)
     [R/construct-dartmouth-geography-data.R](R/construct-dartmouth-geography-data.R)
     constructs ggplot-friendly mapping data for Dartmouth Atlas
     geographies including Hospital Referral Region (HRR), Hospital
-    Service Region (HSA) and Primary Care Service Region (PCSA).
+    Service Region (HSA) and Primary Care Service Region (PCSA). It also
+    constructs a data file listed at the geographic market level, and
+    which contains data on centroids and contiguous markets. Note that
+    the basis for these files is the ZIP to HRR/HSA and PCSA crosswalk
+    files available for download at the [NBER
+    website](https://www.nber.org/data/dartmouth-atlas-geography.html)
+    and in [archived versions of the Dartmouth Atlas
+    webpage](http://archive.dartmouthatlas.org/tools/downloads.aspx?tab=42).
+    There are also shapefiles already constructed and [available for use
+    on the archived Dartmouth
+    website](http://archive.dartmouthatlas.org/tools/downloads.aspx?tab=39)–though
+    I found these difficult to work with (e.g., I could not easily
+    extract contiguous geographies using them, as I can by building up a
+    HRR/HSA/PCSA shapefile from a ZCTA map)
+
+  - The file
+    [R/construct-commuting-zone-data.R](R/construct-commuting-zone-data.R)
+    constructs ggplot-friendly mapping data for Commuting Zones defined
+    using the 2000 census. The underying county-to-commuting zone data
+    can be found on the [USDA
+    website](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/).
 
 ## Patient Sharing Files
 
