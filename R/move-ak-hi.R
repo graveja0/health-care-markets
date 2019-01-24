@@ -11,6 +11,7 @@ move_ak_hi <- function(dt,type) {
   
   # convert it to Albers equal area
   us_aea <- spTransform(dt, CRS("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs"))
+  #us_aea <- dt
   us_aea@data$id <- rownames(us_aea@data)
 
   ###rules to filter states
@@ -32,6 +33,24 @@ move_ak_hi <- function(dt,type) {
       alaska <- elide(alaska, rotate=-50)
       alaska <- elide(alaska, scale=max(apply(bbox(alaska), 1, diff)) / 2.3)
       alaska <- elide(alaska, shift=c(-2100000, -2500000))
+  } else if (type == "hrrnum") {
+    alaska <- us_aea[us_aea$hrrstate=="AK",]
+    hawaii <- us_aea[us_aea$hrrstate=="HI",]
+    alaska <- elide(alaska, rotate=-50)
+    alaska <- elide(alaska, scale=max(apply(bbox(alaska), 1, diff)) / 2.3)
+    alaska <- elide(alaska, shift=c(-2100000, -2500000))
+  } else if (type == "hsanum") {
+    alaska <- us_aea[us_aea$hsastate=="AK",]
+    hawaii <- us_aea[us_aea$hsastate=="HI",]
+    alaska <- elide(alaska, rotate=-50)
+    alaska <- elide(alaska, scale=max(apply(bbox(alaska), 1, diff)) / 2.3)
+    alaska <- elide(alaska, shift=c(-2100000, -2500000))
+  } else if (type == "pcsa") {
+    alaska <- us_aea[us_aea$pcsa_st=="AK",]
+    hawaii <- us_aea[us_aea$pcsa_st=="HI",]
+    alaska <- elide(alaska, rotate=-50)
+    alaska <- elide(alaska, scale=max(apply(bbox(alaska), 1, diff)) / 2.3)
+    alaska <- elide(alaska, shift=c(-2100000, -2500000))
   } else stop("type error")
 
   # extract, then rotate, shrink & move alaska (and reset projection)
@@ -48,6 +67,12 @@ move_ak_hi <- function(dt,type) {
     us_aea <- us_aea[!us_aea$STATEFP %in% c("02", "15", "72"),]
   } else if (type=="state") {
     us_aea <- us_aea[!us_aea$name %in% c("02","15","72"),]
+  } else if (type=="hrrnum") {
+    us_aea <- us_aea[!us_aea$hrrstate %in% c("AK","HI"),]
+  } else if (type=="hsanum") {
+    us_aea <- us_aea[!us_aea$hsastate %in% c("AK","HI"),]
+  } else if (type=="pcsa") {
+    us_aea <- us_aea[!us_aea$pcsa_st %in% c("AK","HI"),]
   } else stop("type error")
 
   us_aea <- rbind(us_aea, alaska, hawaii)
