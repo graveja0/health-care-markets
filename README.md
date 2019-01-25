@@ -11,15 +11,16 @@ regulatory and research applications. Therefore, for any given use
 (e.g., analyses of a health system or hospital merger) or measure (e.g.,
 constructing a Herfindahl-Hirschman index of market concentration) it is
 important to know whether and how the analytic output varies by
-alternative market definitions. For example, suppose our goal is to
-characterize insurers, hospitals or other providers by whether they
-operate in a concentrated market. If we use a market geography or other
-market definition that is too narrow (e.g., ZIP code) we will
-mischaracterize many markets as “concentrated” when they are really not
-(i.e., Type I error). Alternatively, a market definition that is too
-broad risks characterizing market participants as competitive when in
-reality a hypothetical merger could materially affect prices in the
-surrounding area (i.e., Type II error).
+alternative market definitions.
+
+For example, suppose our goal is to characterize insurers, hospitals or
+other providers by whether they operate in a concentrated market. If we
+use a market geography or other market definition that is too narrow
+(e.g., ZIP code) we will mischaracterize many markets as “concentrated”
+when they are really not (i.e., Type I error). Alternatively, a market
+definition that is too broad (e.g., state) risks characterizing market
+participants as competitive when in practice a hypothetical merger could
+materially affect prices and competitiveness (i.e., Type II error).
 
 Nor surprisingly given the above issues, commonly used market
 geographies such as hospital referral regions (HRRs), hospital service
@@ -28,15 +29,23 @@ areas (HSAs), commuting zones (CZs), metropolitan statistical areas
 weaknesses for a given application will depend on the specific research
 or regulatory question at hand.
 
-Finally, even if we can settle on a single definition for our particular
+Even if we can settle on a single definition for our particular
 application or research question, there are other important
-considerations at play. For example, the latest commuting zone data are
-derived from commuting patterns ascertained in the 2000 Census. HRRs and
-HSAs are defined by patient hospital flows in 1992-1993\! Obviously,
-flows of both patients and commuters have changed substantially in many
-areas in the last 20-30 years. Whether these changes are material to
-defining geographic boundaries of contemporary health care markets
-remains an open question we will explore here.
+considerations at play. For example, some market definitions are
+constrained by geopolitical boundaries (e.g., state borders). While this
+may be fine for some settings (e.g., rate regulation in insurance
+markets) it may not be for others (e.g., hosptial markets).
+
+In addition, the underlying population data used to define some commonly
+used geographic markets is woefully out of date. The latest commuting
+zone data are derived from commuting patterns ascertained in the 2000
+Census. And HRRs and HSAs are defined by patient flows to hospitals in
+1992 and 1993\!
+
+Obviously, flows of both patients and commuters have changed
+substantially in many areas in the last 20-30 years. Whether these
+changes are material to defining geographic boundaries of contemporary
+health care markets remains an open question we will explore here.
 
 # Commonly Used Geographic Market Definitions
 
