@@ -18,9 +18,9 @@ other providers by whether they operate in a concentrated market. If we
 use a market geography or other market definition that is too narrow
 (e.g., ZIP code) we will mischaracterize many markets as “concentrated”
 when they are really not (i.e., Type I error). Alternatively, a market
-definition that is too broad (e.g., state) risks characterizing market
-participants as competitive when in practice a hypothetical merger could
-materially affect prices and competitiveness (i.e., Type II error).
+definition that is too broad (e.g., state) risks characterizing markets
+as competitive when in practice a hypothetical merger could materially
+affect prices and competitiveness in a given area (i.e., Type II error).
 
 Nor surprisingly given the above issues, commonly used market
 geographies such as hospital referral regions (HRRs), hospital service
