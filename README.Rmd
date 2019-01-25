@@ -14,11 +14,17 @@ source(here("R/map-theme.R"))
 
 The objective of this repository is to lay out some thoughts, analytics, and data for defining geographic markets for health care services in the U.S.
 
-Geographic market definitions are important for a wide variety of regulatory and research uses. Therefore, for any given measure (e.g., a Hirschman-Herfindahl index of market concentration) it is important to know whether and how that measure varies by alternative market definitions. Moreover, commonly used geographies, such as hospital referral regions (HRRs), commuting zones (CZs), metropolitan statistical areas (MSAs), etc. have both strengths and weaknesses. Whether the strengths outweigh the weaknesses will be defined by the specific question at hand. As just one example, the latest commuting zone data are derived from commuting patterns ascertained in the 2000 Census; HRRs and HSAs are defined by patient hospital flows in 1992-1993. Obviously, flows of both patients and commuters have changed substantially in some areas in the last 20-30 years--whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question.
+Geographic market definitions are important for a wide variety of regulatory and research uses. Therefore, for any given measure (e.g., a Hirschman-Herfindahl index of market concentration) it is important to know whether and how that measure varies by alternative market definitions. Moreover, commonly used geographies, such as hospital referral regions (HRRs), commuting zones (CZs), metropolitan statistical areas (MSAs), etc. have both strengths and weaknesses. Whether the strengths outweigh the weaknesses will depend on the specific question at hand. As just one example, the latest commuting zone data are derived from commuting patterns ascertained in the 2000 Census; HRRs and HSAs are defined by patient hospital flows in 1992-1993. Obviously, flows of both patients and commuters have changed substantially in some areas in the last 20-30 years--whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question.
 
-# Mapping Geographic Markets 
+# Commonly Used Geographic Market Definitions 
 
-The maps below show various geographic market definitions that appear in Tennessee. Note that the colors in each polygon are arbitrary and only indended to further highlight boundaries across geographies.  
+We begin by simply visualizing several commonly used geographic market definitions. These include HRRs, HSAs, primary care service areas (PCSAs), commuting zones, and health insurance rating areas as defined for the Affordable Care Act's non-group marketplaces.  
+
+These various market geographies are plotted for Tennessee in the figure below.  Note that the colors in each polygon are arbitrary and only indended to further highlight boundaries across geographies. 
+
+What is clear here is that the size of the geographic market varies greatly across these possible definitions. HRRs constitute the largest service area and further, can stretch across state boundaries. HSAs are much smaller -- many in rural areas will contain only one hospital--so by construction, many HSAs will be classified as "concentrated" if HSA is used as the geographic market definition to construct an HHI measure. 
+
+Similarly, we see that PCSAs are quite small, while rating areas in Tennessee are somewhere in-between the broader HRRs and commuting zones. 
 
 ```{r,echo = FALSE}
 df_ra_map <- read_rds(here("output/tidy-mapping-files/rating-area/","df_rating-area.rds"))
@@ -114,6 +120,46 @@ p_cz <-
 
 p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 ```
+# Geographic Market Definitions
+
+Before moving on it is useful to put down, in one place, the specific methods and definitions used to construct each of the aforementioned geographic market definitions. 
+
+## Hospital Service Areas
+
+## Hosptial Referral Regions
+
+## Primary Care Service Areas
+
+## Marketplace Rating Areas
+
+## Commuting Zones
+
+
+# How Do HHI Measures Compare Across Geographic Market Defintions?
+
+For this exercise we will construct measures of hopsital concentration across the geographic market definitions covered above. Not all of these will make sense (e.g., it seems odd to construct a Hospital HHI measure based on PCSAs) but I will construct the measures anyway for the sake of comparisons.
+
+# Novel Market Definitions
+
+In this section we will consider several methodological improvements and extensions to the geographic definitions covered above.  These include:
+
+- Updates to HSAs and HRR definitions based on more recent data.
+
+- Geographic market definitions based on community detection algorithms borrowed from social network analytic methods. 
+
+    - Based on hospital-ZIP data from Medicare.
+    
+    - Based on insurer-county data from DRG.
+    
+    - Based on shared patient networks from Medicare. 
+    
+
+    
+
+
+
+
+
 
 # File Descriptions
 
