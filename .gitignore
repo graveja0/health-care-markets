@@ -9,3 +9,5 @@ public-data/
 output/tidy-mapping-files/
 .DS_Store
 R/.DS_Store
+output/geographic-crosswalks/*.rds
+reference/
