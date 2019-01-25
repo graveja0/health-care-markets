@@ -14,6 +14,16 @@ Tennessee.
 
 # File Descriptions
 
+  - [R/manifest.R](R/manifest.R) sets up all libraries and settings.
+  - [R/move-ak-hi.R](R/R/move-ak-hi.R) moves Alaska and Hawaii in a map.
+  - [R/map-theme.R](R/map-theme.R) defines plotting and theme parameters
+    for mapping.
+  - [R/get-geographic-info.R](R/get-geographic-info.R) obtains centroid
+    and contiguous geography data for any underlying shape object.
+  - [R/zip-code-crosswalk.R](R/zip-code-crosswalk.R) creates a ZCTA to
+    FIPS code crosswalk from the [MAPLE geographic crosswalking
+    website](http://mcdc.missouri.edu/applications/geocorr2014.html).
+
 ## Geographic Mapping Files
 
   - The file
@@ -24,7 +34,20 @@ Tennessee.
     (`output/tidy-mapping-files/county/df_county_info.rds`).
 
   - The file
-    [R/construct-dartmouth-geography-data.R](R/construct-dartmouth-geography-data.R)
+    [R/construct-rating-area-data.R](R/construct-rating-area-data.md)
+    constructs ggplot-friendly rating area map data based on the
+    marketplace rating area definitions as of 2019-01-23 (these have
+    barely changed, if any, over time, however). The sub-program
+    [R/construct-rating-area-file-from-cciio-website.R](construct-rating-area-file-from-cciio-website.R)
+    reads the HTML tables from the CCIIO website, which list either the
+    counties or ZIP3 for each rating area. The program also separately
+    creates 3-digit ZIP rating areas for Los Angeles county–the only
+    county in CA that uses 3-digit ZIPs; however, the 3-digit ZIPs in LA
+    County also span other counties, requiring some further manipulation
+    to get the intersection.
+
+  - The file
+    [R/construct-dartmouth-geography-data.R](R/construct-dartmouth-geography-data.md)
     constructs ggplot-friendly mapping data for Dartmouth Atlas
     geographies including Hospital Referral Region (HRR), Hospital
     Service Region (HSA) and Primary Care Service Region (PCSA). It also
@@ -43,7 +66,7 @@ Tennessee.
     HRR/HSA/PCSA shapefile from a ZCTA map)
 
   - The file
-    [R/construct-commuting-zone-data.R](R/construct-commuting-zone-data.R)
+    [R/construct-commuting-zone-data.R](R/construct-commuting-zone-data.md)
     constructs ggplot-friendly mapping data for Commuting Zones defined
     using the 2000 census. The underying county-to-commuting zone data
     can be found on the [USDA
