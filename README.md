@@ -82,6 +82,13 @@ extensions to the geographic definitions covered above. These include:
       - Based on insurer-county data from DRG.
     
       - Based on shared patient networks from Medicare.
+    
+      - Based on updates to commuting flows from 2009-2013. Census data
+        [here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html).
+        Based on gravity model or based on Dartmouth method (e.g.,
+        greatest fraction).
+    
+      - Based on hospital-specific HHIs.
 
 # File Descriptions
 

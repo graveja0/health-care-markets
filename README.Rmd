@@ -153,6 +153,11 @@ In this section we will consider several methodological improvements and extensi
     
     - Based on shared patient networks from Medicare. 
     
+    - Based on updates to commuting flows from 2009-2013. Census data [here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html). Based on gravity model or based on Dartmouth method (e.g., greatest fraction).
+    
+    - Based on hospital-specific HHIs.
+    
+    
 
     
 
