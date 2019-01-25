@@ -3,23 +3,40 @@
 
 The objective of this repository is to lay out some thoughts, analytics,
 and data for defining geographic markets for health care services in the
-U.S.
+U.S. In other words, it is a guided tour of a particularly complex
+rabbit hole.
 
 Geographic market definitions are important for a wide variety of
-regulatory and research uses. Therefore, for any given measure (e.g., a
-Herfindahl-Hirschman index of market concentration) it is important to
-know whether and how that measure varies by alternative market
-definitions. Moreover, commonly used geographies, such as hospital
-referral regions (HRRs), commuting zones (CZs), metropolitan statistical
-areas (MSAs), etc. have both strengths and weaknesses. Whether the
-strengths outweigh the weaknesses will depend on the specific question
-at hand. As just one example, the latest commuting zone data are derived
-from commuting patterns ascertained in the 2000 Census; HRRs and HSAs
-are defined by patient hospital flows in 1992-1993. Obviously, flows of
-both patients and commuters have changed substantially in some areas in
-the last 20-30 years–whether these changes are material to defining
-geographic boundaries of contemporary health care markets remains an
-open question.
+regulatory and research applications. Therefore, for any given use
+(e.g., analyses of a health system or hospital merger) or measure (e.g.,
+constructing a Herfindahl-Hirschman index of market concentration) it is
+important to know whether and how the analytic output varies by
+alternative market definitions. For example, suppose our goal is to
+characterize insurers, hospitals or other providers by whether they
+operate in a concentrated market. If we use a market geography or other
+market definition that is too narrow (e.g., ZIP code) we will
+mischaracterize many markets as “concentrated” when they are really not
+(i.e., Type I error). Alternatively, a market definition that is too
+broad risks characterizing market participants as competitive when in
+reality a hypothetical merger could materially affect prices in the
+surrounding area (i.e., Type II error).
+
+Nor surprisingly given the above issues, commonly used market
+geographies such as hospital referral regions (HRRs), hospital service
+areas (HSAs), commuting zones (CZs), metropolitan statistical areas
+(MSAs), etc. have trade-offs. Whether the strengths outweigh the
+weaknesses for a given application will depend on the specific research
+or regulatory question at hand.
+
+Finally, even if we can settle on a single definition for our particular
+application or research question, there are other important
+considerations at play. For example, the latest commuting zone data are
+derived from commuting patterns ascertained in the 2000 Census. HRRs and
+HSAs are defined by patient hospital flows in 1992-1993\! Obviously,
+flows of both patients and commuters have changed substantially in many
+areas in the last 20-30 years. Whether these changes are material to
+defining geographic boundaries of contemporary health care markets
+remains an open question we will explore here.
 
 # Commonly Used Geographic Market Definitions
 
