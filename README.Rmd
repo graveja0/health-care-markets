@@ -118,10 +118,13 @@ p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 # File Descriptions
 
 - [R/manifest.R](R/manifest.R) sets up all libraries and settings.
+<<<<<<< HEAD
 - [R/move-ak-hi.R](R/R/move-ak-hi.R) moves Alaska and Hawaii in a map. 
 - [R/map-theme.R](R/map-theme.R) defines plotting and theme parameters for mapping.
 - [R/get-geographic-info.R](R/get-geographic-info.R) obtains centroid and contiguous geography data for any underlying shape object. 
 - [R/zip-code-crosswalk.R](R/zip-code-crosswalk.R) creates a ZCTA to FIPS code crosswalk from the [MAPLE geographic crosswalking website](http://mcdc.missouri.edu/applications/geocorr2014.html).
+=======
+>>>>>>> 1e84784abc8f9bc05b7610c267613f5558ea29a8
 
 ## Geographic Mapping Files
 
