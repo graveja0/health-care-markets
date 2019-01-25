@@ -90,10 +90,21 @@ cz_map <- SpatialPolygonsDataFrame(cz_map_merged, data = cz_map_merged_df)
 cz_map <- move_ak_hi(cz_map,type="cz")
 cz_map <- gBuffer(cz_map, byid=TRUE, width=0)
 
+# Save as shape file
+
 df_cz_info <- 
   cz_map %>% 
   get_geograhic_info(commuting_zone_id_2000, get_contiguous = TRUE) 
 
+# Save as a shapefile
+tmp <- df_cz_info %>% data.frame()
+rownames(tmp) <- tmp$polygon_id
+tmp <- tmp %>% select(-polygon_id) 
+SpatialPolygonsDataFrame(cz_map, data = tmp) %>% 
+  sf::st_as_sf() %>% 
+  sf::write_sf(here("output/tidy-mapping-files/commuting-zone/01_commuting-zone-shape-file.shp"))
+
+  
 cz_map_simple <- gSimplify(cz_map, tol = 1)
 
 df_cz_map = fortify(cz_map_simple,region = "commuting_zone_id_2000") %>%

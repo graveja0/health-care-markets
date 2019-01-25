@@ -10,6 +10,12 @@ source(here("R/map-theme.R"))
 county_map <- readOGR(dsn=here("public-data/shape-files/county-2017/cb_2017_us_county_5m/cb_2017_us_county_5m.shp"),
                       layer = "cb_2017_us_county_5m",verbose = FALSE) 
 
+fips_counties_in_map <- paste0(county_map@data$GEOID)
+
+county_map <- 
+  spChFIDs(county_map,paste0(county_map@data$GEOID))
+
+
 # Get Gegographic Information (e.g., centroid, contiguous geographies, etc.)
 df_county_info <- 
   county_map %>% 
@@ -23,6 +29,15 @@ county_map$lng <- unlist(lapply(county_map@polygons, function(dt) dt@labpt[1]))
 county_map$lat <- unlist(lapply(county_map@polygons, function(dt) dt@labpt[2]))
 # Project to albers
 county_map <- spTransform(county_map,CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96"))
+
+# Save as a shapefile
+tmp <- df_county_info %>% data.frame() %>% 
+  filter(polygon_id %in% county_map@data$GEOID)
+rownames(tmp) <- tmp$polygon_id
+tmp <- tmp %>% select(-polygon_id)
+SpatialPolygonsDataFrame(county_map, data = tmp) %>%
+  sf::st_as_sf() %>%
+  sf::write_sf(here("output/tidy-mapping-files/county/01_county-shape-file.shp"))
 
 # simplify the polgons a tad (tweak 0.00001 to your liking)
 #simplify_polygon = FALSE

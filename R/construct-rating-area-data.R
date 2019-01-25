@@ -401,6 +401,14 @@ df_rating_areas_info <-
   rating_areas_map %>% 
   get_geograhic_info(rating_area, get_contiguous = TRUE) 
 
+# Save as a shapefile
+tmp <- df_rating_areas_info %>% data.frame()
+rownames(tmp) <- tmp$polygon_id
+tmp <- tmp %>% select(-polygon_id) 
+SpatialPolygonsDataFrame(rating_areas_map, data = tmp) %>% 
+  sf::st_as_sf() %>% 
+  sf::write_sf(here("output/tidy-mapping-files/rating-area/01_rating-area-shape-file.shp"))
+
 rating_areas_map_simple <- gSimplify(rating_areas_map, tol = 1)
 
 df_rating_areas_map = fortify(rating_areas_map_simple,region = "rating_area") %>%

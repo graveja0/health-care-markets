@@ -8,8 +8,8 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 source(here("R/map-theme.R"))
-
 ```
+
 # Defining Geographic Markets for Health Care Services 
 
 The objective of this repository and README is to lay out some thoughts, analytics, and data for defining geographic markets for health care services in the U.S.
@@ -87,14 +87,12 @@ p_pcsa <-
 
 df_cz_map <- read_rds(here("output/tidy-mapping-files/commuting-zone/","df_cz.rds"))
 
-
 county_to_cz <- readxl::read_xls(here("public-data/shape-files/commuting-zones/cz00_eqv_v1.xls")) %>% 
   janitor::clean_names()  %>% 
   rename(fips_code = fips) 
 
 tn_czs <- 
   county_to_cz %>% mutate(commuting_zone_id_2000 = paste0(commuting_zone_id_2000)) %>% filter(str_sub(fips_code,1,2) %in% c("47")) %>% pull(commuting_zone_id_2000)
-
 
 p_cz <- 
   df_cz_map %>%
@@ -118,13 +116,10 @@ p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 # File Descriptions
 
 - [R/manifest.R](R/manifest.R) sets up all libraries and settings.
-<<<<<<< HEAD
 - [R/move-ak-hi.R](R/R/move-ak-hi.R) moves Alaska and Hawaii in a map. 
 - [R/map-theme.R](R/map-theme.R) defines plotting and theme parameters for mapping.
 - [R/get-geographic-info.R](R/get-geographic-info.R) obtains centroid and contiguous geography data for any underlying shape object. 
 - [R/zip-code-crosswalk.R](R/zip-code-crosswalk.R) creates a ZCTA to FIPS code crosswalk from the [MAPLE geographic crosswalking website](http://mcdc.missouri.edu/applications/geocorr2014.html).
-=======
->>>>>>> 1e84784abc8f9bc05b7610c267613f5558ea29a8
 
 ## Geographic Mapping Files
 
