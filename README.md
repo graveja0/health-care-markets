@@ -7,7 +7,7 @@ U.S.
 
 Geographic market definitions are important for a wide variety of
 regulatory and research uses. Therefore, for any given measure (e.g., a
-Hirschman-Herfindahl index of market concentration) it is important to
+Herfindahl-Hirschman index of market concentration) it is important to
 know whether and how that measure varies by alternative market
 definitions. Moreover, commonly used geographies, such as hospital
 referral regions (HRRs), commuting zones (CZs), metropolitan statistical
