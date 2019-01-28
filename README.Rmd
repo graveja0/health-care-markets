@@ -179,9 +179,14 @@ What this means is there is signficant heterogeneity across states in the geogra
 
 ## Commuting Zones
 
-Commuting zones are comprised of geographically contiguous counties with strong wtihin-area clustering of commuting ties between residental and work county, and weak across-area ties. 
+Commuting zones are comprised of geographically contiguous counties with strong wtihin-area clustering of commuting ties between residental and work county, and weak across-area ties. The [latest official commuting zone geography files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/) are based on patterns observed in the 2000 census. However, more recent county-to-county commuting data are available based on the 2009-2013 American Community Survey (ACS)  [are also available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html) and could be used to construct new commuting zone geographies. 
 
-More recent data are available [here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html).
+For now, the zones used here will draw on the shapefiles constructed for 2000 at [Penn State](https://sites.psu.edu/psucz/).
+
+This description of the history and methods of commuting zones from the U.S. Department of Agriculture (USDA) is useful:
+
+> The ERS Commuting Zones (CZs) and Labor Market Areas (LMAs) were first developed in the 1980s as ways to better delineate local economies. County boundaries are not always adequate confines for a local economy and often reflect political boundaries rather than an area's local economy. CZs and LMAs are geographic units of analysis intended to more closely reflect the local economy where people live and work. Beginning in 1980 and continuing through 2000, hierarchical cluster analysis was used along with the Census Bureau's journey to work data to group counties into these areas. In 2000, there were 709 CZs delineated for the U.S., 741 in 1990, and 768 in 1980. LMAs are similar to CZs except that they had to have a minimum population of 100,000 persons. LMAs were only estimated in 1980 and 1990. This was done in order for the Census Bureau to create microdata samples using decennial census data (1980 PUMS-D, 1990 PUMS-L) that avoided disclosure. The LMAs were discontinued in 2000 because researchers found them to be too large and not as useful as the CZs. The identical methodology was used to develop CZs for all three decades.
+
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
