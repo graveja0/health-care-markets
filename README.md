@@ -15,43 +15,59 @@ alternative market definitions.
 For example, suppose our goal is to characterize insurers, hospitals or
 other providers by whether they operate in a concentrated market. If we
 use a market geography definition that is too narrow (e.g., ZIP code) we
-will mischaracterize many markets as “concentrated” when they are really
+risk mischaracterizing markets as “concentrated” when they are really
 not (i.e., Type I error). Alternatively, a market definition that is too
 broad (e.g., state) risks characterizing markets as competitive when in
 practice a hypothetical merger or market exit could materially affect
 prices and competitiveness (i.e., Type II error).
 
 Not surprisingly given the above issues, commonly used market
-geographies such as hospital referral regions (HRRs), hospital service
-areas (HSAs), commuting zones (CZs), metropolitan statistical areas
-(MSAs), etc. have trade-offs. Whether the strengths outweigh the
-weaknesses for a given application will depend on the specific research
-or regulatory question at hand.
+geographies have trade-offs. Obviously, whether the strengths outweigh
+the weaknesses for a given application will depend on the specific
+research or regulatory question at hand.
 
 There are other important considerations at play as well. For example,
-some market definitions are constrained by geopolitical boundaries
-(e.g., state borders). While this may be fine for some settings (e.g.,
-rate regulation in insurance markets) it may not be for others (e.g.,
-hosptial markets).
+some market definitions (e.g., rating areas) are constrained by
+geopolitical boundaries (e.g., state borders). While this may be fine
+for some settings (e.g., rate regulation in insurance markets, since
+consumers can only purchase a plan offered in their market) it may not
+be for others (e.g., hosptial markets, in which patients are
+unconstrained from crossing state boundaries).
 
 In addition, the underlying population data used to define some commonly
-used geographic markets is woefully out of date. The latest commuting
-zone data are derived from commuting patterns ascertained in the 2000
-Census. And HRRs and HSAs are defined by patient flows to hospitals in
-1992 and 1993\!
+used geographic markets is out of date. The latest commuting zone data
+are derived from commuting patterns ascertained in the 2010 Census. HRRs
+and HSAs, by comparison, are defined by patient flows to hospitals in
+1992 and 1993.
 
-Obviously, flows of both patients and commuters have changed
-substantially in many areas in the last 20-30 years. Whether these
-changes are material to defining geographic boundaries of contemporary
-health care markets remains an open question we will explore here.
+Clearly, flows of both patients and commuters have changed substantially
+in many areas in the last 20-30 years. Whether these changes are
+material to defining geographic boundaries of contemporary health care
+markets remains an open question we will explore here.
+
+Finally, it is worth mentioning that regulatory and antitrust reviews
+have drawn on a diverse set of addtional market geography definitions.
+The history, use and controversies surrounding these definitions are
+nicely covered in the Department of Justice chapter entitled
+[“Competition Law:
+Hosptials”](https://www.justice.gov/atr/chapter-4-competition-law-hospitals).
+
+More generally, these alternative DOJ market definitions tend to rely on
+rich longitudinal data on prices in health care markets. While in theory
+such information could be obtained nationwide, in practice their
+construction is contigent on the painstaking collection of local data
+from relevant market participants. I do not profess to have the human
+capital or funding resources to undertake such an exercise here. So we
+will focus on more general market geography definitions that can more
+easily scale–particularly using publicly-available and relatively
+low-cost data.
 
 # Commonly Used Geographic Market Definitions
 
 We begin by simply visualizing several commonly used geographic market
 definitions. These include HRRs, HSAs, primary care service areas
 (PCSAs), commuting zones, and health insurance rating areas as defined
-for the Affordable Care Act’s non-group marketplaces.
-
+for the Affordable Care Act’s non-group marketplaces.  
 These various market geographies are plotted for Tennessee in the figure
 below. Note that the colors in each polygon are arbitrary and only
 intended to further highlight boundaries across geographies.
@@ -161,10 +177,38 @@ that define California\!
 
 Commuting zones are comprised of geographically contiguous counties with
 strong wtihin-area clustering of commuting ties between residental and
-work county, and weak across-area ties.
+work county, and weak across-area ties. The [latest official commuting
+zone geography
+files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/)
+are based on patterns observed in the 2000 census. However, more recent
+county-to-county commuting data are available based on the 2009-2013
+American Community Survey (ACS) [are also
+available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html)
+and could be used to construct new commuting zone geographies.
 
-More recent data are available
-[here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html).
+For now, the zones used here will draw on the shapefiles constructed for
+2000 at [Penn State](https://sites.psu.edu/psucz/).
+
+This description of the history and methods of commuting zones from the
+U.S. Department of Agriculture (USDA) is useful:
+
+> The ERS Commuting Zones (CZs) and Labor Market Areas (LMAs) were first
+> developed in the 1980s as ways to better delineate local economies.
+> County boundaries are not always adequate confines for a local economy
+> and often reflect political boundaries rather than an area’s local
+> economy. CZs and LMAs are geographic units of analysis intended to
+> more closely reflect the local economy where people live and work.
+> Beginning in 1980 and continuing through 2000, hierarchical cluster
+> analysis was used along with the Census Bureau’s journey to work data
+> to group counties into these areas. In 2000, there were 709 CZs
+> delineated for the U.S., 741 in 1990, and 768 in 1980. LMAs are
+> similar to CZs except that they had to have a minimum population of
+> 100,000 persons. LMAs were only estimated in 1980 and 1990. This was
+> done in order for the Census Bureau to create microdata samples using
+> decennial census data (1980 PUMS-D, 1990 PUMS-L) that avoided
+> disclosure. The LMAs were discontinued in 2000 because researchers
+> found them to be too large and not as useful as the CZs. The identical
+> methodology was used to develop CZs for all three decades.
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 

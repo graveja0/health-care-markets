@@ -140,6 +140,14 @@ zcta_map_final2 <-
     hrr_map %>% 
     get_geograhic_info(hrrnum, get_contiguous = TRUE) 
   
+  # Save as a shapefile
+  tmp <- df_hrr_info %>% data.frame()
+  rownames(tmp) <- tmp$polygon_id
+  tmp <- tmp %>% select(-polygon_id) 
+  SpatialPolygonsDataFrame(hrr_map, data = tmp) %>% 
+    sf::st_as_sf() %>% 
+    sf::write_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))
+  
   hrr_map_simple <- gSimplify(hrr_map, tol = 100)
   
   df_hrr_map = fortify(hrr_map_simple,region = "hrrnum") %>%
@@ -203,6 +211,15 @@ zcta_map_final2 <-
     hsa_map %>% 
     get_geograhic_info(hsanum, get_contiguous = TRUE) 
   
+  # Save as a shapefile
+  tmp <- df_hsa_info %>% data.frame()
+  rownames(tmp) <- tmp$polygon_id
+  tmp <- tmp %>% select(-polygon_id) 
+  SpatialPolygonsDataFrame(hsa_map, data = tmp) %>% 
+    sf::st_as_sf() %>% 
+    sf::write_sf(here("output/tidy-mapping-files/hsa/01_hsa-shape-file.shp"))
+  
+
   # Simplify the polygon
   hsa_map_simple <- gSimplify(hsa_map, tol = 100)
   
@@ -279,6 +296,15 @@ zcta_map_final2 <-
     pcsa_map %>% 
     get_geograhic_info(pcsa, get_contiguous = TRUE)  %>% 
     filter(pcsa_st != "NA")
+  
+  # Save as a shapefile
+  tmp <- df_pcsa_info %>% data.frame()
+  rownames(tmp) <- tmp$polygon_id
+  tmp <- tmp %>% select(-polygon_id) 
+  SpatialPolygonsDataFrame(pcsa_map, data = tmp) %>% 
+    sf::st_as_sf() %>% 
+    sf::write_sf(here("output/tidy-mapping-files/pcsa//01_pcsa-shape-file.shp"))
+  
   
   pcsa_map_simple <- gSimplify(pcsa_map, tol = 100)
   
