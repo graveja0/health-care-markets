@@ -12,15 +12,15 @@ source(here("R/map-theme.R"))
 
 # Defining Geographic Markets for Health Care Services 
 
-The objective of this repository is to lay out some thoughts, analytics, and data for defining geographic markets for health care services in the U.S. In other words, it is a guided tour of a particularly complex rabbit hole. 
+The objective of this repository is to lay out some thoughts, analytics, and data for defining geographic markets for health care services. In other words, it is a guided tour of a particularly complex rabbit hole. 
 
 Geographic market definitions are important for a wide variety of regulatory and research applications. Therefore, for any given use (e.g., analyses of a health system or hospital merger) or measure (e.g., constructing a Herfindahl-Hirschman index of market concentration) it is important to know whether and how the analytic output varies by alternative market definitions. 
 
-For example, suppose our goal is to characterize insurers, hospitals or other providers by whether they operate in a concentrated market. If we use a market geography or other market definition that is too narrow (e.g., ZIP code) we will mischaracterize many markets as "concentrated" when they are really not (i.e., Type I error). Alternatively, a market definition that is too broad (e.g., state) risks characterizing markets as competitive when in practice a hypothetical merger could materially affect prices and competitiveness in a given area (i.e., Type II error). 
+For example, suppose our goal is to characterize insurers, hospitals or other providers by whether they operate in a concentrated market. If we use a market geography definition that is too narrow (e.g., ZIP code) we will mischaracterize many markets as "concentrated" when they are really not (i.e., Type I error). Alternatively, a market definition that is too broad (e.g., state) risks characterizing markets as competitive when in practice a hypothetical merger or market exit could materially affect prices and competitiveness  (i.e., Type II error). 
 
-Nor surprisingly given the above issues, commonly used market geographies such as hospital referral regions (HRRs), hospital service areas (HSAs), commuting zones (CZs), metropolitan statistical areas (MSAs), etc. have trade-offs. Whether the strengths outweigh the weaknesses for a given application will depend on the specific research or regulatory question at hand. 
+Not surprisingly given the above issues, commonly used market geographies such as hospital referral regions (HRRs), hospital service areas (HSAs), commuting zones (CZs), metropolitan statistical areas (MSAs), etc. have trade-offs. Whether the strengths outweigh the weaknesses for a given application will depend on the specific research or regulatory question at hand. 
 
-Even if we can settle on a single definition for our particular application or research question, there are other important considerations at play. For example, some market definitions are constrained by geopolitical boundaries (e.g., state borders). While this may be fine for some settings (e.g., rate regulation in insurance markets) it may not be for others (e.g., hosptial markets). 
+There are other important considerations at play as well. For example, some market definitions are constrained by geopolitical boundaries (e.g., state borders). While this may be fine for some settings (e.g., rate regulation in insurance markets) it may not be for others (e.g., hosptial markets). 
 
 In addition, the underlying population data used to define some commonly used geographic markets is woefully out of date. The latest commuting zone data are derived from commuting patterns ascertained in the 2000 Census. And HRRs and HSAs are defined by patient flows to hospitals in 1992 and 1993!  
 
@@ -30,7 +30,7 @@ Obviously, flows of both patients and commuters have changed substantially in ma
 
 We begin by simply visualizing several commonly used geographic market definitions. These include HRRs, HSAs, primary care service areas (PCSAs), commuting zones, and health insurance rating areas as defined for the Affordable Care Act's non-group marketplaces.  
 
-These various market geographies are plotted for Tennessee in the figure below.  Note that the colors in each polygon are arbitrary and only indended to further highlight boundaries across geographies. 
+These various market geographies are plotted for Tennessee in the figure below.  Note that the colors in each polygon are arbitrary and only intended to further highlight boundaries across geographies. 
 
 What is clear here is that the size of the geographic market varies greatly across these possible definitions. HRRs constitute the largest service area and further, can stretch across state boundaries. HSAs are much smaller -- many in rural areas will contain only one hospital--so by construction, many HSAs will be classified as "concentrated" if HSA is used as the geographic market definition to construct an HHI measure. 
 
@@ -130,20 +130,58 @@ p_cz <-
 
 p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 ```
+
 # Geographic Market Definitions
 
 Before moving on it is useful to put down, in one place, the specific methods and definitions used to construct each of the aforementioned geographic market definitions. 
 
-## Hospital Service Areas
+## Hospital Service Areas (HSA)
 
-## Hosptial Referral Regions
+HSAs are defined by the hospital care patterns of fee-for-service Medicare beneficiaries. Specifically, a three-step process is used:
+
+1. Define all general acute care hospitals in the U.S. The town or city of the hospital location becomes the basis for HSA naming. Thus, if a given town has more than one hospital, those hospitals would be considered as part of the same HSA. In practice most HSAs end up with one hospital, however.
+
+2. Aggregate all Medicare visits to the hospital (or hospitals, in cases where towns or cities have > 1 hospital). Using a plurality rule, assign ZIP codes to the HSA name where the most of its residents receive hospital care. 
+
+3. Curate the HSA assignments to assure that only contiguous ZIPs make up the HSA.
+
+In total there are 3,436 HSAs in the United States.
+
+According to the Dartmouth methods appendix, data from 1992-93 were used to construct HSA boundaries. However, crosswalks from ZIP code tabulation area (ZCTA) to HSA are available on the Dartmouth website through 2017. Since 3,436 unique HSAs appear in the latest (2017) crosswalk this suggests that the updates only pertain to ZCTA updates, rather than updates on the geographies of the underlying HSAs.
+
+## Hosptial Referral Regions (HRR)
+
+Whereas HSAs are intented to capture the geographic catchment area where residents of a ZIP code receive most of their overall hospital services, HRRs are meant to capture larger teritary referral areas. 
+
+To identify HRRS, Dartmouth researchers aggregated HSAs into contiguous geographies based on where residents of the HSA received the most cardiovascular procedures and neurosurgeries. Thus, HSAs serve as the basic building block of HRRs. HRRs are also constructed to meet the following criteria:
+
+- Population of at least 120,000.
+- At least 65% of residents' services occurred within the region.
+- Comprised of geographically contiguous HSAs.
+
+In cases where the above criteria were not met, neighboring areas were pooled together until all criteria were satisfied. There are 306 HRRs in the United States.
 
 ## Primary Care Service Areas
 
+PCSAs are intented to serve as HSAs for primary care. Thus, a PCSA is defined as a collection of contiguous ZIP codes with at least one primary care provider, and where the plurality of primary care services is obtained among fee-for-service Medicare beneficiaries. 
+
+There are 6,542 PCSAs in the U.S. -- or roughly double the number of HSAs. On average there are 4.9 ZCTAs in a PCTA (median =3, max = 81, min = 1).  61% of primary care services, on average, are obtained within PCSAs.
+
+
 ## Marketplace Rating Areas
+
+Marketplace rating areas are geographically contiguous areas used for the purpopses of insurance plan rate setting in the non-group market. The default geography used to set rating areas is the Metropolitan Statistical Area (MSA) plus the remainder of the state not in an MSA (MSA+1 definition). However, states have the option to define alternative county,  3-digit ZIP, or MSA/non-MSA clusters if they deem some alternative definition more important for regulation and rate setting within the state. 
+
+In practice, only 7 states (AL, NM, ND, OK, TX, VA, WY) went along with the default (MSA+1) standard. The vast majority of the states submitted clusterings of counties as their rating area definitions. Another handful of states (MA, NE, AK) uses clusters of 3-digit ZIP codes, while CA uses a combination of counties and 3-digit ZIPs. Specifically, LA county is split into two rating areas based on 3-digit ZIP. 
+
+What this means is there is signficant heterogeneity across states in the geographic and population size of rating areas. South Carolina, for example, has 46 rating areas -- more than *double* the 19 rating areas that define California!
+
 
 ## Commuting Zones
 
+Commuting zones are comprised of geographically contiguous counties with strong wtihin-area clustering of commuting ties between residental and work county, and weak across-area ties. 
+
+More recent data are available [here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html).
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
@@ -170,6 +208,34 @@ In this section we will consider several methodological improvements and extensi
     
 
     
+
+### Rural-Urban Commuting
+
+[Rural-Urban Commuting Codes](https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes.aspx)
+
+> The rural-urban commuting area (RUCA) codes classify U.S. census tracts using measures of population density, urbanization, and daily commuting. The most recent RUCA codes are based on data from the 2010 decennial census and the 2006-10 American Community Survey. The classification contains two levels. Whole numbers (1-10) delineate metropolitan, micropolitan, small town, and rural commuting areas based on the size and direction of the primary (largest) commuting flows. These 10 codes are further subdivided based on secondary commuting flows, providing flexibility in combining levels to meet varying definitional needs and preferences. 
+
+1   Metropolitan area core: primary flow within an urbanized area (UA)	
+
+2.  Metropolitan area high commuting: primary flow 30% or more to a UA	
+
+3   Metropolitan area low commuting: primary flow 10% to 30% to a UA	
+
+4   Micropolitan area core: primary flow within an Urban Cluster of 10,000 to 49,999 (large UC)	
+
+5   Micropolitan high commuting: primary flow 30% or more to a large UC
+
+6   Micropolitan low commuting: primary flow 10% to 30% to a large UC	
+
+7   Small town core: primary flow within an Urban Cluster of 2,500 to 9,999 (small UC)	
+
+8   Small town high commuting: primary flow 30% or more to a small UC
+
+9   Small town low commuting: primary flow 10% to 30% to a small UC	
+
+10. Rural areas: primary flow to a tract outside a UA or UC	
+
+99. Not coded: Census tract has zero population and no rural-urban identifier information	
 
 
 
