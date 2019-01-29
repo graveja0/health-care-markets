@@ -27,7 +27,146 @@ source(here("R/move-ak-hi.R"))
 source(here("R/get-geographic-info.R"))
 source(here("R/map-theme.R"))
 
-# Crosswalk from ZCTA to HRR and HSA
+#########
+# HRR
+#########
+
+hrr_map <- readOGR(dsn=here("public-data/shape-files/dartmouth-hrr-hsa-pcsa/hrr_bdry/HRR_Bdry.SHP"),
+                   layer = "HRR_Bdry",verbose = FALSE) 
+hrr_map$hrrnum = hrr_map@data$HRRNUM
+hrr_map$hrrstate = str_sub(paste0(hrr_map@data$HRRCITY),1,2)
+
+proj4string(hrr_map) <- CRS("+proj=longlat +datum=NAD27") # Update the projection
+hrr_map <- spTransform(hrr_map,CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96"))
+
+hrrs_in_map <- paste0(hrr_map@data$hrrnum)
+
+hrr_map <- 
+  spChFIDs(hrr_map,paste0(hrr_map@data$hrrnum))
+
+# Get Gegographic Information (e.g., centroid, contiguous geographies, etc.)
+df_hrr_info <- 
+  hrr_map@data %>% 
+  mutate(hrrnum = paste0(hrrnum))
+
+
+# Create a ggplot-friendly map data frame.
+#hrr_map <- move_ak_hi(hrr_map,type="hrrnum")
+hrr_map$fips_code <- paste0(hrr_map$hrrnum)
+# hrr_map$lng <- unlist(lapply(hrr_map@polygons, function(dt) dt@labpt[1]))
+# hrr_map$lat <- unlist(lapply(hrr_map@polygons, function(dt) dt@labpt[2]))
+# Project to albers
+hrr_map <- spTransform(hrr_map,CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96"))
+
+# Save as a shapefile
+tmp <- df_hrr_info %>% data.frame() %>% 
+filter(hrrnum %in% hrr_map@data$hrrnum)
+rownames(tmp) <- tmp$hrrnum
+tmp <- tmp 
+SpatialPolygonsDataFrame(hrr_map, data = tmp) %>%
+  sf::st_as_sf() %>%
+  sf::write_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))
+
+# simplify the polgons a tad (tweak 0.00001 to your liking)
+#simplify_polygon = FALSE
+#if (simplify_polygon) df_map <- gSimplify(df_map, tol = 0.00001)
+hrr_map <- gBuffer(hrr_map, byid=TRUE, width=0)
+
+df_hrr_map = fortify(hrr_map,region = "hrrnum") %>%
+  rename(hrrnum = id) %>%
+  dplyr::select(hrrnum,everything()) %>% 
+  tbl_df() %>% 
+  left_join(df_hrr_info,"hrrnum")
+
+df_hrr_map %>%
+  filter(grepl("TN|HI|AK",hrrstate)) %>%
+  tbl_df() %>%
+  mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
+  ggplot() +
+  aes(long,lat,group=group) +
+  geom_polygon(aes(fill = test)) +
+  geom_path(color="black") +
+  coord_equal() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = "none") +
+  remove_all_axes
+
+# Write the final output.
+write_rds(df_hrr_info,here("output/tidy-mapping-files/hrr/","01_hrr_info.rds"))
+write_rds(df_hrr_map,here("output/tidy-mapping-files/hrr/","01_hrr.rds"))
+
+
+#########
+# HSA
+#########
+
+hsa_map <- readOGR(dsn=here("public-data/shape-files/dartmouth-hrr-hsa-pcsa/hsa_bdry/HSA_Bdry.SHP"),
+                   layer = "HSA_Bdry",verbose = FALSE) 
+hsa_map$hsanum = hsa_map@data$HSA93
+hsa_map$hsastate = str_sub(paste0(hsa_map@data$HSANAME),1,2)
+
+proj4string(hsa_map) <- CRS("+proj=longlat +datum=NAD27") # Update the projection
+hsa_map <- spTransform(hsa_map,CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96"))
+
+hsas_in_map <- paste0(hsa_map@data$hsanum)
+
+hsa_map <- 
+  spChFIDs(hsa_map,paste0(hsa_map@data$hsanum))
+
+# Get Gegographic Information (e.g., centroid, contiguous geographies, etc.)
+df_hsa_info <- 
+  hsa_map@data 
+
+# Create a ggplot-friendly map data frame.
+#hsa_map <- move_ak_hi(hsa_map,type="hsanum")
+hsa_map$fips_code <- paste0(hsa_map$hsanum)
+hsa_map$lng <- unlist(lapply(hsa_map@polygons, function(dt) dt@labpt[1]))
+hsa_map$lat <- unlist(lapply(hsa_map@polygons, function(dt) dt@labpt[2]))
+# Project to albers
+hsa_map <- spTransform(hsa_map,CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96"))
+
+# Save as a shapefile
+tmp <- df_hsa_info %>% data.frame() %>% 
+  filter(hsanum %in% hsa_map@data$hsanum)
+rownames(tmp) <- tmp$hsanum
+tmp <- tmp 
+SpatialPolygonsDataFrame(hsa_map, data = tmp) %>%
+  sf::st_as_sf() %>%
+  sf::write_sf(here("output/tidy-mapping-files/hsa/01_hsa-shape-file.shp"))
+
+# simplify the polgons a tad (tweak 0.00001 to your liking)
+#simplify_polygon = FALSE
+#if (simplify_polygon) df_map <- gSimplify(df_map, tol = 0.00001)
+hsa_map <- gBuffer(hsa_map, byid=TRUE, width=0)
+
+df_hsa_map = fortify(hsa_map,region = "hsanum") %>%
+  rename(hsanum = id) %>%
+  dplyr::select(hsanum,everything()) %>% 
+  tbl_df() %>% 
+  left_join(df_hsa_info,"hsanum")
+
+df_hsa_map %>%
+  filter(grepl("TN|HI|AK",hsastate)) %>%
+  tbl_df() %>%
+  mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
+  ggplot() +
+  aes(long,lat,group=group) +
+  geom_polygon(aes(fill = test)) +
+  geom_path(color="black") +
+  coord_equal() +
+  ggthemes::theme_tufte() +
+  theme(legend.position = "none") +
+  remove_all_axes
+
+# Write the final output.
+write_rds(df_hsa_info,here("output/tidy-mapping-files/hsa/","01_hsa_info.rds"))
+write_rds(df_hsa_map,here("output/tidy-mapping-files/hsa/","01_hsa.rds"))
+
+###########################
+### 2017 CROSSWALK VERSION
+############################
+
+# Crosswalk from ZCTA to HSA
 zcta_to_hrr_hsa <- read_csv(here("public-data/shape-files/nber-hrr-hsa-pcsa/ziphsahrr2014.csv")) %>% 
   janitor::clean_names() %>% 
   rename(ZCTA5CE10 = zipcode )
@@ -146,7 +285,7 @@ zcta_map_final2 <-
   tmp <- tmp %>% select(-polygon_id) 
   SpatialPolygonsDataFrame(hrr_map, data = tmp) %>% 
     sf::st_as_sf() %>% 
-    sf::write_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))
+    sf::write_sf(here("output/tidy-mapping-files/hrr/99_2017__hrr-shape-file.shp"))
   
   hrr_map_simple <- gSimplify(hrr_map, tol = 100)
   
@@ -173,8 +312,8 @@ zcta_map_final2 <-
 
   # Write the final output.
   if (!dir.exists(here("output/tidy-mapping-files/hrr"))) dir.create(here("output/tidy-mapping-files/hrr"))
-  write_rds(df_hrr_info,here("output/tidy-mapping-files/hrr/","df_hrr_info.rds"))
-  write_rds(df_hrr_map %>% left_join(df_hrr_info, "hrrnum"),here("output/tidy-mapping-files/hrr/","df_hrr.rds"))
+  write_rds(df_hrr_info,here("output/tidy-mapping-files/hrr/","99_2017_df_hrr_info.rds"))
+  write_rds(df_hrr_map %>% left_join(df_hrr_info, "hrrnum"),here("output/tidy-mapping-files/hrr/","99_2017_df_hrr.rds"))
   
 
   #########################
@@ -217,7 +356,7 @@ zcta_map_final2 <-
   tmp <- tmp %>% select(-polygon_id) 
   SpatialPolygonsDataFrame(hsa_map, data = tmp) %>% 
     sf::st_as_sf() %>% 
-    sf::write_sf(here("output/tidy-mapping-files/hsa/01_hsa-shape-file.shp"))
+    sf::write_sf(here("output/tidy-mapping-files/hsa/99_2017_hsa-shape-file.shp"))
   
 
   # Simplify the polygon
@@ -246,8 +385,8 @@ zcta_map_final2 <-
   
   # Write the final output.
   if (!dir.exists(here("output/tidy-mapping-files/hsa"))) dir.create(here("output/tidy-mapping-files/hsa"))
-  write_rds(df_hsa_info,here("output/tidy-mapping-files/hsa/","df_hsa_info.rds"))
-  write_rds(df_hsa_map %>% left_join(df_hsa_info, "hsanum"),here("output/tidy-mapping-files/hsa/","df_hsa.rds"))
+  write_rds(df_hsa_info,here("output/tidy-mapping-files/hsa/","99_2017)df_hsa_info.rds"))
+  write_rds(df_hsa_map %>% left_join(df_hsa_info, "hsanum"),here("output/tidy-mapping-files/hsa/","99_2017_df_hsa.rds"))
   
   
   #########################
