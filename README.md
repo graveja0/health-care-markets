@@ -228,6 +228,14 @@ data are drawn from the 2017 AHA annual survey.
 
 ![](figs/01_HHI_rating-area.png)
 
+Now let’s consider the *difference* between HHI measures in a given
+county for each geographic market definition. That is, if the HHI value
+using HRRs in 5,000, while it is 1,000 using commuting zones, the
+difference would be 4,000. We plot these differences in the maps below.
+The maps are useful in demonstrating geographic areas where
+characterizations of market concentration will be highly dependent on
+the geographic market definition used.
+
 ![](figs/01_HHI-HRR-vs-commuting-zones.png)
 
 ![](figs/01_HHI-HRR-vs-rating-areas.png)
