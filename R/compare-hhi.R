@@ -100,21 +100,21 @@ estimate_hhi <-  function(df, id,  market, weight) {
 
 hhi_rating_area <-
   aha_markets %>%
-  mutate(weight = 1) %>%
+  mutate(weight = admtot) %>%
   estimate_hhi(id = system_id,
                weight = weight,
                market = rating_area)
 
 hhi_hrr <-
   aha_markets %>%
-  mutate(weight = 1) %>%
+  mutate(weight = admtot) %>%
   estimate_hhi(id = system_id,
                weight = weight,
                market = hrrnum)
 
 hhi_cz <-
   aha_markets %>%
-  mutate(weight = 1) %>%
+  mutate(weight = admtot) %>%
   estimate_hhi(id = system_id,
                weight = weight,
                market = cz_id)
@@ -173,4 +173,96 @@ ggsave(p_cz, filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale
 # ggsave(p_final, filename = here("figs/compare-hhi-by-market-definition.png"),dpi = 300, scale =1)
 
 
+county_to_hrr <- read_csv(here("public-data/shape-files/dartmouth-hrr-hsa-pcsa/county-to-hrr-hsa.csv")) %>% 
+  janitor::clean_names() %>% 
+  filter(row_number()!=1)  %>% 
+  mutate_at(vars(hrr,pop10,afact,afact2), as.numeric) %>%
+  rename(fips_code = county) %>% 
+  # Roll up to HRR level
+  select(fips_code,hrr,afact) %>% 
+  group_by(fips_code,hrr) %>% 
+  summarise(afact = sum(afact, na.rm=TRUE)) %>% 
+  arrange(fips_code,desc(afact)) %>% 
+  group_by(fips_code) %>% 
+  # Select the HRR with the largest county area in it. 
+  filter(row_number()==1) %>% 
+  ungroup() %>% 
+  select(fips_code,hrrnum = hrr, hrr_afact = afact)
+
+county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>% 
+  janitor::clean_names() %>% 
+  rename(fips_code = fips) %>% 
+  group_by(out10) %>% 
+  mutate(commuting_zone_population_2010 = sum(pop10, na.rm=TRUE)) %>% 
+  mutate(fips_code = str_pad(paste0(fips_code),width = 5, pad="0")) %>% 
+  select(fips_code,
+         cz_id = out10)
+
+county_to_rating_area <- 
+  read_rds(here("output/geographic-crosswalks/01_rating-areas_counties_2019.rds")) %>% 
+  data.frame() %>% 
+  unique() %>% 
+  select(fips_code,rating_area)
+
+df_county <- 
+  county_to_cz %>% 
+  full_join(county_to_hrr,"fips_code") %>% 
+  full_join(county_to_rating_area,"fips_code") %>% 
+  left_join(hhi_cz %>% rename(hhi_cz = hhi) ,"cz_id") %>% 
+  left_join(hhi_rating_area %>% rename(hhi_rating_area = hhi),"rating_area") %>% 
+  left_join(hhi_hrr %>% rename(hhi_hrr = hhi),"hrrnum")
+
+sf_county <- read_sf(here("output/tidy-mapping-files/county/01_county-shape-file.shp")) %>% 
+  st_transform(crs = 4326) %>% 
+  left_join(df_county,"fips_code") 
+
+sf_county %>% 
+  mutate(diff_hrr_cz = hhi_hrr - hhi_cz) %>% 
+  filter(state %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = diff_hrr_cz)) + 
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"), 
+                       midpoint = 0,limits = c(-10000,10000), breaks = c(-10000,0,10000), 
+                       name = "",
+                       labels = c("-10,000\nMore Competitive\nUsing HRR","0\nNo Difference","+10,000\nLess Competitive\nUsing HRR")) + 
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("HRRs vs. Commuting Zones") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+ggsave(filename = here("figs/01_HHI-HRR-vs-commuting-zones.png"),dpi = 300, scale =1)
+  
+
+sf_county %>% 
+  mutate(diff_hrr_cz = hhi_hrr - hhi_rating_area) %>% 
+  filter(state %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = diff_hrr_cz)) + 
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"), 
+                       midpoint = 0,limits = c(-10000,10000), breaks = c(-10000,0,10000), 
+                       name = "",
+                       labels = c("-10,000\nMore Competitive\nUsing HRR","0\nNo Difference","+10,000\nLess Competitive\nUsing HRR")) + 
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("HRRs vs. Rating Areas") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+ggsave(filename = here("figs/01_HHI-HRR-vs-rating-areas.png"),dpi = 300, scale =1)
+
+
+sf_county %>% 
+  mutate(diff_hrr_cz = hhi_cz - hhi_rating_area) %>% 
+  filter(state %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = diff_hrr_cz)) + 
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"), 
+                       midpoint = 0,limits = c(-10000,10000), breaks = c(-10000,0,10000), 
+                       name = "",
+                       labels = c("-10,000\nMore Competitive\nUsing Commuting Zones","0\nNo Difference","+10,000\nLess Competitive\nUsing Commuting Zones")) + 
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("Commuting Zones vs. Rating Areas") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+ggsave(filename = here("figs/01_HHI-commuting-zones-vs-rating-areas.png"),dpi = 300, scale =1)
 

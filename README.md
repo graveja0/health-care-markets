@@ -212,17 +212,27 @@ U.S. Department of Agriculture (USDA) is useful:
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
+For this exercise we will construct HHI measures of hopsital
+concentration across the geographic market definitions covered above.
+Not all of these will make sense (e.g., it seems odd to construct a
+Hospital HHI measure based on PCSAs) but I will construct the measures
+anyway for the sake of comparisons.
+
+For these plots the HHI measure is constructed using admission-weighted
+market shares for hospitals within each geographic market. The hosptial
+data are drawn from the 2017 AHA annual survey.
+
 ![](figs/01_HHI_commuting-zones.png)
 
 ![](figs/01_HHI_hrr.png)
 
 ![](figs/01_HHI_rating-area.png)
 
-For this exercise we will construct measures of hopsital concentration
-across the geographic market definitions covered above. Not all of these
-will make sense (e.g., it seems odd to construct a Hospital HHI measure
-based on PCSAs) but I will construct the measures anyway for the sake of
-comparisons.
+![](figs/01_HHI-HRR-vs-commuting-zones.png)
+
+![](figs/01_HHI-HRR-vs-rating-areas.png)
+
+![](figs/01_HHI-commuting-zones-vs-rating-areas.png)
 
 # Novel Market Definitions
 
