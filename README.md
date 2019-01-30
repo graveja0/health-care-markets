@@ -176,7 +176,7 @@ that define California\!
 ## Commuting Zones
 
 Commuting zones are comprised of geographically contiguous counties with
-strong wtihin-area clustering of commuting ties between residental and
+strong within-area clustering of commuting ties between residental and
 work county, and weak across-area ties. The [latest official commuting
 zone geography
 files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/)
@@ -187,7 +187,7 @@ available](https://www.census.gov/data/tables/time-series/demo/commuting/commuti
 and could be used to construct new commuting zone geographies.
 
 For now, the zones used here will draw on the shapefiles constructed for
-2000 at [Penn State](https://sites.psu.edu/psucz/).
+2010 at [Penn State](https://sites.psu.edu/psucz/).
 
 This description of the history and methods of commuting zones from the
 U.S. Department of Agriculture (USDA) is useful:

@@ -155,9 +155,9 @@ What this means is there is signficant heterogeneity across states in the geogra
 
 ## Commuting Zones
 
-Commuting zones are comprised of geographically contiguous counties with strong wtihin-area clustering of commuting ties between residental and work county, and weak across-area ties. The [latest official commuting zone geography files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/) are based on patterns observed in the 2000 census. However, more recent county-to-county commuting data are available based on the 2009-2013 American Community Survey (ACS)  [are also available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html) and could be used to construct new commuting zone geographies. 
+Commuting zones are comprised of geographically contiguous counties with strong within-area clustering of commuting ties between residental and work county, and weak across-area ties. The [latest official commuting zone geography files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/) are based on patterns observed in the 2000 census. However, more recent county-to-county commuting data are available based on the 2009-2013 American Community Survey (ACS)  [are also available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html) and could be used to construct new commuting zone geographies. 
 
-For now, the zones used here will draw on the shapefiles constructed for 2000 at [Penn State](https://sites.psu.edu/psucz/).
+For now, the zones used here will draw on the shapefiles constructed for 2010 at [Penn State](https://sites.psu.edu/psucz/).
 
 This description of the history and methods of commuting zones from the U.S. Department of Agriculture (USDA) is useful:
 
