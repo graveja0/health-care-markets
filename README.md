@@ -31,7 +31,7 @@ some market definitions (e.g., rating areas) are constrained by
 geopolitical boundaries (e.g., state borders). While this may be fine
 for some settings (e.g., rate regulation in insurance markets, since
 consumers can only purchase a plan offered in their market) it may not
-be for others (e.g., hosptial markets, in which patients are
+be for others (e.g., hospitial markets, in which patients are
 unconstrained from crossing state boundaries).
 
 In addition, the underlying population data used to define some commonly
@@ -50,7 +50,7 @@ have drawn on a diverse set of addtional market geography definitions.
 The history, use and controversies surrounding these definitions are
 nicely covered in the Department of Justice chapter entitled
 [“Competition Law:
-Hosptials”](https://www.justice.gov/atr/chapter-4-competition-law-hospitals).
+Hospitals.”](https://www.justice.gov/atr/chapter-4-competition-law-hospitals)
 
 More generally, these alternative DOJ market definitions tend to rely on
 rich longitudinal data on prices in health care markets. While in theory
@@ -118,7 +118,7 @@ through 2017. Since 3,436 unique HSAs appear in the latest (2017)
 crosswalk this suggests that the updates only pertain to ZCTA updates,
 rather than updates on the geographies of the underlying HSAs.
 
-## Hosptial Referral Regions (HRR)
+## Hospital Referral Regions (HRR)
 
 Whereas HSAs are intented to capture the geographic catchment area where
 residents of a ZIP code receive most of their overall hospital services,
@@ -219,7 +219,7 @@ Hospital HHI measure based on PCSAs) but I will construct the measures
 anyway for the sake of comparisons.
 
 For these plots the HHI measure is constructed using admission-weighted
-market shares for hospitals within each geographic market. The hosptial
+market shares for hospitals within each geographic market. The hospital
 data are drawn from the 2017 AHA annual survey.
 
 ![](figs/01_HHI_commuting-zones.png)
