@@ -208,16 +208,15 @@ U.S. Department of Agriculture (USDA) is useful:
 > decennial census data (1980 PUMS-D, 1990 PUMS-L) that avoided
 > disclosure. The LMAs were discontinued in 2000 because researchers
 > found them to be too large and not as useful as the CZs. The identical
-> methodology was used to develop CZs for all three
-decades.
+> methodology was used to develop CZs for all three decades.
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
-<img src="/Users/gravesj/Dropbox/Projects/health-care-markets/figs/01_HHI_commuting-zones.png" width="100%" />
+![](figs/01_HHI_commuting-zones.png)
 
-<img src="/Users/gravesj/Dropbox/Projects/health-care-markets/figs/01_HHI_hrr.png" width="100%" />
+![](figs/01_HHI_hrr.png)
 
-<img src="/Users/gravesj/Dropbox/Projects/health-care-markets/figs/01_HHI_rating-area.png" width="100%" />
+![](figs/01_HHI_rating-area.png)
 
 For this exercise we will construct measures of hopsital concentration
 across the geographic market definitions covered above. Not all of these

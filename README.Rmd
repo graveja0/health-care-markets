@@ -166,16 +166,17 @@ This description of the history and methods of commuting zones from the U.S. Dep
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
+![](figs/01_HHI_commuting-zones.png)
 ```{r out.width="100%",echo=FALSE}
-knitr::include_graphics(here("figs/01_HHI_commuting-zones.png"))
+#knitr::include_graphics(here("figs/01_HHI_commuting-zones.png"))
 ```
-
+![](figs/01_HHI_hrr.png)
 ```{r out.width="100%",echo=FALSE}
-knitr::include_graphics(here("figs/01_HHI_hrr.png"))
+#knitr::include_graphics(here("figs/01_HHI_hrr.png"))
 ```
-
+![](figs/01_HHI_rating-area.png)
 ```{r out.width="100%",echo=FALSE}
-knitr::include_graphics(here("figs/01_HHI_rating-area.png"))
+#knitr::include_graphics(here("figs/01_HHI_rating-area.png"))
 ```
 
 
