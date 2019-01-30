@@ -40,6 +40,45 @@ What is clear here is that the size of the geographic market varies greatly acro
 Similarly, we see that PCSAs are quite small, while rating areas in Tennessee are somewhere in-between the broader HRRs and commuting zones. 
 
 ```{r,echo = FALSE}
+
+ra_map <- sf::read_sf(here("output/tidy-mapping-files/rating-area/01_rating-area-shape-file.shp"))
+p_ra <- ra_map %>% 
+  filter(state =="TN") %>% 
+  mutate(test = as.factor(sample(1:10,nrow(.),replace=TRUE))) %>% 
+  ggplot() + geom_sf(aes(fill=test)) + coord_sf(datum=NA) + 
+  remove_all_axes + 
+  theme(legend.position = "none")  + 
+  ggtitle("Marketplace Rating Area\n(RA)")
+ 
+
+hrr_map <- sf::read_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))
+p_hrr <- hrr_map %>% 
+  filter(hrrstate =="TN") %>% 
+  mutate(test = as.factor(sample(1:10,nrow(.),replace=TRUE))) %>% 
+  ggplot() + geom_sf(aes(fill=test)) + coord_sf(datum=NA) + 
+  remove_all_axes + 
+  theme(legend.position = "none")  + 
+  ggtitle("Hopsital Referral Region\n(HRR)")
+ 
+hsa_map <- sf::read_sf(here("output/tidy-mapping-files/hsa/01_hsa-shape-file.shp"))
+p_hsa <- hsa_map %>% 
+  filter(hsastate =="TN") %>% 
+  mutate(test = as.factor(sample(1:10,nrow(.),replace=TRUE))) %>% 
+  ggplot() + geom_sf(aes(fill=test)) + coord_sf(datum=NA) + 
+  remove_all_axes + 
+  theme(legend.position = "none")  + 
+  ggtitle("Hopsital Service Area\n(HSA)")
+ 
+pcsa_map <- sf::read_sf(here("output/tidy-mapping-files/pcsa/01_pcsa-shape-file.shp"))
+p_pcsa <- pcsa_map %>% 
+  filter(pcsa_st =="TN") %>% 
+  mutate(test = as.factor(sample(1:10,nrow(.),replace=TRUE))) %>% 
+  ggplot() + geom_sf(aes(fill=test)) + coord_sf(datum=NA) + 
+  remove_all_axes + 
+  theme(legend.position = "none")  + 
+  ggtitle("Primary Care Service Area\n(PCSA)")
+ 
+
 df_ra_map <- read_rds(here("output/tidy-mapping-files/rating-area/","df_rating-area.rds"))
 p_ra <- df_ra_map  %>%
   filter(grepl("TN",rating_area)) %>% 
@@ -55,104 +94,16 @@ p_ra <- df_ra_map  %>%
   remove_all_axes +
   ggtitle("Marketplace Rating Area\n(RA)" ) 
 
-df_hrr_map <- read_rds(here("output/tidy-mapping-files/hrr/","df_hrr.rds"))
-p_hrr <- 
-  df_hrr_map %>%
-    filter(hrrstate %in% c("TN")) %>% 
-    tbl_df() %>%
-    mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-    ggplot() +
-    aes(long,lat,group=group) +
-    geom_polygon(aes(fill = test)) +
-    geom_path(color="black") +
-    coord_equal() +
-  ggthemes::theme_tufte(base_family = "Gill Sans") +
-  theme(legend.position = "none") +
-  remove_all_axes +
-  ggtitle("Hospital Referral Region\n(HRR)" ) 
-
-
-df_hsa_map <- 
-  read_rds(here("output/tidy-mapping-files/hsa/","df_hsa.rds")) 
-p_hsa <- 
-  df_hsa_map %>%
-    filter(hsastate %in% c("TN")) %>% 
-    tbl_df() %>%
-    mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-    ggplot() +
-    aes(long,lat,group=group) +
-    geom_polygon(aes(fill = test)) +
-    geom_path(color="black") +
-    coord_equal() +
-  ggthemes::theme_tufte(base_family = "Gill Sans") +
-  theme(legend.position = "none") +
-  remove_all_axes +
-  ggtitle("Hospital Service Area\n(HSA)") 
-
-df_pcsa_map <- read_rds(here("output/tidy-mapping-files/pcsa/","df_pcsa.rds"))
-p_pcsa <- 
-  df_pcsa_map %>%
-    filter(pcsa_st %in% c("TN")) %>% 
-    filter(id != "" & !is.na(id)) %>% 
-    tbl_df() %>%
-    mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-    ggplot() +
-    aes(long,lat,group=group) +
-    geom_polygon(aes(fill = test)) +
-    geom_path(color="black") +
-    coord_equal() +
-  ggthemes::theme_tufte(base_family = "Gill Sans") +
-  theme(legend.position = "none") +
-  remove_all_axes +
-  ggtitle("Primary Care Service Area\n(PCSA)") 
-
-
-# Source: https://sites.psu.edu/psucz/data/
-county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>%
-  janitor::clean_names() %>%
-  rename(fips_code = fips) %>%
-  group_by(out10) %>%
-  mutate(commuting_zone_population_2010 = sum(pop10, na.rm=TRUE)) %>%
-  mutate(fips_code = str_pad(paste0(fips_code),width = 5, pad="0")) %>%
-  select(fips_code,
-         commuting_zone_id_2010 = out10,
-         commuting_zone_population_2010 ) %>%
-  ungroup() 
-
-
-tn_czs <-
-  county_to_cz %>% mutate(commuting_zone_id_2010 = paste0(commuting_zone_id_2010)) %>% filter(str_sub(fips_code,1,2) %in% c("47")) %>% pull(commuting_zone_id_2010)
-
 cz_map <- sf::read_sf(here("output/tidy-mapping-files/commuting-zone/01_commuting-zone-shape-file.shp"))
 
 p_cz <- cz_map %>% 
-  filter(cz_id %in% tn_czs) %>% 
+  filter(state_01=="TN" | state_02=="TN"|state_03=="TN") %>% 
   mutate(test = as.factor(sample(1:10,nrow(.),replace=TRUE))) %>% 
   ggplot() + geom_sf(aes(fill=test)) + coord_sf(datum=NA) + 
   remove_all_axes + 
   theme(legend.position = "none")  + 
   ggtitle("Commuting Zone\n(CZ)") 
  
-#df_cz_map <- read_rds(here("output/tidy-mapping-files/commuting-zone/","df_cz.rds"))
-
-
-# 
-# p_cz <- 
-#   df_cz_map %>%
-#   filter(commuting_zone_id_2010 %in% tn_czs) %>% 
-#   tbl_df() %>%
-#   mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-#   ggplot() +
-#   aes(long,lat,group=group) +
-#   geom_polygon(aes(fill = test)) +
-#   geom_path(color="black") +
-#   coord_equal() +
-#   ggthemes::theme_tufte(base_family = "Gill Sans") +
-#   theme(legend.position = "none") +
-#   remove_all_axes +
-#   ggtitle("Commuting Zone\n(CZ)") 
-#   
-
 p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 ```
 

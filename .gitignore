@@ -11,3 +11,4 @@ output/tidy-mapping-files/
 R/.DS_Store
 output/geographic-crosswalks/*.rds
 reference/
+output/market-comparisons/*.rds

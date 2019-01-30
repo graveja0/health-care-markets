@@ -1,7 +1,7 @@
 construct-commuting-zone-data.R
 ================
-gravesj
-Tue Jan 29 16:52:11 2019
+johngraves
+Wed Jan 30 05:53:17 2019
 
 ``` r
 # The basis of the COUNTY to COMMUTING ZONE conversion is the crosswalk file downloaded from
@@ -19,6 +19,10 @@ fips_to_state <- read_rds(here("output/geographic-crosswalks/01_xw_county-to-fip
   mutate(statefp = str_sub(fips_code,1,2)) %>% 
   select(statefp,state) %>% unique()
 
+county_fips_to_state <- read_rds(here("output/geographic-crosswalks/01_xw_county-to-fips.rds")) %>% 
+  mutate(statefp = str_sub(fips_code,1,2))  %>% 
+  select(fips_code,state)
+
 # Source: https://sites.psu.edu/psucz/data/
 county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>% 
   janitor::clean_names() %>% 
@@ -29,6 +33,22 @@ county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/
   select(fips_code,
          commuting_zone_id_2010 = out10,
          commuting_zone_population_2010 ) 
+
+df_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>% 
+  janitor::clean_names() %>% 
+  rename(fips_code = fips) %>% 
+  group_by(out10) %>% 
+  mutate(commuting_zone_population_2010 = sum(pop10, na.rm=TRUE)) %>% 
+  mutate(fips_code = str_pad(paste0(fips_code),width = 5, pad="0")) %>% 
+  select(fips_code,
+         cz_id = out10 ) %>% 
+  left_join(county_fips_to_state,"fips_code") %>% 
+  select(cz_id,state) %>% 
+  group_by(cz_id) %>% 
+  unique() %>% 
+  mutate(foo = paste0("state_",str_pad(paste0(row_number()),width=2,pad="0"))) %>% 
+  spread(foo,state)
+
 
 cz_info <- county_to_cz %>% 
   select(contains("commuting_zone")) %>% 
@@ -50,12 +70,14 @@ shp_cz <- sf::read_sf(here("public-data/shape-files/county-2017/cb_2017_us_count
   st_simplify(dTolerance = 100)  %>% 
   left_join(get_contiguous(shp = ., id = commuting_zone_id_2010) %>% 
               mutate(commuting_zone_id_2010 = as.integer(commuting_zone_id_2010)), "commuting_zone_id_2010") %>% 
-  rename(cz_id = commuting_zone_id_2010)
+  rename(cz_id = commuting_zone_id_2010) %>% 
+  left_join(df_cz,"cz_id")
 
 shp_cz %>% 
   sf::write_sf(here("output/tidy-mapping-files/commuting-zone/01_commuting-zone-shape-file.shp"))
 
 shp_cz %>% 
+  filter(state_01=="TN" | state_02=="TN") %>% 
   ggplot() + geom_sf() + theme_bw() + coord_sf(datum=NA) +
   remove_all_axes
 ```
