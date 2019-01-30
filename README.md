@@ -208,9 +208,16 @@ U.S. Department of Agriculture (USDA) is useful:
 > decennial census data (1980 PUMS-D, 1990 PUMS-L) that avoided
 > disclosure. The LMAs were discontinued in 2000 because researchers
 > found them to be too large and not as useful as the CZs. The identical
-> methodology was used to develop CZs for all three decades.
+> methodology was used to develop CZs for all three
+decades.
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
+
+<img src="/Users/gravesj/Dropbox/Projects/health-care-markets/figs/01_HHI_commuting-zones.png" width="100%" />
+
+<img src="/Users/gravesj/Dropbox/Projects/health-care-markets/figs/01_HHI_hrr.png" width="100%" />
+
+<img src="/Users/gravesj/Dropbox/Projects/health-care-markets/figs/01_HHI_rating-area.png" width="100%" />
 
 For this exercise we will construct measures of hopsital concentration
 across the geographic market definitions covered above. Not all of these
@@ -239,48 +246,36 @@ extensions to the geographic definitions covered above. These include:
         Based on gravity model or based on Dartmouth method (e.g.,
         greatest fraction).
     
-      - Based on hospital-specific HHIs.
+      - Based on hospital-specific
+HHIs.
 
-### Rural-Urban Commuting
+<!-- ### Rural-Urban Commuting -->
 
-[Rural-Urban Commuting
-Codes](https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes.aspx)
+<!-- [Rural-Urban Commuting Codes](https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes.aspx) -->
 
-> The rural-urban commuting area (RUCA) codes classify U.S. census
-> tracts using measures of population density, urbanization, and daily
-> commuting. The most recent RUCA codes are based on data from the 2010
-> decennial census and the 2006-10 American Community Survey. The
-> classification contains two levels. Whole numbers (1-10) delineate
-> metropolitan, micropolitan, small town, and rural commuting areas
-> based on the size and direction of the primary (largest) commuting
-> flows. These 10 codes are further subdivided based on secondary
-> commuting flows, providing flexibility in combining levels to meet
-> varying definitional needs and preferences.
+<!-- > The rural-urban commuting area (RUCA) codes classify U.S. census tracts using measures of population density, urbanization, and daily commuting. The most recent RUCA codes are based on data from the 2010 decennial census and the 2006-10 American Community Survey. The classification contains two levels. Whole numbers (1-10) delineate metropolitan, micropolitan, small town, and rural commuting areas based on the size and direction of the primary (largest) commuting flows. These 10 codes are further subdivided based on secondary commuting flows, providing flexibility in combining levels to meet varying definitional needs and preferences.  -->
 
-1  Metropolitan area core: primary flow within an urbanized area (UA)
+<!-- 1   Metropolitan area core: primary flow within an urbanized area (UA)  -->
 
-2.  Metropolitan area high commuting: primary flow 30% or more to a UA
+<!-- 2.  Metropolitan area high commuting: primary flow 30% or more to a UA  -->
 
-3  Metropolitan area low commuting: primary flow 10% to 30% to a UA
+<!-- 3   Metropolitan area low commuting: primary flow 10% to 30% to a UA    -->
 
-4 Micropolitan area core: primary flow within an Urban Cluster of 10,000
-to 49,999 (large UC)
+<!-- 4   Micropolitan area core: primary flow within an Urban Cluster of 10,000 to 49,999 (large UC)     -->
 
-5 Micropolitan high commuting: primary flow 30% or more to a large UC
+<!-- 5   Micropolitan high commuting: primary flow 30% or more to a large UC -->
 
-6 Micropolitan low commuting: primary flow 10% to 30% to a large UC
+<!-- 6   Micropolitan low commuting: primary flow 10% to 30% to a large UC   -->
 
-7 Small town core: primary flow within an Urban Cluster of 2,500 to
-9,999 (small UC)
+<!-- 7   Small town core: primary flow within an Urban Cluster of 2,500 to 9,999 (small UC)  -->
 
-8 Small town high commuting: primary flow 30% or more to a small UC
+<!-- 8   Small town high commuting: primary flow 30% or more to a small UC -->
 
-9 Small town low commuting: primary flow 10% to 30% to a small UC
+<!-- 9   Small town low commuting: primary flow 10% to 30% to a small UC     -->
 
-10. Rural areas: primary flow to a tract outside a UA or UC
+<!-- 10. Rural areas: primary flow to a tract outside a UA or UC     -->
 
-11. Not coded: Census tract has zero population and no rural-urban
-    identifier information
+<!-- 99. Not coded: Census tract has zero population and no rural-urban identifier information   -->
 
 # File Descriptions
 
