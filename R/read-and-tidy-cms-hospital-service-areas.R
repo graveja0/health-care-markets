@@ -20,6 +20,9 @@ df_hosp_serv17_zip <-
   mutate(zip_code = str_pad(zip_code, pad = "0",width = 5)) %>% 
   mutate_at(vars(total_days_of_care,total_charges, total_cases), function(x) as.numeric(paste0(x)))
 
+write_rds(df_hosp_serv17_zip,path = here("output/hospital-county-patient-data/2017/hospital-zip-patient-data.rds"))
+
+
 # We now need to roll these ZIP level data up to the county level. We
 # will do this by allocating each patient count / charge / days measure
 # using the fraction of the ZIP code in each county. 

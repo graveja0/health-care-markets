@@ -27,7 +27,6 @@ In addition, the underlying population data used to define some commonly used ge
 Clearly, flows of both patients and commuters have changed substantially in many areas in the last 20-30 years. Whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question we will explore here.
 
 Finally, it is worth mentioning that regulatory and antitrust reviews have drawn on a diverse set of addtional market geography definitions. The history, use and controversies surrounding these definitions are nicely covered in the Department of Justice chapter entitled ["Competition Law: Hospitals."](https://www.justice.gov/atr/chapter-4-competition-law-hospitals) 
-
 More generally, these alternative DOJ market definitions tend to rely on rich longitudinal data on prices in health care markets. While in theory such information could be obtained nationwide, in practice their construction is contigent on the painstaking collection of local data from relevant market participants. I do not profess to have the human capital or funding resources to undertake such an exercise here. So we will focus on more general market geography definitions that can more easily scale--particularly using publicly-available and relatively low-cost data. 
 
 # Commonly Used Geographic Market Definitions 
@@ -38,6 +37,8 @@ These various market geographies are plotted for Tennessee in the figure below. 
 What is clear here is that the size of the geographic market varies greatly across these possible definitions. HRRs constitute the largest service area and further, can stretch across state boundaries. HSAs are much smaller -- many in rural areas will contain only one hospital--so by construction, many HSAs will be classified as "concentrated" if HSA is used as the geographic market definition to construct an HHI measure. 
 
 Similarly, we see that PCSAs are quite small, while rating areas in Tennessee are somewhere in-between the broader HRRs and commuting zones. 
+
+<!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
 ```{r,echo = FALSE}
 
@@ -182,6 +183,20 @@ For these plots the HHI measure is constructed using admission-weighted market s
 ![](figs/01_HHI_rating-area.png)
 ```{r out.width="100%",echo=FALSE}
 #knitr::include_graphics(here("figs/01_HHI_rating-area.png"))
+```
+
+![](figs/01_HHI-ZIP-patient-flows-.png)
+
+```{r, echo = FALSE}
+zip_market_shares <-   read_rds(here("output/market-comparisons/01_2017_ZIP-market-shares.rds")) %>% 
+  ungroup() 
+
+zip_market_shares %>% 
+  filter(zip_code=="37203") %>% 
+  select(name,market_share, hhi) %>% 
+  filter(market_share>0.5) %>% 
+  mutate_at(vars(market_share,hhi),function(x) round(x,1)) %>% 
+  kable(caption = "Market Shares for FFS Medicare Patietns Residing in the 37203 ZIP Code")
 ```
 
 Now let's consider the *difference* between HHI measures in a given county for each geographic market definition. That is, if the HHI value using HRRs in 5,000, while it is 1,000 using commuting zones, the difference would be 4,000.  We plot these differences in the maps below. The maps are useful in demonstrating geographic areas where characterizations of market concentration will be highly dependent on the geographic market definition used. 

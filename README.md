@@ -51,7 +51,6 @@ The history, use and controversies surrounding these definitions are
 nicely covered in the Department of Justice chapter entitled
 [“Competition Law:
 Hospitals.”](https://www.justice.gov/atr/chapter-4-competition-law-hospitals)
-
 More generally, these alternative DOJ market definitions tend to rely on
 rich longitudinal data on prices in health care markets. While in theory
 such information could be obtained nationwide, in practice their
@@ -80,7 +79,10 @@ construction, many HSAs will be classified as “concentrated” if HSA is
 used as the geographic market definition to construct an HHI measure.
 
 Similarly, we see that PCSAs are quite small, while rating areas in
-Tennessee are somewhere in-between the broader HRRs and commuting zones.
+Tennessee are somewhere in-between the broader HRRs and commuting
+zones.
+
+<!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
 ![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
@@ -227,6 +229,19 @@ data are drawn from the 2017 AHA annual survey.
 ![](figs/01_HHI_hrr.png)
 
 ![](figs/01_HHI_rating-area.png)
+
+![](figs/01_HHI-ZIP-patient-flows-.png)
+
+| name                           | market\_share |    hhi |
+| :----------------------------- | ------------: | -----: |
+| HCA Healthcare                 |          36.8 | 2813.6 |
+| Ascension Healthcare           |          28.0 | 2813.6 |
+| Vanderbilt Health              |          25.3 | 2813.6 |
+| Nashville General Hospital     |           5.3 | 2813.6 |
+| Community Health Systems, Inc. |           0.7 | 2813.6 |
+| Maury Regional Health System   |           0.6 | 2813.6 |
+
+Market Shares for FFS Medicare Patietns Residing in the 37203 ZIP Code
 
 Now let’s consider the *difference* between HHI measures in a given
 county for each geographic market definition. That is, if the HHI value

@@ -16,6 +16,7 @@ suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 source(here("R/map-theme.R"))
 source(here("R/shared-objects.R"))
 source(here("R/get-market-from-x-y-coordinates.R"))
+source(here("R/estimate_hhi.R"))
 
 sf_hrr <- read_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))  %>% 
   st_transform(crs = 4326)
@@ -34,7 +35,9 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
     filter(mstate %in% states) %>% 
     mutate(system_id = ifelse(!is.na(sysid),paste0("SYS_",sysid),id)) %>% 
     filter(serv==10) %>% 
-    select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id) 
+    select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id, mloczip, sysname) %>% 
+    mutate(prvnumgrp = mcrnum) %>% 
+    mutate(hosp_zip_code = str_sub(mloczip,1,5)) 
   
   # Assign each hospital to its marketplace rating area.  Note I have to do it this way as a handful of 
   # hospitals do not map within a rating area (oddly)
@@ -72,6 +75,7 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
   
   aha_markets <- 
     aha %>% 
+
     left_join(df_aha_rating_area,"id") %>% 
     left_join(df_cz,"id")
   
@@ -79,24 +83,7 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
 
 }
 
-estimate_hhi <-  function(df, id,  market, weight) {
-  ii <- enquo(id)
-  mm<- enquo(market)
-  ww <- enquo(weight) 
-  
-  
-  df %>% 
-    group_by(!!mm) %>% 
-    mutate(denominator = sum(!!ww ,na.rm=TRUE)) %>% 
-    group_by(!!mm,!!ii) %>%
-    mutate(numerator = sum(!!ww,na.rm=TRUE)) %>%
-    select(!!mm,!!ii,numerator,denominator) %>%
-    unique() %>%
-    mutate(market_share = 100 * (numerator / denominator)) %>%
-    mutate(market_share_sq = market_share ^ 2)  %>%
-    group_by(!!mm) %>%
-    summarize(hhi = sum(market_share_sq,na.rm=TRUE))
-}
+aha_markets <- read_rds(here("output/market-comparisons/01_aha-markets-2017.rds"))
 
 hhi_rating_area <-
   aha_markets %>%
@@ -204,17 +191,93 @@ county_to_rating_area <-
   unique() %>% 
   select(fips_code,rating_area)
 
+
+##### Hospital-Specific HHI
+# Another possibility might be to look at things from the individual firm level.
+# One thing that’s been done a lot is to calculate hospital-specific HHIs 
+# (I think Kessler and McClellan did this first). To do this you calculate the HHIs 
+# for every zip code in which a hospital operates, then take the weighted sum, 
+# where the weights are the proportion of a hospital’s patients that it draws from each zip code. 
+
+
+# Load the hospital-county paatient sharing file (constructed in "R/read-and-tidy-cms-hospital-service-areas.R")
+df_hosp_zip <- read_rds(here("output/hospital-county-patient-data/2017/hospital-zip-patient-data.rds"))  %>% 
+  # Merge in general acute care hospitals only.
+  inner_join(aha_markets,"prvnumgrp")
+
+zip_hhi <-
+  df_hosp_zip %>% 
+  estimate_hhi(id = system_id,
+               weight = total_cases,
+               market = zip_code) 
+
+zip_market_shares <-
+  df_hosp_zip %>% 
+  estimate_market_share(id = system_id,
+               weight = total_cases,
+               market = zip_code) 
+
+zip_market_shares %>% 
+  arrange(zip_code,desc(market_share))%>%
+  left_join(aha_markets %>% select(system_id,sysname) %>% unique(), "system_id") %>% 
+  left_join(aha_markets %>% filter(sysname=="") %>% select(system_id,mname),"system_id") %>% 
+  mutate(sysname = ifelse(sysname=="",NA,sysname)) %>% 
+  mutate(name = coalesce(sysname,mname)) %>% 
+  select(name,market_share, hhi, everything())  %>% 
+  filter(zip_code!="00000") %>% 
+  write_rds(path = here("output/market-comparisons/01_ZIP-market-shares.rds"))
+
+zip_market_shares %>% 
+  filter(zip_code=="37203") %>% 
+  arrange(zip_code,desc(market_share))%>%
+  left_join(aha_markets %>% select(system_id,sysname) %>% unique(), "system_id") %>% 
+  left_join(aha_markets %>% filter(sysname=="") %>% select(system_id,mname),"system_id") %>% 
+  mutate(sysname = ifelse(sysname=="",NA,sysname)) %>% 
+  mutate(name = coalesce(sysname,mname)) %>% 
+  select(name,market_share, hhi) %>% 
+  filter(market_share>0.5) %>% 
+  mutate_at(vars(market_share,hhi),function(x) round(x,1)) %>% 
+  kable()
+
+
+ 
+zip_hhi_aggregated_to_county <- read_csv(here("public-data/zcta-to-fips-county/zcta-to-fips-county.csv")) %>% 
+  janitor::clean_names() %>% 
+  filter(row_number() !=1) %>% 
+  mutate(fips_code = county) %>% 
+  select(zip_code = zcta5, fips_code,afact) %>% 
+  mutate(afact = as.numeric(paste0(afact))) %>% 
+  left_join(zip_hhi,"zip_code") %>% 
+  mutate(weight = afact * total_weight) %>% 
+  group_by(fips_code) %>% 
+  summarise(hhi = weighted.mean(hhi,weight,na.rm=TRUE))
+
+##### Make Comparisons Across Counties
 df_county <- 
   county_to_cz %>% 
   full_join(county_to_hrr,"fips_code") %>% 
   full_join(county_to_rating_area,"fips_code") %>% 
-  left_join(hhi_cz %>% rename(hhi_cz = hhi) ,"cz_id") %>% 
-  left_join(hhi_rating_area %>% rename(hhi_rating_area = hhi),"rating_area") %>% 
-  left_join(hhi_hrr %>% rename(hhi_hrr = hhi),"hrrnum")
+  left_join(hhi_cz %>% rename(hhi_cz = hhi, total_weight_cz = total_weight) ,"cz_id") %>% 
+  left_join(hhi_rating_area %>% rename(hhi_rating_area = hhi, total_weight_rating_area = total_weight),"rating_area") %>% 
+  left_join(hhi_hrr %>% rename(hhi_hrr = hhi, total_weight_hrr = total_weight),"hrrnum") %>% 
+  left_join(zip_hhi_aggregated_to_county %>% rename(hhi_zip = hhi),"fips_code")
 
 sf_county <- read_sf(here("output/tidy-mapping-files/county/01_county-shape-file.shp")) %>% 
   st_transform(crs = 4326) %>% 
   left_join(df_county,"fips_code") 
+
+sf_county %>% 
+  filter(state %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = hhi_zip)) + 
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500, limits = c(0,10000)) + 
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("ZIP-Level HHI\nFrom 2017 FFS Medicare Patient Flows") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+ggsave(filename = here("figs/01_HHI-ZIP-patient-flows-.png"),dpi = 300, scale =1)
+
 
 sf_county %>% 
   mutate(diff_hrr_cz = hhi_hrr - hhi_cz) %>% 
