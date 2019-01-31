@@ -171,21 +171,19 @@ For this exercise we will construct HHI measures of hopsital concentration acros
 
 For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey. 
 
-
-![](figs/01_HHI_commuting-zones.png)
-```{r out.width="100%",echo=FALSE}
-#knitr::include_graphics(here("figs/01_HHI_commuting-zones.png"))
-```
 ![](figs/01_HHI_hrr.png)
-```{r out.width="100%",echo=FALSE}
-#knitr::include_graphics(here("figs/01_HHI_hrr.png"))
-```
+
 ![](figs/01_HHI_rating-area.png)
-```{r out.width="100%",echo=FALSE}
-#knitr::include_graphics(here("figs/01_HHI_rating-area.png"))
-```
 
 ![](figs/01_HHI-ZIP-patient-flows-.png)
+
+![](figs/01_HHI_commuting-zones.png)
+
+![](figs/01_HHI-ZIP-patient-flows.png)
+
+## Simpson's Paradox and HHIs
+
+![](figs/01_HHI_commuting-zones_aggregated-from-zip.png)
 
 ```{r, echo = FALSE}
 zip_market_shares <-   read_rds(here("output/market-comparisons/01_2017_ZIP-market-shares.rds")) %>% 

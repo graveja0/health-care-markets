@@ -224,13 +224,19 @@ For these plots the HHI measure is constructed using admission-weighted
 market shares for hospitals within each geographic market. The hospital
 data are drawn from the 2017 AHA annual survey.
 
-![](figs/01_HHI_commuting-zones.png)
-
 ![](figs/01_HHI_hrr.png)
 
 ![](figs/01_HHI_rating-area.png)
 
 ![](figs/01_HHI-ZIP-patient-flows-.png)
+
+![](figs/01_HHI_commuting-zones.png)
+
+![](figs/01_HHI-ZIP-patient-flows.png)
+
+## Simpson’s Paradox and HHIs
+
+![](figs/01_HHI_commuting-zones_aggregated-from-zip.png)
 
 | name                           | market\_share |    hhi |
 | :----------------------------- | ------------: | -----: |
