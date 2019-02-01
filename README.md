@@ -380,7 +380,10 @@ following specific details.
     based on market shares defined by FFS Medicare Patients. Note that
     this allows us to be consistent with the patient definition used in
     the patient flow method, as describd below. In practice this yielded
-    nearly identical HHI measures when total admissions were used.
+    nearly identical HHI measures when total admissions were used, as
+    shown in the plot below.
+
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
   - For the patient flow method, we used the [CMS Hospital Service Area
     files
@@ -391,13 +394,20 @@ following specific details.
     HRR or CZ level using a weighted average (with weights defined by
     total FFS Medicare patient volume from the ZIP).
 
+Maps for each geographic market definition (HRR, CZ) and HHI
+construction method (geographic location, patient flow) are provided
+below.
+
 ![](figs/01_HHI_geo-location-vs-pop-flow.png)
 
 We can see here that the geographic location method produced a more
 fragmented HRR map, with adjacent HRRs ranging from highly concentrated
-to not concentrated. With the patient flow method (aggregated to HHI) we
-see that the map evens out considerably. Notably, areas tend to become
-more concentrated.
+to not concentrated. With the patient flow method (aggregated to HRR or
+CZ) we see that the map evens out considerably. Notably, areas tend to
+become more concentrated, though some areas that appear highly
+concentrated using the geographic location method become less so when
+using patient flows. The patient flow method, in other words, appears to
+even out some rough edges seen in the geographic location maps.
 
 It is also notable that the patient flow method yielded very similar
 maps when using HRRs vs. CZs. In part this is by construction, since

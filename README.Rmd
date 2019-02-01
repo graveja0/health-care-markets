@@ -8,6 +8,31 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 source(here("R/map-theme.R"))
+
+theme_tufte_revised <- function(base_size = 11, base_family = "Gill Sans", ticks = TRUE) {
+  
+  ret <- ggplot2::theme_bw(base_family = base_family, base_size = base_size) +
+    ggplot2::theme(
+      axis.line = ggplot2::element_line(color = 'black'),
+      axis.title.x = ggplot2::element_text(vjust = -0.3),
+      axis.title.y = ggplot2::element_text(vjust = 0.8),
+      legend.background = ggplot2::element_blank(),
+      legend.key = ggplot2::element_blank(),
+      legend.title = ggplot2::element_text(face="plain"),
+      panel.background = ggplot2::element_blank(),
+      panel.border = ggplot2::element_blank(),
+      panel.grid = ggplot2::element_blank(),
+      plot.background = ggplot2::element_blank(),
+      strip.background = ggplot2::element_blank()
+    )
+  
+  if (!ticks) {
+    ret <- ret + ggplot2::theme(axis.ticks = ggplot2::element_blank())
+  }
+  
+  ret
+}
+
 ```
 
 # Defining Geographic Markets for Health Care Services 
@@ -281,13 +306,25 @@ To construct these maps the two methods above were used, with the following spec
 
 - We define HHI measures at the system level, not the hospital level. Thus, all HCA hospitals get rolled up into a single HCA row. 
 
-- For the Geographic Location HHI Method, we identify all hospitals within the geographic area. We then then construct HHI measures based on market shares defined by FFS Medicare Patients. Note that this allows us to be consistent with the patient definition used in the patient flow method, as describd below. In practice this yielded nearly identical HHI measures when total admissions were used. 
+- For the Geographic Location HHI Method, we identify all hospitals within the geographic area. We then then construct HHI measures based on market shares defined by FFS Medicare Patients. Note that this allows us to be consistent with the patient definition used in the patient flow method, as describd below. In practice this yielded nearly identical HHI measures when total admissions were used, as shown in the plot below. 
+
+```{r, echo= FALSE, fig.width = 3, fig.height = 3}
+read_rds(here("output/market-comparisons/01_HHI_hrr.rds")) %>% 
+  ggplot(aes(x = hhi_hrr,y = hhi_hrr_admtot)) + 
+  geom_point() + 
+  ylab("HHI Based on Total Admissions") + 
+  xlab("HHI Based on FFS Medicare Admissions") +
+  geom_abline(slope = 1, intercept = 0, lty=2) +
+  theme_tufte_revised() 
+```
 
 - For the patient flow method,  we used  the [CMS Hospital Service Area files for 2017](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html) to construct ZIP-level HHI measures. These zip-level HHI measures were based on the hospitals visited among FFS Medicare patients in each ZIP code. We then aggregated these ZIP level measures to the HRR or CZ level using a weighted average (with weights defined by total FFS Medicare patient volume from the ZIP). 
 
+Maps for each geographic market definition (HRR, CZ) and HHI construction method (geographic location, patient flow) are provided below. 
+
 ![](figs/01_HHI_geo-location-vs-pop-flow.png)
 
-We can see here that the geographic location method produced a more fragmented HRR map, with adjacent HRRs ranging from highly concentrated to not concentrated. With the patient flow method (aggregated to HHI) we see that the map evens out considerably. Notably, areas tend to become more concentrated. 
+We can see here that the geographic location method produced a more fragmented HRR map, with adjacent HRRs ranging from highly concentrated to not concentrated. With the patient flow method (aggregated to HRR or CZ) we see that the map evens out considerably. Notably, areas tend to become more concentrated, though some areas that appear highly concentrated using the geographic location method become less so when using patient flows. The patient flow method, in other words, appears to even out some rough edges seen in the geographic location maps.  
 
 It is also notable that the patient flow method yielded very similar maps when using HRRs vs. CZs. In part this is by construction, since both rely on the same underlying ZIP-level data. But it is striking to see in top panels how different HHI measures can be using the geographic location method for CZs and HRRs. In particular, HRRs designate some areas as not concentrated while the same area is highly concentrated under the CZ HHI measure. 
 
