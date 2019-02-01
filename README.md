@@ -412,10 +412,10 @@ even out some rough edges seen in the geographic location maps.
 It is also notable that the patient flow method yielded very similar
 maps when using HRRs vs. CZs. In part this is by construction, since
 both rely on the same underlying ZIP-level data. But it is striking to
-see in top panels how different HHI measures can be using the geographic
-location method for CZs and HRRs. In particular, HRRs designate some
-areas as not concentrated while the same area is highly concentrated
-under the CZ HHI
+see in the top panels how different HHI measures can be using the
+geographic location method for CZs and HRRs. In particular, HRRs
+designate some areas as not concentrated while the same area is highly
+concentrated under the CZ HHI
 measure.
 
 <!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->

@@ -326,7 +326,7 @@ Maps for each geographic market definition (HRR, CZ) and HHI construction method
 
 We can see here that the geographic location method produced a more fragmented HRR map, with adjacent HRRs ranging from highly concentrated to not concentrated. With the patient flow method (aggregated to HRR or CZ) we see that the map evens out considerably. Notably, areas tend to become more concentrated, though some areas that appear highly concentrated using the geographic location method become less so when using patient flows. The patient flow method, in other words, appears to even out some rough edges seen in the geographic location maps.  
 
-It is also notable that the patient flow method yielded very similar maps when using HRRs vs. CZs. In part this is by construction, since both rely on the same underlying ZIP-level data. But it is striking to see in top panels how different HHI measures can be using the geographic location method for CZs and HRRs. In particular, HRRs designate some areas as not concentrated while the same area is highly concentrated under the CZ HHI measure. 
+It is also notable that the patient flow method yielded very similar maps when using HRRs vs. CZs. In part this is by construction, since both rely on the same underlying ZIP-level data. But it is striking to see in the top panels how different HHI measures can be using the geographic location method for CZs and HRRs. In particular, HRRs designate some areas as not concentrated while the same area is highly concentrated under the CZ HHI measure. 
 
 
 
