@@ -322,7 +322,11 @@ capturing the competitive landscape:
 
 Finally, it’s worth noting that the population flow method is also more
 robust to alternative geographic market definitions. Suppose that we
-define a new geographic boundary that includes H1 within area A.
+define a new geographic boundary that includes H1 within area A. We’ll
+also draw (in dotted lines) the geographic boundary from above, and
+assume that 25 admissions from within that boundary area (i.e., the area
+formerly in B) go to H2. In other words, the only thing that has changed
+is the (arbitrary) geographic boundary point delineating area A from B.
 
 ![](figs/01_hhi-example_2.png)
 
@@ -375,18 +379,6 @@ admissions).**
 <!-- ## Simpson's Paradox and HHIs -->
 
 <!-- ![](figs/01_HHI_commuting-zones_aggregated-from-zip.png) -->
-
-| name                           | market\_share |    hhi |
-| :----------------------------- | ------------: | -----: |
-| HCA Healthcare                 |          36.8 | 2813.6 |
-| Ascension Healthcare           |          28.0 | 2813.6 |
-| Vanderbilt Health              |          25.3 | 2813.6 |
-| Nashville General Hospital     |           5.3 | 2813.6 |
-| Community Health Systems, Inc. |           0.7 | 2813.6 |
-| Maury Regional Health System   |           0.6 | 2813.6 |
-
-Market Shares for FFS Medicare Patietns Residing in the 37203 ZIP
-Code
 
 <!-- Now let's consider the *difference* between HHI measures in a given county for each geographic market definition. That is, if the HHI value using HRRs in 5,000, while it is 1,000 using commuting zones, the difference would be 4,000.  We plot these differences in the maps below. The maps are useful in demonstrating geographic areas where characterizations of market concentration will be highly dependent on the geographic market definition used.  -->
 

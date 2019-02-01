@@ -234,7 +234,7 @@ By comparison, the patient flow method has done a better job of capturing the co
   
   3. In Scenario 2 we also accurately capture the fact that Area B had no change in the underlying competitiveness--the introduction of Hospital H3 did not affect admissions at H2, as we correspondingly see no change in our HHI measure. 
 
-Finally, it's worth noting that the population flow method is also more robust to alternative geographic market definitions. Suppose that we define a new geographic boundary that includes H1 within area A. 
+Finally, it's worth noting that the population flow method is also more robust to alternative geographic market definitions. Suppose that we define a new geographic boundary that includes H1 within area A. We'll also draw (in dotted lines) the geographic boundary from above, and assume that 25 admissions from within that boundary area (i.e., the area formerly in B) go to H2. In other words, the only thing that has changed is the (arbitrary) geographic boundary point delineating area A from B. 
 
 ![](figs/01_hhi-example_2.png)
 
