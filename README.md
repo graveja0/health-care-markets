@@ -214,29 +214,167 @@ U.S. Department of Agriculture (USDA) is useful:
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
-For this exercise we will construct HHI measures of hopsital
-concentration across the geographic market definitions covered above.
-Not all of these will make sense (e.g., it seems odd to construct a
-Hospital HHI measure based on PCSAs) but I will construct the measures
-anyway for the sake of comparisons.
+Next we will consider HHI measures constructed across the market
+geographies defined above. For these examples we’ll focus on hospitals,
+but in principle we could do the same for insurers, or physicians, if
+sufficient data were avaialable.
 
-For these plots the HHI measure is constructed using admission-weighted
-market shares for hospitals within each geographic market. The hospital
-data are drawn from the 2017 AHA annual survey.
+Before we do, however, it is useful to first lay out two different ways
+this can be done for a given market geography. *These different methods
+will yield different HHI measures for the same market geography* (e.g.,
+CZ).
 
-![](figs/01_HHI_hrr.png)
+1.  **Geographic Location Method**: Under this method we identify all
+    hospitals *located in the geographic market.* The HHI measure is
+    constructed using market shares defined in terms of a head count of
+    the number of hospitals, or in terms of total patients treated at
+    each hospital (e.g, total admissions or total discharges), or
+    possibly some other unit. This is a common method used to construct
+    hospital HHIs.
 
-![](figs/01_HHI_rating-area.png)
+2.  **Patient Flow Method**: Under this method we identify the set of
+    hospitals that treat patients *who reside in the geographic market*
+    (e.g., the CZ). Unlike the method above, this will bring in
+    hospitals located outside the geographic market boundaries. Note
+    that this can be done at a lower level of aggregation (e.g., at the
+    ZIP code level). Then, those ZIP-level HHIs can be aggregated up to
+    another market geography level (e.g. HRR) by taking a weighted
+    average (with weights defined by population share, or total
+    admission share, etc.).
 
-![](figs/01_HHI-ZIP-patient-flows-.png)
+It is worth noting that the patient flow method generally lines up
+better with the underlying economic concept of what an HHI is trying to
+capture. A simple example will demonstrate this.
+
+## A Simple Example
+
+Suppose there are only two geographic areas (A and B) and two hospitals
+(H1 and H2). Areas A and B each contribute 100 hospital admissions, but
+admissions from each area flow to specific local hospitals. That is,
+admissions from area A *only* flow to hospital H1, and admissions from
+area B *only* flow to hospital H2. Notably, however, both hospitals are
+located in Area B (H1 is located in B but near the border with area A).
+This scenario is depicted in the **Scenario 1** panel of the image
+below.
+
+Now suppose that a single new hospital enters the market and locates in
+area A. This new hospital redirects 50 admissions from H1 after it
+enters the market. This scenario is depicted in the **Scenario 2** panel
+of the image.
+
+Before we go about constructing HHI measures it is useful to think
+through how we would *expect* an HHI measure to respond to this market
+entry change. First, hospital H1 is now in a more competitive market
+because the new hospital H3 siphoned off *half* of its admissions.
+Second, hospital H2 was unaffected by market entry because none of its
+patients moved to a different hospital
+
+![](figs/01_hhi-example.png)
+
+If we used the geographic location method to construct HHI measures we
+would end up with the following:
+
+|                           | Area A | Area B |
+| ------------------------- | -----: | -----: |
+| Scenario 1                |     NA |   5000 |
+| Scenario 2 (Market Entry) |  10000 |   5556 |
+
+By comparison, if we used the population flow method we would get the
+following:
+
+|                           | Area A | Area B |
+| ------------------------- | -----: | -----: |
+| Scenario 1                |  10000 |  10000 |
+| Scenario 2 (Market Entry) |   5000 |  10000 |
+
+We can see through this simple example that the geographic location
+method has done a poor job of capturing the underlying change in the
+competitivenes of these two areas:
+
+1.  In Scenario 1 we cannot even define an HHI measure for area A
+    because no hospital happens to be located there; the hospital that
+    all of its residents uses is just over the border in area B.
+
+2.  In Scenario 2, Area A gets designated as highly concentrated (HHI =
+    10,000). Again, this is because there is only one hospital located
+    in in Area A.
+
+3.  In Scenario 2, Area B (whose residents’ care patterns were
+    unaffected by the new hospital) actually gets a slightly higher HHI
+    value.
+
+By comparison, the patient flow method has done a better job of
+capturing the competitive landscape:
+
+1.  In Scenario 1 we accurately capture the fact that both hospitals are
+    operating as monopolists, drawing all patients from each of the
+    respective areas.
+
+2.  In Scenario 2 we accurately capture the change in competitiveness in
+    Area A. The HHI measure drops from 10,000 to 5,000–reflecting the
+    fact that the new hospital has redirected half of the inpatient
+    admissions formerly going to hospital H1.
+
+3.  In Scenario 2 we also accurately capture the fact that Area B had no
+    change in the underlying competitiveness–the introduction of
+    Hospital H3 did not affect admissions at H2, as we correspondingly
+    see no change in our HHI measure.
+
+Finally, it’s worth noting that the population flow method is also more
+robust to alternative geographic market definitions. Suppose that we
+define a new geographic boundary that includes H1 within area A.
+
+![](figs/01_hhi-example_2.png)
+
+We can see that both methods now produce the same HHI measures.
+Moreover, the population flow method results are unchanged with this
+(arbitrary) change in boundaries. *Thus, it is more robust to the
+overall geographic market definition used.*
+
+|                           | Area A | Area B |
+| ------------------------- | -----: | -----: |
+| Scenario 1                |  10000 |  10000 |
+| Scenario 2 (Market Entry) |   5000 |  10000 |
+
+By comparison, if we used the population flow method we would get the
+following:
+
+|                           | Area A | Area B |
+| ------------------------- | -----: | -----: |
+| Scenario 1                |  10000 |  10000 |
+| Scenario 2 (Market Entry) |   5000 |  10000 |
+
+An important takeaway from this exercise is that HHI measures defined
+using the geographic location method make an important and very strong
+assumption: **the geographic boundaries used capture all (or nearly all)
+of the relevant economic activity under consideration (e.g., hospital
+admissions).**
+
+## Comparison of Geographic Location and Population Flow HHI Measures
+
+### HRRs
 
 ![](figs/01_HHI_commuting-zones.png)
 
-![](figs/01_HHI-ZIP-patient-flows.png)
+### Commuting Zones
 
-## Simpson’s Paradox and HHIs
+![](figs/01_HHI_hrr.png)
 
-![](figs/01_HHI_commuting-zones_aggregated-from-zip.png)
+<!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->
+
+<!-- ![](figs/01_HHI_hrr.png) -->
+
+<!-- ![](figs/01_HHI_rating-area.png) -->
+
+<!-- ![](figs/01_HHI-ZIP-patient-flows-.png) -->
+
+<!-- ![](figs/01_HHI_commuting-zones.png) -->
+
+<!-- ![](figs/01_HHI-ZIP-patient-flows.png) -->
+
+<!-- ## Simpson's Paradox and HHIs -->
+
+<!-- ![](figs/01_HHI_commuting-zones_aggregated-from-zip.png) -->
 
 | name                           | market\_share |    hhi |
 | :----------------------------- | ------------: | -----: |
@@ -247,45 +385,34 @@ data are drawn from the 2017 AHA annual survey.
 | Community Health Systems, Inc. |           0.7 | 2813.6 |
 | Maury Regional Health System   |           0.6 | 2813.6 |
 
-Market Shares for FFS Medicare Patietns Residing in the 37203 ZIP Code
+Market Shares for FFS Medicare Patietns Residing in the 37203 ZIP
+Code
 
-Now let’s consider the *difference* between HHI measures in a given
-county for each geographic market definition. That is, if the HHI value
-using HRRs in 5,000, while it is 1,000 using commuting zones, the
-difference would be 4,000. We plot these differences in the maps below.
-The maps are useful in demonstrating geographic areas where
-characterizations of market concentration will be highly dependent on
-the geographic market definition used.
+<!-- Now let's consider the *difference* between HHI measures in a given county for each geographic market definition. That is, if the HHI value using HRRs in 5,000, while it is 1,000 using commuting zones, the difference would be 4,000.  We plot these differences in the maps below. The maps are useful in demonstrating geographic areas where characterizations of market concentration will be highly dependent on the geographic market definition used.  -->
 
-![](figs/01_HHI-HRR-vs-commuting-zones.png)
+<!-- ![](figs/01_HHI-HRR-vs-commuting-zones.png) -->
 
-![](figs/01_HHI-HRR-vs-rating-areas.png)
+<!-- ![](figs/01_HHI-HRR-vs-rating-areas.png) -->
 
-![](figs/01_HHI-commuting-zones-vs-rating-areas.png)
+<!-- ![](figs/01_HHI-commuting-zones-vs-rating-areas.png) -->
 
-# Novel Market Definitions
+<!-- # Novel Market Definitions -->
 
-In this section we will consider several methodological improvements and
-extensions to the geographic definitions covered above. These include:
+<!-- In this section we will consider several methodological improvements and extensions to the geographic definitions covered above.  These include: -->
 
-  - Updates to HSAs and HRR definitions based on more recent data.
+<!-- - Updates to HSAs and HRR definitions based on more recent data. -->
 
-  - Geographic market definitions based on community detection
-    algorithms borrowed from social network analytic methods.
-    
-      - Based on hospital-ZIP data from Medicare.
-    
-      - Based on insurer-county data from DRG.
-    
-      - Based on shared patient networks from Medicare.
-    
-      - Based on updates to commuting flows from 2009-2013. Census data
-        [here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html).
-        Based on gravity model or based on Dartmouth method (e.g.,
-        greatest fraction).
-    
-      - Based on hospital-specific
-HHIs.
+<!-- - Geographic market definitions based on community detection algorithms borrowed from social network analytic methods.  -->
+
+<!--     - Based on hospital-ZIP data from Medicare. -->
+
+<!--     - Based on insurer-county data from DRG. -->
+
+<!--     - Based on shared patient networks from Medicare.  -->
+
+<!--     - Based on updates to commuting flows from 2009-2013. Census data [here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html). Based on gravity model or based on Dartmouth method (e.g., greatest fraction). -->
+
+<!--     - Based on hospital-specific HHIs. -->
 
 <!-- ### Rural-Urban Commuting -->
 

@@ -140,6 +140,19 @@ hhi_hrr <-
              total_weight_hrr_admtot = total_weight) ,
     "hrrnum"
   )
+ms_hrr <-
+  aha_markets %>%
+  estimate_market_share(id = system_id,
+                        weight = ffs_total_cases,
+                        market = hrrnum) %>% 
+  arrange(hrrnum,desc(market_share))%>%
+  left_join(aha_markets %>% select(system_id,sysname) %>% unique(), "system_id") %>% 
+  left_join(aha_markets %>% filter(sysname=="") %>% select(system_id,mname),"system_id") %>% 
+  mutate(sysname = ifelse(sysname=="",NA,sysname)) %>% 
+  mutate(name = coalesce(sysname,mname)) %>% 
+  select(hrrnum,name,market_share, hhi, everything())
+ms_hrr %>% write_rds(path = here("output/market-comparisons/01_2017_hrr-market-shares.rds"))
+
 
 hhi_cz <-
   aha_markets %>%
@@ -157,6 +170,19 @@ hhi_cz <-
              total_weight_cz_admtot = total_weight) ,
     "cz_id"
   )
+
+ms_cz <-
+  aha_markets %>%
+  estimate_market_share(id = system_id,
+               weight = ffs_total_cases,
+               market = cz_id) %>% 
+  arrange(cz_id,desc(market_share))%>%
+  left_join(aha_markets %>% select(system_id,sysname) %>% unique(), "system_id") %>% 
+  left_join(aha_markets %>% filter(sysname=="") %>% select(system_id,mname),"system_id") %>% 
+  mutate(sysname = ifelse(sysname=="",NA,sysname)) %>% 
+  mutate(name = coalesce(sysname,mname)) %>% 
+  select(cz_id,name,market_share, hhi, everything())
+ms_cz %>% write_rds(path = here("output/market-comparisons/01_2017_commuting-zone-market-shares.rds"))
 
 
   ## ZIP and Hopsital-Level HHIs
@@ -186,9 +212,9 @@ hhi_cz <-
   zip_market_shares %>% 
     write_rds(path = here("output/market-comparisons/01_2017_ZIP-market-shares.rds"))
 
-# Link Market-Level HHI Measures to "COMMON UNIT" (i.e., county) to facilitate comparisons
-
-# Crosswalk from county to HRR
+# Link Market-Level HHI Measures to "COMMON UNIT" (i.e., county) to facilitate comparison
+  
+  # Crosswalk from county to HRR
   county_to_hrr <- read_csv(here("public-data/shape-files/dartmouth-hrr-hsa-pcsa/county-to-hrr-hsa.csv")) %>% 
     janitor::clean_names() %>% 
     filter(row_number()!=1)  %>% 
@@ -204,7 +230,7 @@ hhi_cz <-
     filter(row_number()==1) %>% 
     ungroup() %>% 
     select(fips_code,hrrnum = hrr, hrr_afact = afact)
-
+  
   # Cosswalk from county to commuting zone.
   county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>% 
     janitor::clean_names() %>% 
@@ -225,7 +251,7 @@ hhi_cz <-
     unique() %>% 
     select(fips_code,rating_area)
   
-# Need to aggregate ZIP level data up to county
+  # Need to aggregate ZIP level data up to county
   
   zip_to_county <- read_csv(here("public-data/zcta-to-fips-county/zcta-to-fips-county.csv")) %>% 
     janitor::clean_names() %>% 
@@ -234,12 +260,25 @@ hhi_cz <-
     select(zip_code = zcta5, fips_code,afact) %>% 
     mutate(afact = as.numeric(paste0(afact))) 
   
+  zip_to_hrr <- read_csv(here("public-data/shape-files/dartmouth-hrr-hsa-pcsa/zcta-to-hrr-hsa.csv")) %>% 
+    janitor::clean_names() %>% 
+    filter(row_number() !=1) %>% 
+    select(zip_code = zcta5, hrrnum = hrr, afact) %>% 
+    mutate_at(vars(hrrnum,afact),function(x) as.numeric(paste0(x)))
+    
   zip_hhi_aggregated_to_county <-
     zip_hhi %>% 
     inner_join(zip_to_county,"zip_code") %>% 
     mutate(weight = afact * total_weight) %>% 
     group_by(fips_code) %>% 
     summarise(hhi_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE))
+  
+  zip_hhi_aggregated_to_hrr <-
+    zip_hhi %>% 
+    inner_join(zip_to_hrr,"zip_code") %>% 
+    mutate(weight = afact * total_weight) %>% 
+    group_by(hrrnum) %>% 
+    summarise(hhi_hrr_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE))
   
   zip_hhi_aggregated_to_cz <- 
     zip_hhi %>% 
@@ -248,95 +287,68 @@ hhi_cz <-
     inner_join(county_to_cz,"fips_code") %>% 
     group_by(cz_id) %>% 
     summarise(hhi_zip_cz = weighted.mean(hhi_zip,weight,na.rm=TRUE))
-    
+  
+  df_county <- 
+    county_to_cz %>% 
+    full_join(county_to_hrr,"fips_code") %>% 
+    full_join(county_to_rating_area,"fips_code") %>% 
+    left_join(hhi_cz  ,"cz_id") %>% 
+    left_join(hhi_rating_area ,"rating_area") %>% 
+    left_join(hhi_hrr ,"hrrnum") %>% 
+    left_join(zip_hhi_aggregated_to_county,"fips_code") %>% 
+    select(fips_code,hrrnum,cz_id,rating_area,contains("hhi"))
+  
+  df_county %>% write_rds(here("output/market-comparisons/01_market-comparisons-county.rds"))
+  
+# Look at Alternative Definitions at the commuting zone level. 
+hhi_cz_final <- 
+  hhi_cz %>% 
+  left_join(zip_hhi_aggregated_to_cz,"cz_id")
+hhi_cz_final %>% 
+  write_rds(here("output/market-comparisons/01_HHI_commuting-zone.rds"))
 
-df_county <- 
-  county_to_cz %>% 
-  full_join(county_to_hrr,"fips_code") %>% 
-  full_join(county_to_rating_area,"fips_code") %>% 
-  left_join(hhi_cz  ,"cz_id") %>% 
-  left_join(hhi_rating_area ,"rating_area") %>% 
-  left_join(hhi_hrr ,"hrrnum") %>% 
-  left_join(zip_hhi_aggregated_to_county,"fips_code")
+hhi_hrr_final <- 
+  hhi_hrr %>% 
+  left_join(zip_hhi_aggregated_to_hrr,"hrrnum")
+hhi_hrr_final %>% 
+  write_rds(here("output/market-comparisons/01_HHI_hrr.rds"))
 
 ####################
 #### Construct Maps
 ####################
 
 states_to_map <- c("KY","TN","VA","NC")
-
-  sf_hrr %>% 
-  left_join(hhi_hrr,"hrrnum") %>% 
-  filter(hrrstate %in%  states_to_map) %>% 
-  ggplot() + 
-  geom_sf(aes(fill = hhi_hrr)) +
-    scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
-  theme(legend.position = "bottom") +
-  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
-  coord_sf(datum=NA) + 
-  remove_all_axes +
-  ggtitle("Hospital Referral Regions") + 
-  ggthemes::theme_tufte(base_family = "Gill Sans")
-ggsave( filename = here("figs/01_HHI_hrr.png"),dpi = 300, scale =1)
-
-
-  sf_ra %>% 
-  left_join(hhi_rating_area,"rating_area") %>% 
-  filter(state %in%  states_to_map) %>% 
-  ggplot() + 
-  geom_sf(aes(fill = hhi_rating_area)) +
-    scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
-  theme(legend.position = "bottom") +
-  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
-  coord_sf(datum=NA) + 
-  remove_all_axes +
-  ggtitle("Rating Areas") + 
-  ggthemes::theme_tufte(base_family = "Gill Sans")
-ggsave(filename = here("figs/01_HHI_rating-area.png"),dpi = 300, scale =1)
-
-
-  sf_cz %>% 
-  left_join(hhi_cz,"cz_id") %>% 
-  filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
-  ggplot() + 
-  geom_sf(aes(fill = hhi_cz)) +
-    scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
-  #theme(legend.position = "bottom") +
-  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
-  coord_sf(datum=NA) + 
-  remove_all_axes +
-  ggtitle("Commuting Zones") + 
-  ggthemes::theme_tufte(base_family = "Gill Sans")
-ggsave(filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale =1)
+# 
+#   sf_hrr %>% 
+#   left_join(hhi_hrr,"hrrnum") %>% 
+#   filter(hrrstate %in%  states_to_map) %>% 
+#   ggplot() + 
+#   geom_sf(aes(fill = hhi_hrr)) +
+#     scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+#   theme(legend.position = "bottom") +
+#   geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+#   coord_sf(datum=NA) + 
+#   remove_all_axes +
+#   ggtitle("Hospital Referral Regions") + 
+#   ggthemes::theme_tufte(base_family = "Gill Sans")
+# ggsave( filename = here("figs/01_HHI_hrr.png"),dpi = 300, scale =1)
+# 
+# 
+#   sf_cz %>% 
+#   left_join(hhi_cz,"cz_id") %>% 
+#   filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
+#   ggplot() + 
+#   geom_sf(aes(fill = hhi_cz)) +
+#     scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+#   #theme(legend.position = "bottom") +
+#   geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+#   coord_sf(datum=NA) + 
+#   remove_all_axes +
+#   ggtitle("Commuting Zones") + 
+#   ggthemes::theme_tufte(base_family = "Gill Sans")
+# ggsave(filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale =1)
 
 # ZIP LEVEL MEASURES
-
-sf_county %>% 
-  left_join(zip_hhi_aggregated_to_county ,"fips_code") %>% 
-  filter(state %in% states_to_map) %>% 
-  ggplot() + 
-  geom_sf(aes(fill = hhi_zip)) + 
-  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500, limits = c(0,10000)) + 
-  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
-  coord_sf(datum=NA) + 
-  remove_all_axes +
-  ggtitle("ZIP-Level HHI\nFrom 2017 FFS Medicare Patient Flows\n(Aggregated to County Level)") + 
-  ggthemes::theme_tufte(base_family = "Gill Sans")
-ggsave(filename = here("figs/01_HHI-ZIP-patient-flows.png"),dpi = 300, scale =1)
-
-
-p2 = sf_cz %>% 
-  left_join(zip_hhi_aggregated_to_cz ,"cz_id") %>% 
-  filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
-  ggplot() + 
-  geom_sf(aes(fill = hhi_zip_cz)) +
-  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
-  #theme(legend.position = "bottom") +
-  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
-  coord_sf(datum=NA) + 
-  remove_all_axes +
-  ggtitle("Commuting Zones\n(Aggregated from ZIP-Level HHIs)") + 
-  ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p1 =   sf_cz %>% 
   left_join(hhi_cz,"cz_id") %>% 
@@ -348,65 +360,52 @@ p1 =   sf_cz %>%
   geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
   coord_sf(datum=NA) + 
   remove_all_axes +
-  ggtitle("Commuting Zones") + 
+  ggtitle("Commuting Zones\n(Geographic Location Method)") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+
+p2 = sf_cz %>% 
+  left_join(zip_hhi_aggregated_to_cz ,"cz_id") %>% 
+  filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = hhi_zip_cz)) +
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("Commuting Zones\n(Patient Flow Method)") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p1 + p2 + plot_layout(ncol=1)
-ggsave(filename = here("figs/01_HHI_commuting-zones_aggregated-from-zip.png"),dpi = 300, scale =1,width = 6, height=12)
+ggsave(filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale =1,width = 6, height=12)
 
-
-
-
-###########################################
-## Comparisons Across Market Definitions
-###########################################
-sf_county %>% 
-  mutate(diff_hrr_cz = hhi_hrr - hhi_cz) %>% 
-  filter(state %in% states_to_map) %>% 
+p1 =   sf_hrr %>% 
+  left_join(hhi_hrr,"hrrnum") %>% 
+  filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
-  geom_sf(aes(fill = diff_hrr_cz)) + 
-  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"), 
-                       midpoint = 0,limits = c(-10000,10000), breaks = c(-10000,0,10000), 
-                       name = "",
-                       labels = c("-10,000\nMore Competitive\nUsing HRR","0\nNo Difference","+10,000\nLess Competitive\nUsing HRR")) + 
+  geom_sf(aes(fill = hhi_hrr)) +
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
   geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
   coord_sf(datum=NA) + 
   remove_all_axes +
-  ggtitle("HRRs vs. Commuting Zones") + 
+  ggtitle("Hospital Referral Region\n(Geographic Location Method)") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
-ggsave(filename = here("figs/01_HHI-HRR-vs-commuting-zones.png"),dpi = 300, scale =1)
-  
 
-sf_county %>% 
-  mutate(diff_hrr_cz = hhi_hrr - hhi_rating_area) %>% 
-  filter(state %in% states_to_map) %>% 
+p2 = sf_hrr %>% 
+  left_join(hhi_hrr_final,"hrrnum") %>% 
+  filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
-  geom_sf(aes(fill = diff_hrr_cz)) + 
-  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"), 
-                       midpoint = 0,limits = c(-10000,10000), breaks = c(-10000,0,10000), 
-                       name = "",
-                       labels = c("-10,000\nMore Competitive\nUsing HRR","0\nNo Difference","+10,000\nLess Competitive\nUsing HRR")) + 
+  geom_sf(aes(fill = hhi_hrr_zip))+
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
   geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
   coord_sf(datum=NA) + 
   remove_all_axes +
-  ggtitle("HRRs vs. Rating Areas") + 
+  ggtitle("Hospital Referral Region\n(Patient Flow Method)") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
-ggsave(filename = here("figs/01_HHI-HRR-vs-rating-areas.png"),dpi = 300, scale =1)
 
+p1 + p2 + plot_layout(ncol=1)
+ggsave(filename = here("figs/01_HHI_hrr.png"),dpi = 300, scale =1,width = 6, height=12)
 
-sf_county %>% 
-  mutate(diff_hrr_cz = hhi_cz - hhi_rating_area) %>% 
-  filter(state %in% states_to_map) %>% 
-  ggplot() + 
-  geom_sf(aes(fill = diff_hrr_cz)) + 
-  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"), 
-                       midpoint = 0,limits = c(-10000,10000), breaks = c(-10000,0,10000), 
-                       name = "",
-                       labels = c("-10,000\nMore Competitive\nUsing Commuting Zones","0\nNo Difference","+10,000\nLess Competitive\nUsing Commuting Zones")) + 
-  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
-  coord_sf(datum=NA) + 
-  remove_all_axes +
-  ggtitle("Commuting Zones vs. Rating Areas") + 
-  ggthemes::theme_tufte(base_family = "Gill Sans")
-ggsave(filename = here("figs/01_HHI-commuting-zones-vs-rating-areas.png"),dpi = 300, scale =1)
 
