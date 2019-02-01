@@ -379,7 +379,7 @@ p2 = sf_cz %>%
 p1 + p2 + plot_layout(ncol=1)
 ggsave(filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale =1,width = 6, height=12)
 
-p1 =   sf_hrr %>% 
+p1_hrr =   sf_hrr %>% 
   left_join(hhi_hrr,"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
@@ -392,7 +392,7 @@ p1 =   sf_hrr %>%
   ggtitle("Hospital Referral Region\n(Geographic Location Method)") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
-p2 = sf_hrr %>% 
+p2_hrr = sf_hrr %>% 
   left_join(hhi_hrr_final,"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
@@ -405,7 +405,10 @@ p2 = sf_hrr %>%
   ggtitle("Hospital Referral Region\n(Patient Flow Method)") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
-p1 + p2 + plot_layout(ncol=1)
+p1_hrr + p2_hrr + plot_layout(ncol=1)
 ggsave(filename = here("figs/01_HHI_hrr.png"),dpi = 300, scale =1,width = 6, height=12)
+
+p1 + p1_hrr + p2 + p2_hrr + plot_layout(ncol=2,nrow=2)
+ggsave(filename = here("figs/01_HHI_geo-location-vs-pop-flow.png"),dpi = 300, scale =1,width = 12, height=12)
 
 

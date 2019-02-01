@@ -273,12 +273,26 @@ An important takeaway from this exercise is that HHI measures defined using the 
 
 ## Comparison of Geographic Location and Population Flow HHI Measures 
 
-### HRRs
+The next set of maps show how these two different HHI construction methods yield different answers for the same geographic market definition. We'll consider both HRRs and CZs for this example, and focus on maps of TN, NC, VA and KY (though the underlying data cover the entire US). The geographic area at the intersection of these states was recently the focus of a major merger of two large health systems (Mountain States Health Alliance and Wellmont Health System) that [drew attention due to antitrust concerns](https://www.modernhealthcare.com/article/20161123/NEWS/161129951). 
 
-![](figs/01_HHI_commuting-zones.png)
+To construct these maps the two methods above were used, with the following specific details. 
 
-### Commuting Zones
-![](figs/01_HHI_hrr.png)
+- Sample is general acute care hospitals identified in the 2017 AHA Annual Survey data.
+
+- We define HHI measures at the system level, not the hospital level. Thus, all HCA hospitals get rolled up into a single HCA row. 
+
+- For the Geographic Location HHI Method, we identify all hospitals within the geographic area. We then then construct HHI measures based on market shares defined by FFS Medicare Patients. Note that this allows us to be consistent with the patient definition used in the patient flow method, as describd below. In practice this yielded nearly identical HHI measures when total admissions were used. 
+
+- For the patient flow method,  we used  the [CMS Hospital Service Area files for 2017](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html) to construct ZIP-level HHI measures. These zip-level HHI measures were based on the hospitals visited among FFS Medicare patients in each ZIP code. We then aggregated these ZIP level measures to the HRR or CZ level using a weighted average (with weights defined by total FFS Medicare patient volume from the ZIP). 
+
+![](figs/01_HHI_geo-location-vs-pop-flow.png)
+
+We can see here that the geographic location method produced a more fragmented HRR map, with adjacent HRRs ranging from highly concentrated to not concentrated. With the patient flow method (aggregated to HHI) we see that the map evens out considerably. Notably, areas tend to become more concentrated. 
+
+It is also notable that the patient flow method yielded very similar maps when using HRRs vs. CZs. In part this is by construction, since both rely on the same underlying ZIP-level data. But it is striking to see in top panels how different HHI measures can be using the geographic location method for CZs and HRRs. In particular, HRRs designate some areas as not concentrated while the same area is highly concentrated under the CZ HHI measure. 
+
+
+
 
 
 <!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->
