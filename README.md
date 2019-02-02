@@ -415,10 +415,12 @@ market definitions:
 ![](figs/01_HHI_commercial-self-insured.png)
 
 Now let’s focus on a county-level measure, and plot HHI measures by
-market
-segment:
+market segment:
 
 ![](figs/01_HHI_insurer-by-market-type.png)
+
+And total insured:
+![](figs/01_HHI_insurer-total_insured.png)
 
 <!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->
 

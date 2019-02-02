@@ -12,7 +12,6 @@ source(here("R/estimate_hhi.R"))
 
 threshold_for_inclusion = 0.01
 
-
 # This file constructs the insurer HHI measures using DRG data.
 
 df_drg<- data.table::fread(file.path(fs::path_home(),"box/Research-Provider_Networks/aim1-breadth/input/drg/drg-mms-2016-2017.csv")) %>% 
@@ -324,3 +323,21 @@ p_medicare <-
   
 p_commercial + p_phxind + p_medicaid + p_medicare  + plot_layout(nrow=2,ncol=2)
 ggsave(filename = here("figs/01_HHI_insurer-by-market-type.png"),dpi = 300, scale =1,width = 12, height=12)
+
+
+sf_cz %>% 
+  left_join(drg_hhi_cz ,"cz_id") %>% 
+  filter(state_01 %in% states ) %>% 
+  filter(!(state_01 %in% c("HI","AK"))) %>% 
+  ggplot() + 
+  geom_sf(aes(fill =hhi_total_book)) +
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
+  geom_sf(data = sf_state %>% filter(stusps %in% states) %>% filter(!stusps %in% c("HI","AK")), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("Total Insured") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+ggsave(filename = here("figs/01_HHI_insurer-total_insured.png"),dpi = 300, scale =1,width = 12, height=12)
+
+
