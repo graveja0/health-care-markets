@@ -246,13 +246,13 @@ admissions from each area flow to specific local hospitals. That is,
 admissions from area A *only* flow to hospital H1, and admissions from
 area B *only* flow to hospital H2. Notably, however, both hospitals are
 located in Area B (H1 is located in B but near the border with area A).
-This scenario is depicted in the **Scenario 1** panel of the image
+This scenario is depicted in the **Scenario 1** panel of the figure
 below.
 
 Now suppose that a single new hospital enters the market and locates in
 area A. This new hospital redirects 50 admissions from H1 after it
 enters the market. This scenario is depicted in the **Scenario 2** panel
-of the image.
+of the figure.
 
 Before we go about constructing HHI measures it is useful to think
 through how we would *expect* an HHI measure to respond to this market
@@ -264,7 +264,7 @@ patients moved to a different hospital
 ![](figs/01_hhi-example.png)
 
 If we used the geographic location method to construct HHI measures we
-would end up with the following:
+would end up with the following estimates:
 
 |                           | Area A | Area B |
 | ------------------------- | -----: | -----: |
@@ -273,7 +273,7 @@ would end up with the following:
 
 We can see through this simple example that the geographic location
 method has done a poor job of capturing the underlying change in the
-competitivenes of these two areas:
+competitivenes of these two areas. In particular,
 
 1.  In Scenario 1 we cannot even define an HHI measure for area A
     because no hospital happens to be located there; the hospital that
@@ -283,7 +283,7 @@ competitivenes of these two areas:
     10,000). Again, this is because there is only one hospital located
     in in Area A.
 
-3.  In Scenario 2, Area B (whose residents’ care patterns were
+3.  In Scenario 2, Area B (whose residents’ admissions patterns were
     unaffected by the new hospital) actually gets a slightly higher HHI
     value.
 
@@ -296,8 +296,8 @@ the competitive landscape:
 | Scenario 2 (Market Entry) |   5000 |  10000 |
 
 1.  In Scenario 1 we accurately capture the fact that both hospitals are
-    operating as monopolists, drawing all patients from each of the
-    respective areas.
+    operating in completely concentrated markets, drawing all patients
+    from each of the respective areas.
 
 2.  In Scenario 2 we accurately capture the change in competitiveness in
     Area A. The HHI measure drops from 10,000 to 5,000–reflecting the
@@ -312,10 +312,11 @@ the competitive landscape:
 It’s worth noting that the population flow method is also more robust to
 alternative geographic market definitions. Suppose that we define a new
 geographic boundary that includes H1 within area A. We’ll also draw (in
-dotted lines) the geographic boundary from above, and assume that 25
-admissions from within that boundary area (i.e., the area formerly in B)
-go to H2. In other words, the only thing that has changed is the
-(arbitrary) geographic boundary point delineating area A from B.
+dotted lines) the previous geographic boundary from above, and assume
+that 25 admissions from within that boundary area (i.e., the area
+formerly in B) still go to H2. In other words, the only thing that has
+changed is the (arbitrary) geographic boundary point delineating area A
+from B.
 
 ![](figs/01_hhi-example_2.png)
 
@@ -404,8 +405,20 @@ both rely on the same underlying ZIP-level data. But it is striking to
 see in the top panels how different HHI measures can be using the
 geographic location method for CZs and HRRs. In particular, HRRs
 designate some areas as not concentrated while the same area is highly
-concentrated under the CZ HHI
-measure.
+concentrated under the CZ HHI measure.
+
+# Market Concentation in Insurance Markets
+
+First let’s compare the aggregate HHI measures by different geographic
+market definitions:
+
+![](figs/01_HHI_commercial-self-insured.png)
+
+Now let’s focus on a county-level measure, and plot HHI measures by
+market
+segment:
+
+![](figs/01_HHI_insurer-by-market-type.png)
 
 <!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->
 
