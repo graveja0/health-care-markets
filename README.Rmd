@@ -39,29 +39,81 @@ theme_tufte_revised <- function(base_size = 11, base_family = "Gill Sans", ticks
 
 The objective of this repository is to lay out some thoughts, analytics, and data for defining geographic markets for health care services. In other words, it is a guided tour of a particularly complex rabbit hole. 
 
-Geographic market definitions are important for a wide variety of regulatory and research applications. Therefore, for any given use (e.g., analyses of a health system or hospital merger) or measure (e.g., constructing a Herfindahl-Hirschman index of market concentration) it is important to know whether and how the analytic output varies by alternative market definitions. 
+Geographic market definitions are important for a  variety of regulatory and research applications. Therefore, for any given use (e.g., analyses of a health system or hospital merger) or measure (e.g., constructing a Herfindahl-Hirschman index of market concentration) it is important to know whether and how the analytic output varies by alternative market definitions. 
 
-For example, suppose our goal is to characterize insurers, hospitals or other providers by whether they operate in a concentrated market. If we use a market geography definition that is too narrow (e.g., ZIP code) we risk mischaracterizing markets as "concentrated" when they are really not (i.e., Type I error). Alternatively, a market definition that is too broad (e.g., state) risks characterizing markets as competitive when in practice a hypothetical merger or market exit could materially affect prices and competitiveness  (i.e., Type II error). 
+For example, suppose our goal is to characterize insurers, hospitals or other providers by whether they operate in a concentrated market. If we use a market geography definition that is too narrow (e.g., county) we risk mischaracterizing markets as "concentrated" when they are really not (i.e., Type I error). Alternatively, a market definition that is too broad (e.g., state) risks characterizing markets as competitive when in practice a hypothetical merger or market exit could materially affect prices and competitiveness  (i.e., Type II error). 
 
-Not surprisingly given the above issues, commonly used market geographies have trade-offs. Obviously, whether the strengths outweigh the weaknesses for a given application will depend on the specific research or regulatory question at hand.  
+Not surprisingly given the above issues, commonly used market geographies have trade-offs. Whether the strengths outweigh the weaknesses for a given application will depend on the specific research or regulatory question at hand.  
 
-There are other important considerations at play as well. For example, some market definitions (e.g., rating areas) are constrained by geopolitical boundaries (e.g., state borders). While this may be fine for some settings (e.g., rate regulation in insurance markets, since consumers can only purchase a plan offered in their market) it may not be for others (e.g., hospitial markets, in which patients are unconstrained from crossing state boundaries). 
+There are other important considerations at play as well. For example, some market definitions are constrained by geopolitical boundaries (e.g., state borders). While this may be fine for some settings (e.g., rate regulation in insurance markets, since consumers can only purchase a plan offered in their market) it may not be for others (e.g., hospitial markets, in which patients are unconstrained from crossing state boundaries). 
 
-In addition, the underlying population data used to define some commonly used geographic markets is out of date. The latest commuting zone data are derived from commuting patterns ascertained in the 2010 Census. HRRs and HSAs, by comparison, are defined by patient flows to hospitals in 1992 and 1993. 
+In addition, the underlying population data used to define commonly used geographic markets is out of date. The latest offical commuting zone boundaries are derived from commuting patterns ascertained in the 2000 Census, though researchers have [updated]( https://sites.psu.edu/psucz/data/) these boundaries based on 2010 data. HRRs and HSAs, by comparison, are defined by patient flows to hospitals in 1992 and 1993. 
 
-Clearly, flows of both patients and commuters have changed substantially in many areas in the last 20-30 years. Whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question we will explore here.
+Clearly, flows patients and commuters have changed substantially in many areas in the last 20-30 years. Whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question we will explore here.
 
 Finally, it is worth mentioning that regulatory and antitrust reviews have drawn on a diverse set of addtional market geography definitions. The history, use and controversies surrounding these definitions are nicely covered in the Department of Justice chapter entitled ["Competition Law: Hospitals."](https://www.justice.gov/atr/chapter-4-competition-law-hospitals) 
-More generally, these alternative DOJ market definitions tend to rely on rich longitudinal data on prices in health care markets. While in theory such information could be obtained nationwide, in practice their construction is contigent on the painstaking collection of local data from relevant market participants. I do not profess to have the human capital or funding resources to undertake such an exercise here. So we will focus on more general market geography definitions that can more easily scale--particularly using publicly-available and relatively low-cost data. 
+These alternative DOJ market definitions tend to rely on rich  data on prices in health care markets. While in theory such information could be obtained nationwide, in practice the construction of market definitions using price data is contigent on the painstaking collection of local data from relevant market participants. I do not profess to have the human capital or funding resources to undertake such an exercise here. So we will focus on more general market geography definitions that can more easily scale--particularly using publicly-available and relatively low-cost data. 
 
-# Commonly Used Geographic Market Definitions 
 
-We begin by simply visualizing several commonly used geographic market definitions. These include HRRs, HSAs, primary care service areas (PCSAs), commuting zones, and health insurance rating areas as defined for the Affordable Care Act's non-group marketplaces.  
-These various market geographies are plotted for Tennessee in the figure below.  Note that the colors in each polygon are arbitrary and only intended to further highlight boundaries across geographies. 
+# Geographic Market Definitions
 
-What is clear here is that the size of the geographic market varies greatly across these possible definitions. HRRs constitute the largest service area and further, can stretch across state boundaries. HSAs are much smaller -- many in rural areas will contain only one hospital--so by construction, many HSAs will be classified as "concentrated" if HSA is used as the geographic market definition to construct an HHI measure. 
+Before moving on it is useful to put down, in one place, the specific methods and definitions used to construct each of the aforementioned geographic market definitions. 
 
-Similarly, we see that PCSAs are quite small, while rating areas in Tennessee are somewhere in-between the broader HRRs and commuting zones. 
+## Hospital Service Areas (HSA)
+
+HSAs are defined by the hospital care patterns of fee-for-service Medicare beneficiaries. Specifically, a three-step process is used:
+
+1. Define all general acute care hospitals in the U.S. The town or city of the hospital location becomes the basis for HSA naming. Thus, if a given town has more than one hospital, those hospitals would be considered as part of the same HSA. In practice most HSAs end up with one hospital, however.
+
+2. Aggregate all Medicare visits to the hospital (or hospitals, in cases where towns or cities have > 1 hospital). Using a plurality rule, assign ZIP codes to the HSA name where the most of its residents receive hospital care. 
+
+3. Curate the HSA assignments to assure that only contiguous ZIPs make up the HSA.
+
+In total there are 3,436 HSAs in the United States.
+
+According to the Dartmouth methods appendix, data from 1992-93 were used to construct HSA boundaries. However, crosswalks from ZIP code tabulation area (ZCTA) to HSA are available on the Dartmouth website through 2017. Since 3,436 unique HSAs appear in the latest (2017) crosswalk this suggests that the updates only pertain to ZCTA updates, rather than updates on the geographies of the underlying HSAs.
+
+## Hospital Referral Regions (HRR)
+
+Whereas HSAs are intented to capture the geographic catchment area where residents of a ZIP code receive most of their overall hospital services, HRRs are meant to capture larger teritary referral areas. 
+
+To identify HRRS, Dartmouth researchers aggregated HSAs into contiguous geographies based on where residents of the HSA received the most cardiovascular procedures and neurosurgeries. Thus, HSAs serve as the basic building block of HRRs. HRRs are also constructed to meet the following criteria:
+
+- Population of at least 120,000.
+- At least 65% of residents' services occurred within the region.
+- Comprised of geographically contiguous HSAs.
+
+In cases where the above criteria were not met, neighboring areas were pooled together until all criteria were satisfied. There are 306 HRRs in the United States.
+
+## Primary Care Service Areas
+
+PCSAs are intented to serve as HSAs for primary care. Thus, a PCSA is defined as a collection of contiguous ZIP codes with at least one primary care provider, and where the plurality of primary care services is obtained among fee-for-service Medicare beneficiaries. 
+
+There are 6,542 PCSAs in the U.S. -- or roughly double the number of HSAs. On average there are 4.9 ZCTAs in a PCTA (median =3, max = 81, min = 1).  61% of primary care services, on average, are obtained within PCSAs.
+
+
+## Marketplace Rating Areas
+
+Marketplace rating areas are geographically contiguous areas used for the purpopses of insurance plan rate setting in the non-group market. The default geography used to set rating areas is the Metropolitan Statistical Area (MSA) plus the remainder of the state not in an MSA (MSA+1 definition). However, states have the option to define alternative county,  3-digit ZIP, or MSA/non-MSA clusters if they deem some alternative definition more important for regulation and rate setting within the state. 
+
+In practice, only 7 states (AL, NM, ND, OK, TX, VA, WY) went along with the default (MSA+1) standard. The vast majority of the states submitted clusterings of counties as their rating area definitions. Another handful of states (MA, NE, AK) uses clusters of 3-digit ZIP codes, while CA uses a combination of counties and 3-digit ZIPs. Specifically, LA county is split into two rating areas based on 3-digit ZIP. 
+
+What this means is there is signficant heterogeneity across states in the geographic and population size of rating areas. South Carolina, for example, has 46 rating areas -- more than *double* the 19 rating areas that define California!
+
+
+## Commuting Zones
+
+Commuting zones are comprised of geographically contiguous counties with strong within-area clustering of commuting ties between residental and work county, and weak across-area ties. The [latest official commuting zone geography files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/) are based on patterns observed in the 2000 census. However, more recent county-to-county commuting data are available based on the 2009-2013 American Community Survey (ACS)  [are also available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html) and could be used to construct new commuting zone geographies. 
+
+For now, the zones used here will draw on the shapefiles constructed for 2010 at [Penn State](https://sites.psu.edu/psucz/).
+
+This description of the history and methods of commuting zones from the U.S. Department of Agriculture (USDA) is useful:
+
+> The ERS Commuting Zones (CZs) and Labor Market Areas (LMAs) were first developed in the 1980s as ways to better delineate local economies. County boundaries are not always adequate confines for a local economy and often reflect political boundaries rather than an area's local economy. CZs and LMAs are geographic units of analysis intended to more closely reflect the local economy where people live and work. Beginning in 1980 and continuing through 2000, hierarchical cluster analysis was used along with the Census Bureau's journey to work data to group counties into these areas. In 2000, there were 709 CZs delineated for the U.S., 741 in 1990, and 768 in 1980. LMAs are similar to CZs except that they had to have a minimum population of 100,000 persons. LMAs were only estimated in 1980 and 1990. This was done in order for the Census Bureau to create microdata samples using decennial census data (1980 PUMS-D, 1990 PUMS-L) that avoided disclosure. The LMAs were discontinued in 2000 because researchers found them to be too large and not as useful as the CZs. The identical methodology was used to develop CZs for all three decades.
+
+# Visualization of Market Definitions for Tennesee
+
+We will next visualize several commonly used geographic market definitions, including These HRRs, HSAs, primary care service areas (PCSAs), commuting zones, and health insurance rating areas.  These  market geographies are plotted for Tennessee in the figure below (though some will also dip into adjacent states).  Note that the colors in each polygon are arbitrary and only intended to further highlight boundaries across geographies. 
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
@@ -133,66 +185,10 @@ p_cz <- cz_map %>%
 p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 ```
 
-# Geographic Market Definitions
-
-Before moving on it is useful to put down, in one place, the specific methods and definitions used to construct each of the aforementioned geographic market definitions. 
-
-## Hospital Service Areas (HSA)
-
-HSAs are defined by the hospital care patterns of fee-for-service Medicare beneficiaries. Specifically, a three-step process is used:
-
-1. Define all general acute care hospitals in the U.S. The town or city of the hospital location becomes the basis for HSA naming. Thus, if a given town has more than one hospital, those hospitals would be considered as part of the same HSA. In practice most HSAs end up with one hospital, however.
-
-2. Aggregate all Medicare visits to the hospital (or hospitals, in cases where towns or cities have > 1 hospital). Using a plurality rule, assign ZIP codes to the HSA name where the most of its residents receive hospital care. 
-
-3. Curate the HSA assignments to assure that only contiguous ZIPs make up the HSA.
-
-In total there are 3,436 HSAs in the United States.
-
-According to the Dartmouth methods appendix, data from 1992-93 were used to construct HSA boundaries. However, crosswalks from ZIP code tabulation area (ZCTA) to HSA are available on the Dartmouth website through 2017. Since 3,436 unique HSAs appear in the latest (2017) crosswalk this suggests that the updates only pertain to ZCTA updates, rather than updates on the geographies of the underlying HSAs.
-
-## Hospital Referral Regions (HRR)
-
-Whereas HSAs are intented to capture the geographic catchment area where residents of a ZIP code receive most of their overall hospital services, HRRs are meant to capture larger teritary referral areas. 
-
-To identify HRRS, Dartmouth researchers aggregated HSAs into contiguous geographies based on where residents of the HSA received the most cardiovascular procedures and neurosurgeries. Thus, HSAs serve as the basic building block of HRRs. HRRs are also constructed to meet the following criteria:
-
-- Population of at least 120,000.
-- At least 65% of residents' services occurred within the region.
-- Comprised of geographically contiguous HSAs.
-
-In cases where the above criteria were not met, neighboring areas were pooled together until all criteria were satisfied. There are 306 HRRs in the United States.
-
-## Primary Care Service Areas
-
-PCSAs are intented to serve as HSAs for primary care. Thus, a PCSA is defined as a collection of contiguous ZIP codes with at least one primary care provider, and where the plurality of primary care services is obtained among fee-for-service Medicare beneficiaries. 
-
-There are 6,542 PCSAs in the U.S. -- or roughly double the number of HSAs. On average there are 4.9 ZCTAs in a PCTA (median =3, max = 81, min = 1).  61% of primary care services, on average, are obtained within PCSAs.
-
-
-## Marketplace Rating Areas
-
-Marketplace rating areas are geographically contiguous areas used for the purpopses of insurance plan rate setting in the non-group market. The default geography used to set rating areas is the Metropolitan Statistical Area (MSA) plus the remainder of the state not in an MSA (MSA+1 definition). However, states have the option to define alternative county,  3-digit ZIP, or MSA/non-MSA clusters if they deem some alternative definition more important for regulation and rate setting within the state. 
-
-In practice, only 7 states (AL, NM, ND, OK, TX, VA, WY) went along with the default (MSA+1) standard. The vast majority of the states submitted clusterings of counties as their rating area definitions. Another handful of states (MA, NE, AK) uses clusters of 3-digit ZIP codes, while CA uses a combination of counties and 3-digit ZIPs. Specifically, LA county is split into two rating areas based on 3-digit ZIP. 
-
-What this means is there is signficant heterogeneity across states in the geographic and population size of rating areas. South Carolina, for example, has 46 rating areas -- more than *double* the 19 rating areas that define California!
-
-
-## Commuting Zones
-
-Commuting zones are comprised of geographically contiguous counties with strong within-area clustering of commuting ties between residental and work county, and weak across-area ties. The [latest official commuting zone geography files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/) are based on patterns observed in the 2000 census. However, more recent county-to-county commuting data are available based on the 2009-2013 American Community Survey (ACS)  [are also available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html) and could be used to construct new commuting zone geographies. 
-
-For now, the zones used here will draw on the shapefiles constructed for 2010 at [Penn State](https://sites.psu.edu/psucz/).
-
-This description of the history and methods of commuting zones from the U.S. Department of Agriculture (USDA) is useful:
-
-> The ERS Commuting Zones (CZs) and Labor Market Areas (LMAs) were first developed in the 1980s as ways to better delineate local economies. County boundaries are not always adequate confines for a local economy and often reflect political boundaries rather than an area's local economy. CZs and LMAs are geographic units of analysis intended to more closely reflect the local economy where people live and work. Beginning in 1980 and continuing through 2000, hierarchical cluster analysis was used along with the Census Bureau's journey to work data to group counties into these areas. In 2000, there were 709 CZs delineated for the U.S., 741 in 1990, and 768 in 1980. LMAs are similar to CZs except that they had to have a minimum population of 100,000 persons. LMAs were only estimated in 1980 and 1990. This was done in order for the Census Bureau to create microdata samples using decennial census data (1980 PUMS-D, 1990 PUMS-L) that avoided disclosure. The LMAs were discontinued in 2000 because researchers found them to be too large and not as useful as the CZs. The identical methodology was used to develop CZs for all three decades.
-
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
-Next we will consider HHI measures constructed across the market geographies defined above. For these examples we'll focus on hospitals, but in principle we could do the same for insurers, or physicians, if sufficient data were avaialable. 
+Next we will consider HHI measures constructed based on the market geographies defined above. For these examples we'll focus on hospitals, but in principle we could do the same for insurers, or physicians, if sufficient data were available. 
 
 Before we do, however, it is useful to first lay out two different ways this can be done for a given market geography. *These different methods will yield different HHI measures for the same market geography* (e.g., CZ). 
 
@@ -238,11 +234,6 @@ If we used the geographic location method to construct HHI measures we would end
 hhi_area %>% mutate_at(2:3,function(x) round(x,0)) %>% knitr::kable(col.names=c("","Area A","Area B"),fig.cap = "HHI Measures Using Geographic Location Method")
 ```
 
-By comparison, if we used the population flow method we would get the following:
-```{r, echo = FALSE}
-hhi_pop %>% mutate_at(2:3,function(x) round(x,0)) %>% knitr::kable(col.names=c("","Area A","Area B"),fig.cap = "HHI Measures Using Population Flow Method")
-```
-
 We can see through this simple example that the geographic location method has done a poor job of capturing the underlying change in the competitivenes of these two areas: 
 
   1. In Scenario 1 we cannot even define an HHI measure for area A because no hospital happens to be located there; the hospital that all of its residents uses is just over the border in area B. 
@@ -251,7 +242,12 @@ We can see through this simple example that the geographic location method has d
   
   3. In Scenario 2, Area B (whose residents' care patterns were unaffected by the new hospital) actually gets a slightly higher HHI value. 
   
-By comparison, the patient flow method has done a better job of capturing the competitive landscape:
+  
+By comparison, the patient flow method does a better job of capturing the competitive landscape:
+
+```{r, echo = FALSE}
+hhi_pop %>% mutate_at(2:3,function(x) round(x,0)) %>% knitr::kable(col.names=c("","Area A","Area B"),fig.cap = "HHI Measures Using Population Flow Method")
+```
 
   1. In Scenario 1 we accurately capture the fact that both hospitals are operating as monopolists, drawing all patients from each of the respective areas. 
   
@@ -259,7 +255,7 @@ By comparison, the patient flow method has done a better job of capturing the co
   
   3. In Scenario 2 we also accurately capture the fact that Area B had no change in the underlying competitiveness--the introduction of Hospital H3 did not affect admissions at H2, as we correspondingly see no change in our HHI measure. 
 
-Finally, it's worth noting that the population flow method is also more robust to alternative geographic market definitions. Suppose that we define a new geographic boundary that includes H1 within area A. We'll also draw (in dotted lines) the geographic boundary from above, and assume that 25 admissions from within that boundary area (i.e., the area formerly in B) go to H2. In other words, the only thing that has changed is the (arbitrary) geographic boundary point delineating area A from B. 
+It's worth noting that the population flow method is also more robust to alternative geographic market definitions. Suppose that we define a new geographic boundary that includes H1 within area A. We'll also draw (in dotted lines) the geographic boundary from above, and assume that 25 admissions from within that boundary area (i.e., the area formerly in B) go to H2. In other words, the only thing that has changed is the (arbitrary) geographic boundary point delineating area A from B. 
 
 ![](figs/01_hhi-example_2.png)
 

@@ -5,16 +5,16 @@ The objective of this repository is to lay out some thoughts, analytics,
 and data for defining geographic markets for health care services. In
 other words, it is a guided tour of a particularly complex rabbit hole.
 
-Geographic market definitions are important for a wide variety of
-regulatory and research applications. Therefore, for any given use
-(e.g., analyses of a health system or hospital merger) or measure (e.g.,
-constructing a Herfindahl-Hirschman index of market concentration) it is
-important to know whether and how the analytic output varies by
-alternative market definitions.
+Geographic market definitions are important for a variety of regulatory
+and research applications. Therefore, for any given use (e.g., analyses
+of a health system or hospital merger) or measure (e.g., constructing a
+Herfindahl-Hirschman index of market concentration) it is important to
+know whether and how the analytic output varies by alternative market
+definitions.
 
 For example, suppose our goal is to characterize insurers, hospitals or
 other providers by whether they operate in a concentrated market. If we
-use a market geography definition that is too narrow (e.g., ZIP code) we
+use a market geography definition that is too narrow (e.g., county) we
 risk mischaracterizing markets as “concentrated” when they are really
 not (i.e., Type I error). Alternatively, a market definition that is too
 broad (e.g., state) risks characterizing markets as competitive when in
@@ -22,28 +22,30 @@ practice a hypothetical merger or market exit could materially affect
 prices and competitiveness (i.e., Type II error).
 
 Not surprisingly given the above issues, commonly used market
-geographies have trade-offs. Obviously, whether the strengths outweigh
-the weaknesses for a given application will depend on the specific
-research or regulatory question at hand.
+geographies have trade-offs. Whether the strengths outweigh the
+weaknesses for a given application will depend on the specific research
+or regulatory question at hand.
 
 There are other important considerations at play as well. For example,
-some market definitions (e.g., rating areas) are constrained by
-geopolitical boundaries (e.g., state borders). While this may be fine
-for some settings (e.g., rate regulation in insurance markets, since
-consumers can only purchase a plan offered in their market) it may not
-be for others (e.g., hospitial markets, in which patients are
-unconstrained from crossing state boundaries).
+some market definitions are constrained by geopolitical boundaries
+(e.g., state borders). While this may be fine for some settings (e.g.,
+rate regulation in insurance markets, since consumers can only purchase
+a plan offered in their market) it may not be for others (e.g.,
+hospitial markets, in which patients are unconstrained from crossing
+state boundaries).
 
-In addition, the underlying population data used to define some commonly
-used geographic markets is out of date. The latest commuting zone data
-are derived from commuting patterns ascertained in the 2010 Census. HRRs
-and HSAs, by comparison, are defined by patient flows to hospitals in
-1992 and 1993.
+In addition, the underlying population data used to define commonly used
+geographic markets is out of date. The latest offical commuting zone
+boundaries are derived from commuting patterns ascertained in the 2000
+Census, though researchers have
+[updated](https://sites.psu.edu/psucz/data/) these boundaries based on
+2010 data. HRRs and HSAs, by comparison, are defined by patient flows to
+hospitals in 1992 and 1993.
 
-Clearly, flows of both patients and commuters have changed substantially
-in many areas in the last 20-30 years. Whether these changes are
-material to defining geographic boundaries of contemporary health care
-markets remains an open question we will explore here.
+Clearly, flows patients and commuters have changed substantially in many
+areas in the last 20-30 years. Whether these changes are material to
+defining geographic boundaries of contemporary health care markets
+remains an open question we will explore here.
 
 Finally, it is worth mentioning that regulatory and antitrust reviews
 have drawn on a diverse set of addtional market geography definitions.
@@ -51,40 +53,15 @@ The history, use and controversies surrounding these definitions are
 nicely covered in the Department of Justice chapter entitled
 [“Competition Law:
 Hospitals.”](https://www.justice.gov/atr/chapter-4-competition-law-hospitals)
-More generally, these alternative DOJ market definitions tend to rely on
-rich longitudinal data on prices in health care markets. While in theory
-such information could be obtained nationwide, in practice their
-construction is contigent on the painstaking collection of local data
-from relevant market participants. I do not profess to have the human
-capital or funding resources to undertake such an exercise here. So we
-will focus on more general market geography definitions that can more
-easily scale–particularly using publicly-available and relatively
+These alternative DOJ market definitions tend to rely on rich data on
+prices in health care markets. While in theory such information could be
+obtained nationwide, in practice the construction of market definitions
+using price data is contigent on the painstaking collection of local
+data from relevant market participants. I do not profess to have the
+human capital or funding resources to undertake such an exercise here.
+So we will focus on more general market geography definitions that can
+more easily scale–particularly using publicly-available and relatively
 low-cost data.
-
-# Commonly Used Geographic Market Definitions
-
-We begin by simply visualizing several commonly used geographic market
-definitions. These include HRRs, HSAs, primary care service areas
-(PCSAs), commuting zones, and health insurance rating areas as defined
-for the Affordable Care Act’s non-group marketplaces.  
-These various market geographies are plotted for Tennessee in the figure
-below. Note that the colors in each polygon are arbitrary and only
-intended to further highlight boundaries across geographies.
-
-What is clear here is that the size of the geographic market varies
-greatly across these possible definitions. HRRs constitute the largest
-service area and further, can stretch across state boundaries. HSAs are
-much smaller – many in rural areas will contain only one hospital–so by
-construction, many HSAs will be classified as “concentrated” if HSA is
-used as the geographic market definition to construct an HHI measure.
-
-Similarly, we see that PCSAs are quite small, while rating areas in
-Tennessee are somewhere in-between the broader HRRs and commuting
-zones.
-
-<!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
-
-![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
 # Geographic Market Definitions
 
@@ -212,12 +189,27 @@ U.S. Department of Agriculture (USDA) is useful:
 > found them to be too large and not as useful as the CZs. The identical
 > methodology was used to develop CZs for all three decades.
 
+# Visualization of Market Definitions for Tennesee
+
+We will next visualize several commonly used geographic market
+definitions, including These HRRs, HSAs, primary care service areas
+(PCSAs), commuting zones, and health insurance rating areas. These
+market geographies are plotted for Tennessee in the figure below (though
+some will also dip into adjacent states). Note that the colors in each
+polygon are arbitrary and only intended to further highlight boundaries
+across
+geographies.
+
+<!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
+
+![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
-Next we will consider HHI measures constructed across the market
+Next we will consider HHI measures constructed based on the market
 geographies defined above. For these examples we’ll focus on hospitals,
 but in principle we could do the same for insurers, or physicians, if
-sufficient data were avaialable.
+sufficient data were available.
 
 Before we do, however, it is useful to first lay out two different ways
 this can be done for a given market geography. *These different methods
@@ -279,14 +271,6 @@ would end up with the following:
 | Scenario 1                |     NA |   5000 |
 | Scenario 2 (Market Entry) |  10000 |   5556 |
 
-By comparison, if we used the population flow method we would get the
-following:
-
-|                           | Area A | Area B |
-| ------------------------- | -----: | -----: |
-| Scenario 1                |  10000 |  10000 |
-| Scenario 2 (Market Entry) |   5000 |  10000 |
-
 We can see through this simple example that the geographic location
 method has done a poor job of capturing the underlying change in the
 competitivenes of these two areas:
@@ -303,8 +287,13 @@ competitivenes of these two areas:
     unaffected by the new hospital) actually gets a slightly higher HHI
     value.
 
-By comparison, the patient flow method has done a better job of
-capturing the competitive landscape:
+By comparison, the patient flow method does a better job of capturing
+the competitive landscape:
+
+|                           | Area A | Area B |
+| ------------------------- | -----: | -----: |
+| Scenario 1                |  10000 |  10000 |
+| Scenario 2 (Market Entry) |   5000 |  10000 |
 
 1.  In Scenario 1 we accurately capture the fact that both hospitals are
     operating as monopolists, drawing all patients from each of the
@@ -320,13 +309,13 @@ capturing the competitive landscape:
     Hospital H3 did not affect admissions at H2, as we correspondingly
     see no change in our HHI measure.
 
-Finally, it’s worth noting that the population flow method is also more
-robust to alternative geographic market definitions. Suppose that we
-define a new geographic boundary that includes H1 within area A. We’ll
-also draw (in dotted lines) the geographic boundary from above, and
-assume that 25 admissions from within that boundary area (i.e., the area
-formerly in B) go to H2. In other words, the only thing that has changed
-is the (arbitrary) geographic boundary point delineating area A from B.
+It’s worth noting that the population flow method is also more robust to
+alternative geographic market definitions. Suppose that we define a new
+geographic boundary that includes H1 within area A. We’ll also draw (in
+dotted lines) the geographic boundary from above, and assume that 25
+admissions from within that boundary area (i.e., the area formerly in B)
+go to H2. In other words, the only thing that has changed is the
+(arbitrary) geographic boundary point delineating area A from B.
 
 ![](figs/01_hhi-example_2.png)
 

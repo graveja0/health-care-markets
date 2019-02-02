@@ -12,3 +12,4 @@ R/.DS_Store
 output/geographic-crosswalks/*.rds
 reference/
 output/market-comparisons/*.rds
+output/hospital-county-patient-data/2017/*.rds
