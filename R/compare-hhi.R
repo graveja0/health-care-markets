@@ -140,6 +140,7 @@ hhi_hrr <-
              total_weight_hrr_admtot = total_weight) ,
     "hrrnum"
   )
+
 ms_hrr <-
   aha_markets %>%
   estimate_market_share(id = system_id,
@@ -170,6 +171,7 @@ hhi_cz <-
              total_weight_cz_admtot = total_weight) ,
     "cz_id"
   )
+
 
 ms_cz <-
   aha_markets %>%
@@ -305,13 +307,13 @@ hhi_cz_final <-
   hhi_cz %>% 
   left_join(zip_hhi_aggregated_to_cz,"cz_id")
 hhi_cz_final %>% 
-  write_rds(here("output/market-comparisons/01_HHI_commuting-zone.rds"))
+  write_rds(here("output/market-comparisons/01_HHI_genacute_cz.rds"))
 
 hhi_hrr_final <- 
   hhi_hrr %>% 
   left_join(zip_hhi_aggregated_to_hrr,"hrrnum")
 hhi_hrr_final %>% 
-  write_rds(here("output/market-comparisons/01_HHI_hrr.rds"))
+  write_rds(here("output/market-comparisons/01_HHI_genacute_hrr.rds"))
 
 ####################
 #### Construct Maps

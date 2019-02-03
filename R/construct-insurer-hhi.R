@@ -156,12 +156,21 @@ drg_hhi_hrr <-
   mutate(market = paste0("hhi_",market)) %>% 
   spread(market,hhi_hrr)
 
+drg_hrr_cz %>% 
+  write_rds(here("output/market-comparisons/01_HHI_insurer_hrr.rds"))
+
+
 drg_hhi_cz <- 
   drg_hhi_aggregated %>% 
   select(year,market,hhi_cz) %>% 
   unnest() %>% 
   mutate(market = paste0("hhi_",market)) %>% 
   spread(market,hhi_cz)
+
+drg_hhi_cz %>% 
+  write_rds(here("output/market-comparisons/01_HHI_insurer_cz.rds"))
+
+
 
 drg_hhi_rating_area <- 
   drg_hhi_aggregated %>% 

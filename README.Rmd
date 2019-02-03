@@ -2,6 +2,7 @@
 output: github_document
 editor_options: 
   chunk_output_type: console
+bibliography: ../../../box/Research-Provider_Networks/manuscripts/networks-r01-bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -304,7 +305,7 @@ To construct these maps the two methods above were used, with the following spec
 - For the Geographic Location HHI Method, we identify all hospitals within the geographic area. We then then construct HHI measures based on market shares defined by FFS Medicare Patients. Note that this allows us to be consistent with the patient definition used in the patient flow method, as describd below. In practice this yielded nearly identical HHI measures when total admissions were used, as shown in the plot below. 
 
 ```{r, echo= FALSE, fig.width = 3, fig.height = 3}
-read_rds(here("output/market-comparisons/01_HHI_hrr.rds")) %>% 
+read_rds(here("output/market-comparisons/01_HHI_genacute_hrr.rds")) %>% 
   ggplot(aes(x = hhi_hrr,y = hhi_hrr_admtot)) + 
   geom_point() + 
   ylab("HHI Based on Total Admissions") + 
@@ -326,6 +327,9 @@ It is also notable that the patient flow method yielded very similar maps when u
 
 # Market Concentation in Insurance Markets
 
+Data on insurer consolidation are drawn from Managed Markets Surveyor (MMS) from Decision Resources Group. The MMS data form the backbone of the HealthLeaders-InterStudy data used in previous research on insurer competition [@fulton_health_2017; @trish_how_2015]. The MMS data provide plan enrollment information at the insurer-county level. Enrollment is provided overall and separately by market type (commercial fully insured, commercial self-insured, Medicare Advantage, Medicaid Managed Care, and ACA-compliant non-group insurance). Enrollment is derived for enrollees' county of residence, not the county of the employer or insurer. MMS data are sourced directly from health plans, and the underlying census survey of plans has an 88% response rate, covering approximately 94% of insured lives in the U.S. (Personal communication with DRG on 8/26/16). The MMS data are routinely used by health plans and pharmaceutical companies for market analytics. 
+
+
 First let's compare the aggregate HHI measures by different geographic market definitions:
 
 ![](figs/01_HHI_commercial-self-insured.png)
@@ -336,6 +340,17 @@ Now let's focus on a county-level measure, and plot HHI measures by market segme
 
 And total insured:
 ![](figs/01_HHI_insurer-total_insured.png)
+
+
+# Physician-Level HHI
+
+The SK&A data are the basis of the HHI measures for office-based physicians, as described in @richards_physician_2017.
+
+From @richards_physician_2017:
+
+> We construct three different measures of a Herfindahl‐Hirschman Index (HHI) for physician markets.... Each measure reflects the allocation and organization of all physician specialists within a given geographic area. In other words, we capture if an insurer would have relatively few or many physician practices to negotiate with in regard to enrollee access and payments (as well as other contractual terms).
+
+![](figs/01_HHI_primary-care.png)
 
 <!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->
 

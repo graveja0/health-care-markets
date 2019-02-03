@@ -409,6 +409,21 @@ concentrated under the CZ HHI measure.
 
 # Market Concentation in Insurance Markets
 
+Data on insurer consolidation are drawn from Managed Markets Surveyor
+(MMS) from Decision Resources Group. The MMS data form the backbone of
+the HealthLeaders-InterStudy data used in previous research on insurer
+competition (Fulton 2017; Trish and Herring 2015). The MMS data provide
+plan enrollment information at the insurer-county level. Enrollment is
+provided overall and separately by market type (commercial fully
+insured, commercial self-insured, Medicare Advantage, Medicaid Managed
+Care, and ACA-compliant non-group insurance). Enrollment is derived for
+enrollees’ county of residence, not the county of the employer or
+insurer. MMS data are sourced directly from health plans, and the
+underlying census survey of plans has an 88% response rate, covering
+approximately 94% of insured lives in the U.S. (Personal communication
+with DRG on 8/26/16). The MMS data are routinely used by health plans
+and pharmaceutical companies for market analytics.
+
 First let’s compare the aggregate HHI measures by different geographic
 market definitions:
 
@@ -419,8 +434,24 @@ market segment:
 
 ![](figs/01_HHI_insurer-by-market-type.png)
 
-And total insured:
-![](figs/01_HHI_insurer-total_insured.png)
+And total insured: ![](figs/01_HHI_insurer-total_insured.png)
+
+# Physician-Level HHI
+
+The SK\&A data are the basis of the HHI measures for office-based
+physicians, as described in Richards et al. (2017).
+
+From Richards et al. (2017):
+
+> We construct three different measures of a Herfindahl‐Hirschman Index
+> (HHI) for physician markets…. Each measure reflects the allocation and
+> organization of all physician specialists within a given geographic
+> area. In other words, we capture if an insurer would have relatively
+> few or many physician practices to negotiate with in regard to
+> enrollee access and payments (as well as other contractual
+terms).
+
+![](figs/01_HHI_primary-care.png)
 
 <!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->
 
@@ -563,3 +594,32 @@ And total insured:
     The final file is rolled up to the FIPS county level and is storeed
     in
     `output/hospital-county-patient-data/2017/hospital-county-patient-data.rds`.
+
+<div id="refs" class="references">
+
+<div id="ref-fulton_health_2017">
+
+Fulton, Brent D. 2017. “Health Care Market Concentration Trends in the
+United States: Evidence and Policy Responses.” *Health Affairs* 36 (9):
+1530–8.
+
+</div>
+
+<div id="ref-richards_physician_2017">
+
+Richards, Michael R., Catherine T. Smith, Amy J. Graves, Melinda B.
+Buntin, and Matthew J. Resnick. 2017. “Physician Competition in the Era
+of Accountable Care Organizations.” *Health Services Research*, March.
+<https://doi.org/10.1111/1475-6773.12690>.
+
+</div>
+
+<div id="ref-trish_how_2015">
+
+Trish, Erin E., and Bradley J. Herring. 2015. “How Do Health Insurer
+Market Concentration and Bargaining Power with Hospitals Affect Health
+Insurance Premiums?” *Journal of Health Economics* 42: 104–14.
+
+</div>
+
+</div>
