@@ -1,7 +1,9 @@
-#' ---
-#' output: github_document
-#' ---
+construct-insurer-hhi.R
+================
+johngraves
+Sat Feb 2 18:52:34 2019
 
+``` r
 # Note do we need to split CZs into CZ-states? Otherwise HHI measures from one state will be informed by those from another.
 
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
@@ -85,7 +87,19 @@ county_to_hrr <- read_csv(here("public-data/shape-files/dartmouth-hrr-hsa-pcsa/c
   #filter(row_number()==1) %>% 
   ungroup() %>% 
   select(fips_code,hrrnum = hrr, hrr_afact = afact)
+```
 
+    ## Parsed with column specification:
+    ## cols(
+    ##   county = col_character(),
+    ##   hsa = col_character(),
+    ##   hrr = col_character(),
+    ##   pop10 = col_character(),
+    ##   afact = col_character(),
+    ##   AFACT2 = col_character()
+    ## )
+
+``` r
 # Cosswalk from county to commuting zone.
 county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>% 
   janitor::clean_names() %>% 
@@ -230,6 +244,11 @@ p4 <- sf_ra %>%
 
 
 p1 + p2 + p3 + p4  + plot_layout(ncol=2, nrow=2)
+```
+
+![](construct-insurer-hhi_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
 ggsave(filename = here("figs/01_HHI_commercial-self-insured.png"),dpi = 300, scale =1,width = 12, height=12)
 
 
@@ -321,6 +340,11 @@ p_medicare <-
 
   
 p_commercial + p_phxind + p_medicaid + p_medicare  + plot_layout(nrow=2,ncol=2)
+```
+
+![](construct-insurer-hhi_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->
+
+``` r
 ggsave(filename = here("figs/01_HHI_insurer-by-market-type.png"),dpi = 300, scale =1,width = 12, height=12)
 
 
@@ -337,6 +361,10 @@ sf_cz %>%
   remove_all_axes +
   ggtitle("Total Insured") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
+```
+
+![](construct-insurer-hhi_files/figure-gfm/unnamed-chunk-1-3.png)<!-- -->
+
+``` r
 ggsave(filename = here("figs/01_HHI_insurer-total_insured.png"),dpi = 300, scale =1,width = 12, height=12)
-
-
+```
