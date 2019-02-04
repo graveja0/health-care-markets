@@ -234,9 +234,29 @@ CZ).
     average (with weights defined by population share, or total
     admission share, etc.).
 
-It is worth noting that the patient flow method generally lines up
-better with the underlying economic concept of what an HHI is trying to
-capture. A simple example will demonstrate this.
+It is critical to observe that both of these methods may suffer from
+endogeneity problems. That is, the choice of geographic location of
+(new) hospitals, the survival of existing hospitals, and the flow of
+patients to existing hospitals from the surrounding area, may depend on
+the relative quality of hospitals in the area market. A high-performing
+hospital, in other words, may draw in a high volume of patients from the
+local area–which could drive poorer-quality neighboring hospitals out of
+business.
+
+Both of these dynamics would result in HHI measures that indicate the
+high quality hospital is in a concentrated market. This could severely
+complicate efforts to, for example, examine the relationship between
+market concentration and patient outcomes. For this reason, some (e.g.,
+Kessler and McClellan) have relied on predicted patient flows, rather
+than acutal patient flows, in the construction of HHI measures. This
+method isn’t fully absolved of endogeneity concerns, however, sine
+endogenous coding practices may still complicate efforts to construct
+unbiased predictions of patient flows.
+
+With that said, it is worth noting that the patient flow method
+generally lines up better with the underlying economic concept of what
+an HHI is trying to capture. A simple example below will demonstrate
+this.
 
 ## A Simple Example
 
@@ -437,6 +457,12 @@ market segment:
 And total insured: ![](figs/01_HHI_insurer-total_insured.png)
 
 # Physician-Level HHI
+
+Constructing physician-level HHI measures proves the most challenging
+because it is difficult to obtain patient-level data on where they
+obtain physician services. Thus, a geographic location method must be
+adopted, which will result in considerably more variation in HHI
+measures across different geographies (e.g., PCSAs vs. CZs vs. HRRs)
 
 The SK\&A data are the basis of the HHI measures for office-based
 physicians, as described in Richards et al. (2017).

@@ -1,7 +1,9 @@
-#' ---
-#' output: github_document
-#' ---
+construct-physician-hhi.R
+================
+johngraves
+Mon Feb 4 07:27:07 2019
 
+``` r
 # The objective of this file is to construct physician-level HHI measures.
 
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
@@ -140,7 +142,21 @@ zcta_to_hrr_hsa <- read_csv(here("public-data/shape-files/nber-hrr-hsa-pcsa/ziph
   janitor::clean_names() %>% 
   rename(zip_code = zipcode ) %>% 
   select(-year)
+```
 
+    ## Parsed with column specification:
+    ## cols(
+    ##   zipcode = col_character(),
+    ##   hsanum = col_double(),
+    ##   hsacity = col_character(),
+    ##   hsastate = col_character(),
+    ##   hrrnum = col_double(),
+    ##   hrrcity = col_character(),
+    ##   hrrstate = col_character(),
+    ##   year = col_double()
+    ## )
+
+``` r
 # Source: https://sites.psu.edu/psucz/data/
 county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>% 
   janitor::clean_names() %>% 
@@ -217,8 +233,12 @@ ndf_md_hhi <-
                    weight = panel_size,
                    market = fips_code) 
   )))
+```
 
+    ## Warning: Column `zip_code` joining character vector and factor, coercing
+    ## into character vector
 
+``` r
 df_md_hhi_hrr <- 
   ndf_md_hhi %>% 
   select(year,specialty,hhi_hrr) %>% 
@@ -357,6 +377,10 @@ p5 <- sf_pcsa %>%
 
 
 p1 + p2 + p3 + p4  + p5 +  plot_layout(ncol=2, nrow=3)
+```
+
+![](construct-physician-hhi_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
 ggsave(filename = here("figs/01_HHI_primary-care.png"),dpi = 300, scale =1,width = 12, height=16)
-
-
+```

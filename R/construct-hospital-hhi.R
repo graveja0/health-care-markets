@@ -41,7 +41,7 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
     filter(mstate %in% states) %>% 
     mutate(system_id = ifelse(!is.na(sysid),paste0("SYS_",sysid),id)) %>% 
     filter(serv==10) %>% 
-    select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id, mloczip, sysname) %>% 
+    select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id, mloczip, sysname,fips_code=fcounty) %>% 
     mutate(prvnumgrp = mcrnum) %>% 
     mutate(hosp_zip_code = str_sub(mloczip,1,5)) 
   
