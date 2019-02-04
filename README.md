@@ -247,9 +247,9 @@ Both of these dynamics would result in HHI measures that indicate the
 high quality hospital is in a concentrated market. This could severely
 complicate efforts to, for example, examine the relationship between
 market concentration and patient outcomes. For this reason, some (e.g.,
-Kessler and McClellan) have relied on predicted patient flows, rather
-than acutal patient flows, in the construction of HHI measures. This
-method isn’t fully absolved of endogeneity concerns, however, sine
+Kessler and McClellan 2000) have relied on predicted patient flows,
+rather than acutal patient flows, in the construction of HHI measures.
+This method isn’t fully absolved of endogeneity concerns, however, sine
 endogenous coding practices may still complicate efforts to construct
 unbiased predictions of patient flows.
 
