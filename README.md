@@ -234,14 +234,17 @@ CZ).
     average (with weights defined by population share, or total
     admission share, etc.).
 
-It is critical to observe that both of these methods may suffer from
+It is critical to observe that both of these methods likely suffer from
 endogeneity problems. That is, the choice of geographic location of
 (new) hospitals, the survival of existing hospitals, and the flow of
 patients to existing hospitals from the surrounding area, may depend on
 the relative quality of hospitals in the area market. A high-performing
 hospital, in other words, may draw in a high volume of patients from the
 local area–which could drive poorer-quality neighboring hospitals out of
-business.
+business. Indeed, we have [good
+evidence](https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20151080) that
+is is the case: higher-quality hospitals both have a larger market share
+at a point in time, and growing market share over time.
 
 Both of these dynamics would result in HHI measures that indicate the
 high quality hospital is in a concentrated market. This could severely
@@ -487,6 +490,8 @@ too far–to get to “better” hospitals. We can explore whether these
 longer-distance hosptials are of higher quality at some point later.
 
 ![](figs/01_check-endogeneity-distance.png)
+
+## Is there a relationship between reported quality and market share?
 
 # Market Concentation in Insurance Markets
 

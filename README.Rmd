@@ -175,7 +175,7 @@ Before we do, however, it is useful to first lay out two different ways this can
 
 2. **Patient Flow Method**: Under this method we identify the set of hospitals that treat patients *who reside in the geographic market* (e.g., the CZ). Unlike the method above, this will bring in hospitals located outside the geographic market boundaries. Note that this can be done at a lower level of aggregation (e.g., at the ZIP code level). Then, those ZIP-level HHIs can be aggregated up to another market geography level (e.g. HRR) by taking a weighted average (with weights defined by population share, or total admission share, etc.). 
 
-It is critical to observe that both of these methods may suffer from endogeneity problems. That is, the choice of geographic location of (new) hospitals, the survival of existing hospitals, and the flow of patients to existing hospitals from the surrounding area, may depend on the relative quality of hospitals in the area market. A high-performing hospital, in other words, may draw in a high volume of patients from the local area--which could drive poorer-quality neighboring hospitals out of business. 
+It is critical to observe that both of these methods likely suffer from endogeneity problems. That is, the choice of geographic location of (new) hospitals, the survival of existing hospitals, and the flow of patients to existing hospitals from the surrounding area, may depend on the relative quality of hospitals in the area market. A high-performing hospital, in other words, may draw in a high volume of patients from the local area--which could drive poorer-quality neighboring hospitals out of business. Indeed, we have [good evidence](https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20151080) that is is the case: higher-quality hospitals both have a larger market share at a point in time, and growing market share over time. 
 
 Both of these dynamics would result in HHI measures that indicate the high quality hospital is in a concentrated market. This could severely complicate efforts to, for example, examine the relationship between market concentration and patient outcomes. For this reason, some (e.g., Kessler and McClellan 2000) have relied on predicted patient flows, rather than acutal patient flows, in the construction of HHI measures. This method isn't fully absolved of endogeneity concerns, however, sine  endogenous coding practices may still complicate efforts to construct unbiased predictions of patient flows. 
 
@@ -323,6 +323,10 @@ We plot this level of variation in the LOESS curve in the rightmost plot. This p
 We see here some evidence that people from the same ZIP are willing to travel farther. At relatively low distances (e.g., within a few miles of difference) there is a positive relationship between distance traveled at market share. But then, at larger distances between the ZIP and the hosptial,  this relationship attenuates and then becomes negative. So more people from the same ZIP may be willing to travel farther--but not too far--to get to "better" hospitals. We can explore whether these longer-distance hosptials are of higher quality at some point later. 
 
 ![](figs/01_check-endogeneity-distance.png)
+
+## Is there a relationship between reported quality and market share?
+
+
 
 # Market Concentation in Insurance Markets
 
