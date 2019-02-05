@@ -30,8 +30,6 @@ sf_state <- read_sf(here("output/tidy-mapping-files/state/01_state-shape-file.sh
 sf_county <- read_sf(here("output/tidy-mapping-files/county/01_county-shape-file.shp")) %>% 
   st_transform(crs = 4326)
 
-
-
 # Map General Actue Care Hospitals to Markets
 
 if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
@@ -89,8 +87,16 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
 
 }
 
+# Hospital Distances: Average Distance Traveled to Hospital
+if (!file.exists(here("output/market-comparisons/01_zip-hospital-distances.rds"))) {
+  source(here("R/calculate-zip-hospital-distances.R"))
+} else {
+  df_hosp_zip_dist <- read_rds(here("output/market-comparisons/01_zip-hospital-distances.rds"))
+}
+
 # Load the hospital-zip service file constructed in "R/read-and-tidy-cms-hospital-service-areas.R")
-df_hosp_zip <- read_rds(here("output/hospital-county-patient-data/2017/hospital-zip-patient-data.rds"))  
+df_hosp_zip <- read_rds(here("output/hospital-county-patient-data/2017/hospital-zip-patient-data.rds")) %>% 
+  left_join(df_hosp_zip_dist,"prvnumgrp")
 
 # We use an alternative patient count number based on the total_cases variable from the hosptial-zip file 
 # in our exploration of Simpson's paradox below. This ensures that the aggregate market HHIs are based
@@ -214,6 +220,8 @@ ms_cz %>% write_rds(path = here("output/market-comparisons/01_2017_commuting-zon
   zip_market_shares %>% 
     write_rds(path = here("output/market-comparisons/01_2017_ZIP-market-shares.rds"))
 
+
+  
 # Link Market-Level HHI Measures to "COMMON UNIT" (i.e., county) to facilitate comparison
   
   # Crosswalk from county to HRR

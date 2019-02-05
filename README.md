@@ -427,22 +427,84 @@ geographic location method for CZs and HRRs. In particular, HRRs
 designate some areas as not concentrated while the same area is highly
 concentrated under the CZ HHI measure.
 
+# Endogeneity of HHI Measures
+
+In this section we will consider some fairly basic analyses of the
+question of endogeneity. As noted above, a key concern of HHI measures
+may be that both hospital location and patient flows may be endogenously
+determined with hospital quality: a new hospital may co-locate near a
+poor performing hospital (or conversely, may locate away from a good
+hospital). Or patients may be willing to travel farther to a “good”
+hospital. If that is the case, then high-quality hospitals may attract
+more patients – and thus, an HHI measure may indicate that such
+hospitals are operating in “concentrated” markets. This complicates any
+kind of analysis we might wish to conduct to, for example, examine the
+relationship between market concentration and prices or patient
+outcomes. That is, if a hospital operating in a “concentrated” market
+has higher prices, it’s impossible to tease apart what portion is
+explained by market concentration as opposed to being able to charge
+higher prices because they are of higher quality. Alternatively, we
+might find that hospitals in concentrated markets achieve better patient
+outcomes – but this may be more a story of quality than a story of
+market power.
+
+## Is there a relationship between distance traveled and market share?
+
+With these issues in mind, let’s now briefly explore the relationship
+between distance traveled and hospital market share. We will again draw
+on the 2017 hosptial-zip data from CMS. In particular, using these data
+we can, for each ZIP-hosptial comparison, calculate the approximate
+distance traveled (using ZIP centroids and hosptial latitude and
+longitude data from AHA). We can also use the same data to calculate the
+market share by hospital system ID, and take a weighted average of the
+distance traveled (weighted by patient volume from the ZIP) by hospital
+system ID.
+
+We plot the relationship between market share and distance traveled
+below. On the left is the unadjusted relationship, and plotted is a
+LOESS curve. We see here that (not surprisingly) as distance traveled
+increases, market share decreases almost linearly.
+
+But this isn’t very interesting because it likely just reflects the
+great variation in distances that people must travel from different ZIP
+codes in the US. What we *really* want is variation in the distance
+traveled *within* each ZIP to various hospitals in the area.
+
+We plot this level of variation in the LOESS curve in the rightmost
+plot. This panel plots residualized distance and market share measures
+based on a ZIP code fixed effect. Note that these residualized measures
+are constructed based on demeaning at the ZIP code level, then
+re-meaning based on the overall sample mean to put them (roughly) back
+on the original scale.
+
+We see here some evidence that people from the same ZIP are willing to
+travel farther. At relatively low distances (e.g., within a few miles of
+difference) there is a positive relationship between distance traveled
+at market share. But then, at larger distances between the ZIP and the
+hosptial, this relationship attenuates and then becomes negative. So
+more people from the same ZIP may be willing to travel farther–but not
+too far–to get to “better” hospitals. We can explore whether these
+longer-distance hosptials are of higher quality at some point later.
+
+![](figs/01_check-endogeneity-distance.png)
+
 # Market Concentation in Insurance Markets
 
-Data on insurer consolidation are drawn from Managed Markets Surveyor
-(MMS) from Decision Resources Group. The MMS data form the backbone of
-the HealthLeaders-InterStudy data used in previous research on insurer
-competition (Fulton 2017; Trish and Herring 2015). The MMS data provide
-plan enrollment information at the insurer-county level. Enrollment is
-provided overall and separately by market type (commercial fully
-insured, commercial self-insured, Medicare Advantage, Medicaid Managed
-Care, and ACA-compliant non-group insurance). Enrollment is derived for
-enrollees’ county of residence, not the county of the employer or
-insurer. MMS data are sourced directly from health plans, and the
-underlying census survey of plans has an 88% response rate, covering
-approximately 94% of insured lives in the U.S. (Personal communication
-with DRG on 8/26/16). The MMS data are routinely used by health plans
-and pharmaceutical companies for market analytics.
+We’ll now turn our attention to calculating HHI measures on the insurer
+side of the equation. Data on insurer market shares are drawn from
+Managed Markets Surveyor (MMS) from Decision Resources Group. The MMS
+data form the backbone of the HealthLeaders-InterStudy data used in
+previous research on insurer competition (Fulton 2017; Trish and Herring
+2015). The MMS data provide plan enrollment information at the
+insurer-county level. Enrollment is provided overall and separately by
+market type (commercial fully insured, commercial self-insured, Medicare
+Advantage, Medicaid Managed Care, and ACA-compliant non-group
+insurance). Enrollment is derived for enrollees’ county of residence,
+not the county of the employer or insurer. MMS data are sourced directly
+from health plans, and the underlying census survey of plans has an 88%
+response rate, covering approximately 94% of insured lives in the U.S.
+(Personal communication with DRG on 8/26/16). The MMS data are routinely
+used by health plans and pharmaceutical companies for market analytics.
 
 First let’s compare the aggregate HHI measures by different geographic
 market definitions:
