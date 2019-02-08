@@ -192,10 +192,10 @@ U.S. Department of Agriculture (USDA) is useful:
 # Visualization of Market Definitions for Tennesee
 
 We will next visualize several commonly used geographic market
-definitions, including These HRRs, HSAs, primary care service areas
-(PCSAs), commuting zones, and health insurance rating areas. These
-market geographies are plotted for Tennessee in the figure below (though
-some will also dip into adjacent states). Note that the colors in each
+definitions including HRRs, HSAs, primary care service areas (PCSAs),
+commuting zones, and health insurance rating areas. These market
+geographies are plotted for Tennessee in the figure below (though some
+will also dip into adjacent states). Note that the colors in each
 polygon are arbitrary and only intended to further highlight boundaries
 across
 geographies.
@@ -207,9 +207,7 @@ geographies.
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
 Next we will consider HHI measures constructed based on the market
-geographies defined above. For these examples we’ll focus on hospitals,
-but in principle we could do the same for insurers, or physicians, if
-sufficient data were available.
+geographies defined above. For these examples we’ll focus on hospitals.
 
 Before we do, however, it is useful to first lay out two different ways
 this can be done for a given market geography. *These different methods
@@ -491,8 +489,6 @@ longer-distance hosptials are of higher quality at some point later.
 
 ![](figs/01_check-endogeneity-distance.png)
 
-## Is there a relationship between reported quality and market share?
-
 # Market Concentation in Insurance Markets
 
 We’ll now turn our attention to calculating HHI measures on the insurer
@@ -687,6 +683,38 @@ terms).
     The final file is rolled up to the FIPS county level and is storeed
     in
     `output/hospital-county-patient-data/2017/hospital-county-patient-data.rds`.
+
+## References to Incorporate
+
+  - [The accuracy of hospital merger screening
+    methods](https://onlinelibrary.wiley.com/doi/full/10.1111/1756-2171.12215)
+
+  - [Hospital Consolidation And Negotiated PPO
+    Prices](https://www.healthaffairs.org/doi/10.1377/hlthaff.23.2.175)
+
+  - [Hospital interdependence in a competitive institutional
+    environment: Evidence from Italy HEDG HEALTH, ECONOMETRICS AND DATA
+    GROUP Hospital interdependence in a competitive institutional
+    environment: Evidence from
+    Italy](https://www.researchgate.net/publication/315653564_Hospital_interdependence_in_a_competitive_institutional_environment_Evidence_from_Italy_HEDG_HEALTH_ECONOMETRICS_AND_DATA_GROUP_Hospital_interdependence_in_a_competitive_institutional_environment_Evid)
+
+  - [Techniques for defining markets for private healthcare in the UK:
+    literature
+    review](https://www.oxera.com/publications/techniques-for-defining-markets-for-private-healthcare-in-the-uk-literature-review/)
+
+  - [Health Care Market Concentration Trends In The United States:
+    Evidence And Policy
+    Responses](https://www.healthaffairs.org/doi/10.1377/hlthaff.2017.0556)
+
+  - [A Structural Approach to Market Definition With an Application to
+    the Hospital
+    Industry†](https://onlinelibrary.wiley.com/doi/abs/10.1111/joie.12015)
+
+  - [Getting Market Defintiion Right: Hospital Merger Cases and
+    Beyond](https://www.competitionpolicyinternational.com/wp-content/uploads/2017/07/CPI-Gaynor-Pflum.pdf)
+
+  - [Competition and market power in option demand
+    markets](https://pdfs.semanticscholar.org/868f/28b7b1f33c170f2f5e3fbeff6d3a4b1ecd7c.pdf)
 
 <div id="refs" class="references">
 

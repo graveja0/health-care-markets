@@ -70,7 +70,6 @@ PCSAs are intented to serve as HSAs for primary care. Thus, a PCSA is defined as
 
 There are 6,542 PCSAs in the U.S. -- or roughly double the number of HSAs. On average there are 4.9 ZCTAs in a PCTA (median =3, max = 81, min = 1).  61% of primary care services, on average, are obtained within PCSAs.
 
-
 ## Marketplace Rating Areas
 
 Marketplace rating areas are geographically contiguous areas used for the purpopses of insurance plan rate setting in the non-group market. The default geography used to set rating areas is the Metropolitan Statistical Area (MSA) plus the remainder of the state not in an MSA (MSA+1 definition). However, states have the option to define alternative county,  3-digit ZIP, or MSA/non-MSA clusters if they deem some alternative definition more important for regulation and rate setting within the state. 
@@ -92,7 +91,7 @@ This description of the history and methods of commuting zones from the U.S. Dep
 
 # Visualization of Market Definitions for Tennesee
 
-We will next visualize several commonly used geographic market definitions, including These HRRs, HSAs, primary care service areas (PCSAs), commuting zones, and health insurance rating areas.  These  market geographies are plotted for Tennessee in the figure below (though some will also dip into adjacent states).  Note that the colors in each polygon are arbitrary and only intended to further highlight boundaries across geographies. 
+We will next visualize several commonly used geographic market definitions including HRRs, HSAs, primary care service areas (PCSAs), commuting zones, and health insurance rating areas.  These  market geographies are plotted for Tennessee in the figure below (though some will also dip into adjacent states).  Note that the colors in each polygon are arbitrary and only intended to further highlight boundaries across geographies. 
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
@@ -167,7 +166,7 @@ p_hrr + p_hsa + p_pcsa + p_cz + p_ra + plot_layout(nrow=3)
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
-Next we will consider HHI measures constructed based on the market geographies defined above. For these examples we'll focus on hospitals, but in principle we could do the same for insurers, or physicians, if sufficient data were available. 
+Next we will consider HHI measures constructed based on the market geographies defined above. For these examples we'll focus on hospitals. 
 
 Before we do, however, it is useful to first lay out two different ways this can be done for a given market geography. *These different methods will yield different HHI measures for the same market geography* (e.g., CZ). 
 
@@ -324,10 +323,6 @@ We see here some evidence that people from the same ZIP are willing to travel fa
 
 ![](figs/01_check-endogeneity-distance.png)
 
-## Is there a relationship between reported quality and market share?
-
-
-
 # Market Concentation in Insurance Markets
 
 We'll now turn our attention to calculating HHI measures on the insurer side of the equation. Data on insurer market shares are drawn from Managed Markets Surveyor (MMS) from Decision Resources Group. The MMS data form the backbone of the HealthLeaders-InterStudy data used in previous research on insurer competition [@fulton_health_2017; @trish_how_2015]. The MMS data provide plan enrollment information at the insurer-county level. Enrollment is provided overall and separately by market type (commercial fully insured, commercial self-insured, Medicare Advantage, Medicaid Managed Care, and ACA-compliant non-group insurance). Enrollment is derived for enrollees' county of residence, not the county of the employer or insurer. MMS data are sourced directly from health plans, and the underlying census survey of plans has an 88% response rate, covering approximately 94% of insured lives in the U.S. (Personal communication with DRG on 8/26/16). The MMS data are routinely used by health plans and pharmaceutical companies for market analytics. 
@@ -471,4 +466,22 @@ zip_market_shares %>%
 
 - The file [R/read-and-tidy-cms-hospital-service-areas.R](R/read-and-tidy-cms-hospital-service-areas.R) reads in the CMS Hospital Service Area file for 2017. Note the source of these data are downloaded csv files from the interactive CMS data explorer available at the links at [this link](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html). The final file is rolled up to the FIPS county level and is storeed in `output/hospital-county-patient-data/2017/hospital-county-patient-data.rds`. 
 
+
+## References to Incorporate
+
+- [The accuracy of hospital merger screening methods](https://onlinelibrary.wiley.com/doi/full/10.1111/1756-2171.12215)
+
+- [Hospital Consolidation And Negotiated PPO Prices](https://www.healthaffairs.org/doi/10.1377/hlthaff.23.2.175)
+
+- [Hospital interdependence in a competitive institutional environment: Evidence from Italy HEDG HEALTH, ECONOMETRICS AND DATA GROUP Hospital interdependence in a competitive institutional environment: Evidence from Italy](https://www.researchgate.net/publication/315653564_Hospital_interdependence_in_a_competitive_institutional_environment_Evidence_from_Italy_HEDG_HEALTH_ECONOMETRICS_AND_DATA_GROUP_Hospital_interdependence_in_a_competitive_institutional_environment_Evid)
+
+- [Techniques for defining markets for private healthcare in the UK: literature review](https://www.oxera.com/publications/techniques-for-defining-markets-for-private-healthcare-in-the-uk-literature-review/)
+
+- [Health Care Market Concentration Trends In The United States: Evidence And Policy Responses](https://www.healthaffairs.org/doi/10.1377/hlthaff.2017.0556)
+
+- [A Structural Approach to Market Definition With an Application to the Hospital Industry†](https://onlinelibrary.wiley.com/doi/abs/10.1111/joie.12015)
+
+- [Getting Market Defintiion Right: Hospital Merger Cases and Beyond](https://www.competitionpolicyinternational.com/wp-content/uploads/2017/07/CPI-Gaynor-Pflum.pdf)
+
+- [Competition and market power in option demand markets](https://pdfs.semanticscholar.org/868f/28b7b1f33c170f2f5e3fbeff6d3a4b1ecd7c.pdf)
 
