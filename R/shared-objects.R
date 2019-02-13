@@ -1,3 +1,16 @@
+project_bucket <- "health-care-markets"
+aws_files <- get_bucket(project_bucket) %>% 
+  transpose() %>% 
+  pluck("Key") %>% 
+  unlist() %>% 
+  tbl_df() 
+# put_folder("geographic-crosswalks",project_bucket)
+# put_folder("hosptial-county-patient-data",project_bucket)
+# put_folder("market-comparisons",project_bucket)
+# put_folder("ska",project_bucket)
+# put_folder("tidy-mapping-files",project_bucket)
+#put_folder("tidy-mapping-files/commuting-zone",project_bucket)
+
 states <- c(
   "AK",
   "AL",
@@ -51,3 +64,6 @@ states <- c(
   "WV",
   "WY"
 )
+
+shape_types <- c("dbf","prj","shp","shx")
+

@@ -52,6 +52,10 @@ df_distances %>%
   unnest() %>% 
   write_rds(here("output/market-comparisons/01_zip-hospital-distances.rds"))
 
+s3saveRDS(df_distances,
+          bucket = paste0(project_bucket,"/market-comparisons"), 
+          object = "01_zip-hospital-distances.rds")
+
 df_average_dist <- 
   df_distances %>% 
   unnest() %>% 
@@ -59,4 +63,7 @@ df_average_dist <-
   summarise(average_miles = weighted.mean(miles,w = total_cases, na.rm=TRUE))
 
 df_average_dist %>% write_rds(here("output/market-comparisons/01_zip-hospital-average-distances.rds"))
+s3saveRDS(df_average_dist,
+          bucket = paste0(project_bucket,"/market-comparisons"), 
+          object = "/01_zip-hospital-average-distances.rds")
 

@@ -25,6 +25,13 @@ shp_county <- sf::read_sf(here("public-data/shape-files/county-2017/cb_2017_us_c
 
 shp_county %>% 
   sf::write_sf(here("output/tidy-mapping-files/county/01_county-shape-file.shp"))
+shape_types %>% 
+  map(~(
+    put_object(
+      file  = paste0("./output/tidy-mapping-files/county/01_county-shape-file.",.x),
+      bucket = paste0(project_bucket, "/tidy-mapping-files/county")
+    )
+  ))
 
 shp_county %>% 
   filter(state=="TN" ) %>% 

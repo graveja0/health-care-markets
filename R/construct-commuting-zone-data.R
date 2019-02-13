@@ -48,7 +48,6 @@ df_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/countie
   mutate(foo = paste0("state_",str_pad(paste0(row_number()),width=2,pad="0"))) %>% 
   spread(foo,state)
 
-
 cz_info <- county_to_cz %>% 
   select(contains("commuting_zone")) %>% 
   unique()
@@ -80,8 +79,21 @@ shp_cz %>%
   ggplot() + geom_sf() + theme_bw() + coord_sf(datum=NA) +
   remove_all_axes
 
+shape_types %>% 
+ map(~(
+    put_object(
+      file  = paste0("./output/tidy-mapping-files/commuting-zone/01_commuting-zone-shape-file.",.x),
+      bucket = paste0(project_bucket, "/tidy-mapping-files/commuting-zone")
+    )
+))
 
-
-
-
-
+# FIPS to Commuting Zone Crosswalk Data
+df_cz_final <- 
+  county_to_cz %>% 
+  rename(cz_id = commuting_zone_id_2010, 
+         cz_pop = commuting_zone_population_2010) %>% 
+  left_join(df_cz,"cz_id")
+write_rds(df_cz_final, "output/geographic-crosswalks/01_fips_to_cz.rds")
+s3saveRDS(df_cz_final,
+          bucket = paste0(project_bucket,"/geographic-crosswalks"), 
+                          object = "01_fips_to_commuting_zone.rds")

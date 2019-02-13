@@ -113,9 +113,16 @@ sf_hrr_final %>%
   remove_all_axes + 
   theme(legend.position = "none")
 
- sf_hrr_final %>% 
+sf_hrr_final %>% 
   sf::write_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))
-
+shape_types %>% 
+   map(~(
+     put_object(
+       file  = paste0("./output/tidy-mapping-files/hrr/01_hrr-shape-file.",.x),
+       bucket = paste0(project_bucket, "/tidy-mapping-files/hrr")
+     )
+))
+ 
 
  sf_hsa <- zcta_map_shape %>% 
    group_by(hsanum) %>% 
@@ -138,7 +145,13 @@ sf_hsa_final <-
  
  sf_hsa_final %>% 
    sf::write_sf(here("output/tidy-mapping-files/hsa/01_hsa-shape-file.shp"))
- 
+ shape_types %>% 
+   map(~(
+     put_object(
+       file  = paste0("./output/tidy-mapping-files/hsa/01_hsa-shape-file.",.x),
+       bucket = paste0(project_bucket, "/tidy-mapping-files/hsa")
+     )
+   )) 
 
 sf_pcsa <- zcta_map_shape %>% 
    #filter(hrrstate %in% c("TN","HI","AK")) %>% 
@@ -156,7 +169,15 @@ sf_pcsa_final <-
 sf_pcsa_final %>% 
   sf::write_sf(here("output/tidy-mapping-files/pcsa/01_pcsa-shape-file.shp"))
 
- sf_pcsa_final %>% 
+shape_types %>% 
+  map(~(
+    put_object(
+      file  = paste0("./output/tidy-mapping-files/pcsa/01_pcsa-shape-file.",.x),
+      bucket = paste0(project_bucket, "/tidy-mapping-files/pcsa")
+    )
+  )) 
+
+sf_pcsa_final %>% 
    filter(pcsa_st=="TN") %>% 
    ggplot() + 
    geom_sf(aes(fill = test)) + 

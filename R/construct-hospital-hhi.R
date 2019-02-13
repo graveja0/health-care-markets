@@ -84,7 +84,10 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
     left_join(df_cz,"id")
   
   write_rds(aha_markets,path=here("output/market-comparisons/01_aha-markets-2017.rds"))
-
+  
+  s3saveRDS(aha_markets,
+            bucket = paste0(project_bucket,"/market-comparisons"), 
+            object = "01_aha-markets-2017.rds")
 }
 
 # Hospital Distances: Average Distance Traveled to Hospital
