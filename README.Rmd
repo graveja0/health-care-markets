@@ -10,8 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 source(here("R/map-theme.R"))
 source(here("R/theme-tufte-revised.R"))
-
-
 ```
 
 # Defining Geographic Markets for Health Care Services 
