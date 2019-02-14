@@ -420,6 +420,10 @@ hhi_cz_final <-
   bind_rows(.id="year")
 hhi_cz_final %>% 
   write_rds(here("output/market-comparisons/01_HHI_genacute_cz.rds"))
+s3saveRDS(hhi_cz_final,
+          bucket = paste0(project_bucket,"/market-comparisons"), 
+          object = "/01_HHI_genacute_cz.rds")
+
 
 hhi_hrr_final <- 
   hhi_years %>% 
@@ -430,6 +434,10 @@ hhi_hrr_final <-
   bind_rows(.id="year")
 hhi_hrr_final %>% 
   write_rds(here("output/market-comparisons/01_HHI_genacute_hrr.rds"))
+s3saveRDS(hhi_hrr_final,
+          bucket = paste0(project_bucket,"/market-comparisons"), 
+          object = "/01_HHI_genacute_hrr.rds")
+
 
 hhi_rating_area_final <- 
   hhi_years %>% 
@@ -440,6 +448,9 @@ hhi_rating_area_final <-
   bind_rows(.id="year")
 hhi_rating_area_final %>% 
   write_rds(here("output/market-comparisons/01_HHI_genacute_rating_area.rds"))
+s3saveRDS(hhi_rating_area_final,
+          bucket = paste0(project_bucket,"/market-comparisons"), 
+          object = "/01_HHI_genacute_rating_area.rds")
 
 ####################
 #### Construct Maps
