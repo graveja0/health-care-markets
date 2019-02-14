@@ -102,5 +102,12 @@ rating_area_map %>%
 rating_area_map %>% 
   sf::write_sf(here("output/tidy-mapping-files/rating-area/01_rating-area-shape-file.shp"))
 
+shape_types %>% 
+  map(~(
+    put_object(
+      file  = paste0("./output/tidy-mapping-files/rating-area/01_rating-area-shape-file.",.x),
+      bucket = paste0(project_bucket, "/tidy-mapping-files/rating-area")
+    )
+  ))
 
 

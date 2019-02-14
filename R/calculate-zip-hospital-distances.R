@@ -2,6 +2,9 @@
 #' output: github_document
 #' ---
 #' 
+#' 
+
+hosp_zip_years <- c("2013","2014","2015","2016",'2017')
 
 zip_xy <- read_csv(here("public-data/zcta-to-fips-county/zcta-to-fips-county.csv")) %>% 
   janitor::clean_names() %>% 
@@ -14,56 +17,78 @@ zip_xy <- read_csv(here("public-data/zcta-to-fips-county/zcta-to-fips-county.csv
   ungroup() %>% 
   select(zip_code,zip_lon = intptlon, zip_lat = intptlat ) 
 
-hosp_xy<- read_rds(here("output/market-comparisons/01_aha-markets-2017.rds"))  %>% 
-  filter(!is.na(longitude) & !is.na(latitude)) %>% 
-  select(prvnumgrp, hosp_lon = longitude, hosp_lat = latitude) %>% 
-  group_by(prvnumgrp) %>% 
-  filter(row_number()==1)
-#  st_as_sf(coords=c("longitude","latitude"), crs=4326, agr="constant") 
-
+hosp_xy<-
+  hosp_zip_years %>% 
+  map(~(
+    read_rds(here(paste0("output/market-comparisons/01_aha-markets-",.x,".rds")))  %>% 
+    filter(!is.na(longitude) & !is.na(latitude)) %>% 
+    select(prvnumgrp, hosp_lon = longitude, hosp_lat = latitude) %>% 
+    group_by(prvnumgrp) %>% 
+    filter(row_number()==1)
+  )) %>% 
+  set_names(hosp_zip_years)
 
 # Load the hospital-zip service file constructed in "R/read-and-tidy-cms-hospital-service-areas.R")
-tmp <- read_rds(here("output/hospital-county-patient-data/2017/hospital-zip-patient-data.rds")) %>% 
-  arrange(prvnumgrp,desc(total_cases)) %>% 
-  inner_join(zip_xy,"zip_code") %>% 
-  inner_join(hosp_xy,"prvnumgrp") %>% 
-  group_by(prvnumgrp) %>% 
-  mutate_at(vars(zip_lat,zip_lon),as.numeric) %>% 
-  nest() 
+tmp <- 
+  hosp_zip_years %>% 
+  map(~(
+    read_rds(here(paste0("output/hospital-county-patient-data/",.x,"/hospital-zip-patient-data.rds"))) %>% 
+    arrange(prvnumgrp,desc(total_cases)) %>% 
+    inner_join(zip_xy,"zip_code") %>% 
+    inner_join(hosp_xy[[.x]],"prvnumgrp") %>% 
+    group_by(prvnumgrp) %>% 
+    mutate_at(vars(zip_lat,zip_lon),as.numeric) %>% 
+    nest() 
+  )) %>% 
+  set_names(hosp_zip_years)
 
 library(furrr)
 plan(multiprocess)
 
 df_distances <- 
   tmp %>% 
-    #filter(prvnumgrp=="440039" | prvnumgrp=="440133") %>% 
+  future_map(~(
+    .x %>% 
     mutate(distance = 
-      future_map(data,~(
+      map(data,~(
         st_distance(
           .x %>% st_as_sf(coords = c("zip_lon","zip_lat"), crs=4326, agr="constant") ,
           .x %>% select(hosp_lon,hosp_lat) %>% unique() %>% st_as_sf(coords = c("hosp_lon","hosp_lat"), crs = 4326, agr="constant")
         ) %>% tbl_df() %>% 
           rename(distance=value) %>% 
           mutate(miles = distance / 1609.34) 
-      ),.progress=TRUE)
+      ))
     ) 
+  ),.progress=TRUE)
 
-df_distances %>% 
+names(df_distances) %>% 
+  walk(~(df_distances[[.x]] %>% 
   unnest() %>% 
-  write_rds(here("output/market-comparisons/01_zip-hospital-distances.rds"))
-
-s3saveRDS(df_distances,
-          bucket = paste0(project_bucket,"/market-comparisons"), 
-          object = "01_zip-hospital-distances.rds")
-
+  write_rds(here(paste0("output/market-comparisons/01_zip-hospital-distances-",.x,".rds"))) 
+  )) %>% 
+  walk(~(
+    s3saveRDS(df_distances[[.x]],
+              bucket = paste0(project_bucket,"/market-comparisons"), 
+              object = paste0("01_zip-hospital-distances-",.x,".rds"))
+  ))
+## JG GOT HERE
 df_average_dist <- 
   df_distances %>% 
-  unnest() %>% 
-  group_by(prvnumgrp) %>% 
-  summarise(average_miles = weighted.mean(miles,w = total_cases, na.rm=TRUE))
+    map(~(.x %>% 
+    unnest() %>% 
+    group_by(prvnumgrp) %>% 
+    summarise(average_miles = weighted.mean(miles,w = total_cases, na.rm=TRUE))
+  ))
 
-df_average_dist %>% write_rds(here("output/market-comparisons/01_zip-hospital-average-distances.rds"))
-s3saveRDS(df_average_dist,
-          bucket = paste0(project_bucket,"/market-comparisons"), 
-          object = "/01_zip-hospital-average-distances.rds")
+names(df_average_dist) %>% 
+  walk(~(df_average_dist[[.x]] %>% 
+           unnest() %>% 
+           write_rds(here(paste0("output/market-comparisons/01_zip-hospital-average-distances-",.x,".rds"))) 
+  )) %>% 
+  walk(~(
+    s3saveRDS(df_average_dist[[.x]],
+              bucket = paste0(project_bucket,"/market-comparisons"), 
+              object = paste0("01_zip-hospital-average-distances-",.x,".rds"))
+  ))
+
 
