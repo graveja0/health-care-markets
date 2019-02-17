@@ -489,6 +489,26 @@ longer-distance hosptials are of higher quality at some point later.
 
 ![](figs/01_check-endogeneity-distance.png)
 
+## Market Concentration Over Time
+
+The file [R/animate-hosptial-hhi.R](R/animate-hospital-hhi.R) reads in
+the panel data set for HHI measures bassed on ZIP hospital flows
+aggregated to commuting zone and animates the change in HHI for each
+commuting zone since 2010. Note that in principle earlier years could be
+evaluated, however the [CMS service area
+files](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html)
+are only available dating back to 2010.
+
+![](output/figures/hhi_2010-to-2017-change_midwest_east.gif)  
+![](output/figures/hhi_2010-to-2017-change_midwest_west.gif)  
+![](output/figures/hhi_2010-to-2017-change_northeast_middle.gif)
+![](output/figures/hhi_2010-to-2017-change_northeast_newengland.gif)
+![](output/figures/hhi_2010-to-2017-change_south_atlantic.gif)  
+![](output/figures/hhi_2010-to-2017-change_south_central.gif)  
+![](output/figures/hhi_2010-to-2017-change_south_west.gif)  
+![](output/figures/hhi_2010-to-2017-change_west_mountain.gif)  
+![](output/figures/hhi_2010-to-2017-change_west_pacific.gif)
+
 # Market Concentation in Insurance Markets
 
 We’ll now turn our attention to calculating HHI measures on the insurer

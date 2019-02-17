@@ -321,6 +321,20 @@ We see here some evidence that people from the same ZIP are willing to travel fa
 
 ![](figs/01_check-endogeneity-distance.png)
 
+## Market Concentration Over Time
+
+The file [R/animate-hosptial-hhi.R](R/animate-hospital-hhi.R) reads in the panel data set for HHI measures bassed on ZIP hospital flows aggregated to commuting zone and animates the change in HHI for each commuting zone since 2010. Note that in principle earlier years could be evaluated, however the [CMS service area files](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html) are only available dating back to 2010. 
+
+![](output/figures/hhi_2010-to-2017-change_midwest_east.gif)       
+![](output/figures/hhi_2010-to-2017-change_midwest_west.gif)        
+![](output/figures/hhi_2010-to-2017-change_northeast_middle.gif)
+![](output/figures/hhi_2010-to-2017-change_northeast_newengland.gif)
+![](output/figures/hhi_2010-to-2017-change_south_atlantic.gif)      
+![](output/figures/hhi_2010-to-2017-change_south_central.gif)       
+![](output/figures/hhi_2010-to-2017-change_south_west.gif)          
+![](output/figures/hhi_2010-to-2017-change_west_mountain.gif)       
+![](output/figures/hhi_2010-to-2017-change_west_pacific.gif) 
+
 # Market Concentation in Insurance Markets
 
 We'll now turn our attention to calculating HHI measures on the insurer side of the equation. Data on insurer market shares are drawn from Managed Markets Surveyor (MMS) from Decision Resources Group. The MMS data form the backbone of the HealthLeaders-InterStudy data used in previous research on insurer competition [@fulton_health_2017; @trish_how_2015]. The MMS data provide plan enrollment information at the insurer-county level. Enrollment is provided overall and separately by market type (commercial fully insured, commercial self-insured, Medicare Advantage, Medicaid Managed Care, and ACA-compliant non-group insurance). Enrollment is derived for enrollees' county of residence, not the county of the employer or insurer. MMS data are sourced directly from health plans, and the underlying census survey of plans has an 88% response rate, covering approximately 94% of insured lives in the U.S. (Personal communication with DRG on 8/26/16). The MMS data are routinely used by health plans and pharmaceutical companies for market analytics. 
