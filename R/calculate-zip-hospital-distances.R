@@ -5,6 +5,7 @@
 #' 
 
 hosp_zip_years <- c("2013","2014","2015","2016",'2017')
+hosp_zip_years <- c("2010","2011","2012")
 
 zip_xy <- read_csv(here("public-data/zcta-to-fips-county/zcta-to-fips-county.csv")) %>% 
   janitor::clean_names() %>% 
@@ -24,7 +25,9 @@ hosp_xy<-
     filter(!is.na(longitude) & !is.na(latitude)) %>% 
     select(prvnumgrp, hosp_lon = longitude, hosp_lat = latitude) %>% 
     group_by(prvnumgrp) %>% 
-    filter(row_number()==1)
+    filter(row_number()==1) %>% 
+    ungroup()# %>% 
+   # mutate(prvnumgrp=as.character(paste0(prvnumgrp)))
   )) %>% 
   set_names(hosp_zip_years)
 
@@ -33,6 +36,7 @@ tmp <-
   hosp_zip_years %>% 
   map(~(
     read_rds(here(paste0("output/hospital-county-patient-data/",.x,"/hospital-zip-patient-data.rds"))) %>% 
+     # mutate(prvnumgrp=as.character(paste0(prvnumgrp))) %>% 
     arrange(prvnumgrp,desc(total_cases)) %>% 
     inner_join(zip_xy,"zip_code") %>% 
     inner_join(hosp_xy[[.x]],"prvnumgrp") %>% 
@@ -71,7 +75,7 @@ names(df_distances) %>%
               bucket = paste0(project_bucket,"/market-comparisons"), 
               object = paste0("01_zip-hospital-distances-",.x,".rds"))
   ))
-## JG GOT HERE
+
 df_average_dist <- 
   df_distances %>% 
     map(~(.x %>% 
