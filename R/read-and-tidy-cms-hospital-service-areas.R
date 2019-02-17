@@ -17,7 +17,11 @@ hosp_serv_files <- c("2017" = "public-data/cms-hospital-service-area/2017/Hospit
                      "2016" = "public-data/cms-hospital-service-area/2016/2016_Hospital_Service_Area_File__HSAF_.csv",
                      "2015" = "public-data/cms-hospital-service-area/2015/Hospital_Service_Area_File_-_2015.csv",
                      "2014" = "public-data/cms-hospital-service-area/2014/Hospital_Service_Area_File_-_2014.csv",
-                     "2013" = "public-data/cms-hospital-service-area/2013/Hospital_Service_Area_File_-_2013.csv")
+                     "2013" = "public-data/cms-hospital-service-area/2013/Hospital_Service_Area_File_-_2013.csv",
+                     "2012" = "public-data/cms-hospital-service-area/2012/Hospital_Service_Area_File_-_2012.csv",
+                     "2011" = "public-data/cms-hospital-service-area/2011/Hospital_Service_Area_File_-_2011.csv",
+                     "2010" = "public-data/cms-hospital-service-area/2010/Hospital_Service_Area_File_-_2010.csv")
+hosp_serv_files <- hosp_serv_files[6:8]
 df_hosp_serv_zip <- 
   hosp_serv_files %>% 
   map(~(

@@ -18,7 +18,12 @@ source(here("R/shared-objects.R"))
 source(here("R/get-market-from-x-y-coordinates.R"))
 source(here("R/estimate_hhi.R"))
 
-hhi_years <- c("2013","2014","2015","2016","2017")
+rename_in_list <- function(x,from, to) {
+  x %>% rename_at(vars(contains(from)), funs(sub(from, to, .)))
+}
+
+
+hhi_years <- c("2010","2011","2012","2013","2014","2015","2016","2017")
 
 sf_hrr <- read_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))  %>% 
   st_transform(crs = 4326)
@@ -40,8 +45,16 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
                  "2016" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2016/FY2016 Annual Survey Database/COMMA/ASPUB16.CSV",
                  "2015" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2015/FY2015 Annual Survey Database/COMMA/ASPUB15.CSV",
                  "2014" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2014/FY2014 ASDB/COMMA/ASPUB14.CSV",
-                 "2013" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2013/FY2013 ASDB/COMMA/ASPUB13.CSV"
+                 "2013" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2013/FY2013 ASDB/COMMA/ASPUB13.CSV",
+                 "2012" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2012/COMMA/ASPUB12.csv",
+                 "2011" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2011/FY2011 ASDB/COMMA/ASPUB11.csv.csv",
+                 "2010" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2010/FY2010 ASDB/COMMA/ASPUB10.csv",
+                 "2009" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2009/FY2009 ASDB/COMMA/ASPUB09.csv",
+                 "2008" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2008/FY2008 ASDB/COMMA/pubas08.csv",
+                 "2007" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2007/FY2007 ASDB/COMMA/pubas07.csv",
+                 "2006" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2006/FY2006 ASDB/COMMA/pubas06.csv"
   )
+  aha_files <- aha_files[6:8]
     
   # Get latitude and longitue of general acute care hospitals in 2017 AHA survey. 
   aha <- 
@@ -51,10 +64,15 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
         janitor::clean_names() %>% 
         filter(mstate %in% states) %>% 
         mutate(system_id = ifelse(!is.na(sysid),paste0("SYS_",sysid),id)) %>% 
-        filter(serv==10) %>% 
+        filter(serv==10))) %>% 
+    map(~rename_in_list(x = .x, from = "hcfaid", to = "mcrnum")) %>% 
+    map(~(.x %>% 
         select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id, mloczip, sysname,fips_code=fcounty) %>% 
-        mutate(prvnumgrp = mcrnum) %>% 
-        mutate(hosp_zip_code = str_sub(mloczip,1,5)) 
+        mutate(prvnumgrp = str_pad(mcrnum,width = 6, pad="0")) %>% 
+        mutate(hosp_zip_code = str_sub(mloczip,1,5)) %>% 
+          mutate(longitude = as.numeric(paste0(longitude))) %>% 
+          mutate(latitude = as.numeric(paste0(latitude))) %>% 
+          filter(!is.na(longitude) & !is.na(latitude))
       )) %>% 
     set_names(names(aha_files))
       
@@ -154,7 +172,7 @@ df_ffs_cases <- df_hosp_zip %>%
 
 aha_markets <- hhi_years %>% 
   map(~(
-    read_rds(here(paste0("output/market-comparisons/01_aha-markets-",.x,".rds"))) %>% 
+    read_rds(here(paste0("output/market-comparisons/01_aha-markets-",.x,".rds")))  %>% 
     inner_join(df_ffs_cases[[.x]],"prvnumgrp")
   )) %>% 
   set_names(hhi_years)
@@ -395,13 +413,15 @@ plan(multiprocess)
   
   df_county <- 
     hhi_years %>% 
+    
     map(~(
     county_to_cz %>% 
     full_join(county_to_hrr,"fips_code") %>% 
     full_join(county_to_rating_area,"fips_code") %>% 
     left_join(hhi_cz[[.x]]  ,"cz_id") %>% 
     left_join(hhi_rating_area[[.x]] ,"rating_area") %>% 
-    left_join(hhi_hrr[[.x]] ,"hrrnum") %>% 
+    mutate(hrrnum = paste0(hrrnum)) %>% 
+    left_join(hhi_hrr[[.x]] %>% ungroup() %>%  mutate(hrrnum = paste0(hrrnum)) ,"hrrnum") %>% 
     left_join(zip_hhi_aggregated_to_county[[.x]],"fips_code") %>% 
     select(fips_code,hrrnum,cz_id,rating_area,contains("hhi"))
     )) %>% 
@@ -429,7 +449,9 @@ hhi_hrr_final <-
   hhi_years %>% 
   map(~(
     hhi_hrr[[.x]] %>% 
-    left_join(zip_hhi_aggregated_to_hrr[[.x]],"hrrnum")
+      ungroup() %>% 
+    mutate(hrrnum = paste0(hrrnum)) %>% 
+    left_join(zip_hhi_aggregated_to_hrr[[.x]] %>% ungroup() %>%  mutate(hrrnum = paste0(hrrnum)),"hrrnum")
   )) %>% set_names(hhi_years) %>% 
   bind_rows(.id="year")
 hhi_hrr_final %>% 
