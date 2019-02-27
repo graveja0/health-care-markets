@@ -92,7 +92,10 @@ la_county_map <- read_sf(here('public-data/shape-files/county-2017/cb_2017_us_co
 rating_area_map <- 
   rbind(rbind(ra_county_map,la_county_map),zip3_map) %>% 
   st_simplify(dTolerance = 300) %>% 
-  move_ak_hi(state = state)
+  move_ak_hi(state = state) %>% 
+  left_join(get_contiguous(shp = ., id = rating_area), "rating_area") #%>% 
+  #rename(cz_id = commuting_zone_id_2010) %>% 
+  #left_join(df_cz,"cz_id")
 
 rating_area_map %>% 
   filter(state=="CA") %>% 

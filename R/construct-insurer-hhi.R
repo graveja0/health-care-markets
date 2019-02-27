@@ -156,7 +156,7 @@ drg_hhi_hrr <-
   mutate(market = paste0("hhi_",market)) %>% 
   spread(market,hhi_hrr)
 
-drg_hrr_cz %>% 
+drg_hhi_hrr %>% 
   write_rds(here("output/market-comparisons/01_HHI_insurer_hrr.rds"))
 
 

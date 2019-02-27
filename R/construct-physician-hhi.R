@@ -251,6 +251,9 @@ df_md_hhi_cz <-
   unite(specialty,var,specialty) %>% 
   spread(specialty,value)
 
+df_md_hhi_cz  %>% 
+  write_rds(here("output/market-comparisons/01_HHI_md_cz.rds"))
+
 df_md_hhi_county <- 
   ndf_md_hhi %>% 
   select(year,specialty,hhi_fips) %>% 

@@ -6,9 +6,19 @@
 
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 source(here("R/map-theme.R"))
+source(here("R/move-ak-hi.R"))
+source(here("R/get-geographic-info.R"))
+source(here("R/map-theme.R"))
+source(here("R/shared-objects.R"))
+source(here("R/get-contiguous-areas.R"))
+
+# STAT
 library(rlang)
 
-df_county_map <- read_rds(here("output/tidy-mapping-files/county/df_county.rds"))
+# STATE FIPS TO STATE ABBREVIATION
+fips_to_state <- read_rds(here("output/geographic-crosswalks/01_xw_county-to-fips.rds")) %>% 
+  mutate(statefp = str_sub(fips_code,1,2)) %>% 
+  select(statefp,state) %>% unique()
 
 fips_xw <- data.table::fread(file.path("~/box/Research-Provider_Networks/data/","xw","county-fips-crosswalk.txt")) %>% 
   set_names(c("state","state_fips","county_fips","county","fips_class")) %>% 
@@ -19,10 +29,12 @@ fips_xw <- data.table::fread(file.path("~/box/Research-Provider_Networks/data/",
   mutate(county_fips = as.character(county_fips)) %>% tbl_df() %>%
   mutate(county = gsub(" County", "", county)) %>%
   mutate(fips_code = paste0(state_fips, county_fips)) %>%
-  select(county, state, fips_code,state_fips,county_fips) %>% data.frame()
+  select(county, state, fips_code,state_fips,county_fips) %>% data.frame() #%>% 
+ # filter(str_sub(fips_code,1,2)=="06")
 
 # Load the hospital-county patient sharing file
-df_hosp_fips <- read_rds(here("output/hospital-county-patient-data/2017/hospital-county-patient-data.rds"))
+df_hosp_fips <- read_rds(here("output/hospital-county-patient-data/2017/hospital-county-patient-data.rds")) #%>% 
+  #filter(str_sub(fips_code,1,2)=="06")
 
 # Create function to convert dataframe to bipartite matrix
 convert_to_bipartite <- function(df,id) {
@@ -42,6 +54,7 @@ bp_contig_1 <- read_rds(here("output/tidy-mapping-files/county/df_county_info.rd
   tbl_df() %>% 
   mutate(fips_code = str_pad(paste0(geoid),width=5,pad="0")) %>% 
   select(fips_code, starts_with("contig_")) %>% 
+  #filter(str_sub(fips_code,1,2)=="06") %>% 
   #filter(!(fips_code %in% setdiff(.$fips_code,rownames(up_fips)))) %>% 
   gather(key,fips_contig,-fips_code) %>% 
   #filter(!(fips_contig %in% setdiff(.$fips_contig,rownames(up_fips)))) %>% 
@@ -60,19 +73,22 @@ bipartite_contig_1 <-
   select(id, contig) %>%
   #mutate(id = as.integer(id), contig = as.integer(contig)) %>%
   rename(fips_code = id) %>%
+  #filter(str_sub(fips_code,1,2)=="06") %>% 
   unique() %>%
   mutate(contiguous = 1) %>%
-  spread(contig, contiguous)# %>%
+  spread(contig, contiguous) 
   # mutate_at(vars(-1), function(x) ifelse(is.na(x), 0, x)) %>%
   # convert_to_bipartite(id = fips_code)
 
 
-minimum_share = 0.01
+minimum_share = 0.10
+minimum_number = 10
 
 bp_fips_hosp <-
   df_hosp_fips %>%
-  group_by(prvnumgrp) %>%
+  group_by(fips_code) %>%
   mutate(share_of_patients = total_cases / sum(total_cases, na.rm = TRUE)) %>%
+  ungroup() %>% 
   mutate(connected = as.integer(share_of_patients >= minimum_share))  %>%
   mutate(share = ifelse(connected==1,share_of_patients,0)) %>% 
   select(fips_code, prvnumgrp, connected) %>%
@@ -95,8 +111,8 @@ up_contig[up_contig>0] <- 1
 
 unipartite_final <- up_fips 
 
-unipartite_final[grep("^06",rownames(unipartite_final)),grep("^06",colnames(unipartite_final))]
-up_contig[grep("^06",rownames(up_contig)),grep("^06",colnames(up_contig))]
+# unipartite_final[grep("^06",rownames(unipartite_final)),grep("^06",colnames(unipartite_final))]
+# up_contig[grep("^06",rownames(up_contig)),grep("^06",colnames(up_contig))]
 
 
 tn_contig_graph_adj_noloops <- 
@@ -112,46 +128,50 @@ initial_communities <-
                      membership = TRUE) 
 
 market <- membership(initial_communities)
-df_market <- bind_cols(fips_code = names(market), mkt = market)
-df_market %>% filter(grepl("^06",fips_code)) %>% select(mkt) %>% unique() %>% 
+df_walktrap <- bind_cols(fips_code = names(market), mkt = market) %>% 
+  mutate(statefp = str_sub(fips_code,1,2))
+df_walktrap %>% filter(grepl("^06",fips_code)) %>% select(mkt) %>% unique() %>% 
   dim()
 
-df_county_map %>%
-  left_join(df_market,"fips_code") %>% 
-  mutate(market = factor(mkt)) %>% 
-  mutate(state_fips = str_sub(fips_code,1,2)) %>% 
-  filter(!state_fips %in% c("02","15")) %>% 
-  filter(grepl("^06",fips_code)) %>%
-  tbl_df() %>%
-  mutate(test = factor(sample(1:10,nrow(.),replace=TRUE))) %>%
-  ggplot() +
-  aes(long,lat,group=group) +
-  geom_polygon(aes(fill = market)) +
-  geom_path(color="black") +
-  coord_equal() +
-  ggthemes::theme_tufte() +
+sf_walktrap <- 
+  sf::read_sf(here("public-data/shape-files/county-2017/cb_2017_us_county_5m/cb_2017_us_county_5m.shp")) %>% 
+  sf::st_transform(crs ="+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96") %>% 
+  janitor::clean_names() %>% 
+  left_join(fips_to_state,"statefp") %>% 
+  filter(state %in% states) %>% 
+  move_ak_hi(state = state) %>% 
+  mutate(fips_code = geoid) %>% 
+  inner_join(df_walktrap, "fips_code") %>% 
+  group_by(mkt) %>% 
+  summarise() %>% 
+  ungroup() %>% 
+  st_simplify(dTolerance = 100)  %>% 
+ # left_join(get_contiguous(shp = ., id = commuting_zone_id_2010) %>% 
+              #mutate(commuting_zone_id_2010 = as.integer(commuting_zone_id_2010)), "commuting_zone_id_2010") %>% 
+  left_join(
+    df_walktrap %>% 
+      select(mkt,statefp) %>% 
+      left_join(fips_to_state,"statefp") %>% 
+      select(-statefp) %>% 
+      unique() %>% 
+      group_by(mkt) %>% 
+      mutate(n = paste0("state_",str_pad(row_number(),width = 2, pad="0"))) %>% 
+      spread(n,state)
+      ,"mkt") %>% 
+  rename(walktrap_id = mkt) %>% 
+  st_transform(crs = 4326)
+
+sf_state <- read_sf(here("output/tidy-mapping-files/state/01_state-shape-file.shp")) %>% 
+  st_transform(crs = 4326)
+  
+states_to_map = c("TN","AL","GA","NC","VA")
+sf_walktrap %>% 
+  filter(state_01 %in% states_to_map  | state_02 %in% states_to_map | state_03 %in% states_to_map | state_04 %in% states_to_map |
+           state_05 %in% states_to_map | state_06 %in% states_to_map | state_07 %in% states_to_map) %>% 
+  mutate(test = as.factor(sample(1:100,replace=FALSE,nrow(.)))) %>% 
+  ggplot() + geom_sf(aes(fill=test)) + theme_bw() + coord_sf(datum=NA) +
+  remove_all_axes + 
   theme(legend.position = "none") + 
-  remove_all_axes
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") 
 
 
-# 
-# 
-# 
-# g <- tn_contig_graph_adj_noloops
-# steps <- seq(1, 10, 1)
-# w <- list()
-# ccount <- NULL
-# 
-# for(s in steps){
-#   # cat(paste('Running walktrap with steps =', s, '\n'))
-#   w0 <- walktrap.community(g, steps = s)
-#   ccount <- c(ccount, length(levels(as.factor(w0$membership))))
-#   w[[s]] <- w0
-# }
-# 
-# plot(ccount ~ steps,
-#      ylim = c(1, 10),
-#      xlab = 'Number of steps',
-#      ylab = 'Number of communities',
-#      main = 'Walktrap with increasing number of steps')
-# 

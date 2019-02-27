@@ -22,7 +22,6 @@ rename_in_list <- function(x,from, to) {
   x %>% rename_at(vars(contains(from)), funs(sub(from, to, .)))
 }
 
-
 hhi_years <- c("2010","2011","2012","2013","2014","2015","2016","2017")
 
 sf_hrr <- read_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))  %>% 
