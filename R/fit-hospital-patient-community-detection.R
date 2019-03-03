@@ -164,11 +164,11 @@ sf_walktrap <-
 sf_state <- read_sf(here("output/tidy-mapping-files/state/01_state-shape-file.shp")) %>% 
   st_transform(crs = 4326)
   
-states_to_map = c("TN","AL","GA","NC","VA")
+states_to_map = states[-grep("HI|AK",states)] #c("TN","AL","GA","NC","VA","AR","MS","KY")
 sf_walktrap %>% 
   filter(state_01 %in% states_to_map  | state_02 %in% states_to_map | state_03 %in% states_to_map | state_04 %in% states_to_map |
            state_05 %in% states_to_map | state_06 %in% states_to_map | state_07 %in% states_to_map) %>% 
-  mutate(test = as.factor(sample(1:100,replace=FALSE,nrow(.)))) %>% 
+  mutate(test = as.factor(sample(1:100,replace=TRUE,nrow(.)))) %>% 
   ggplot() + geom_sf(aes(fill=test)) + theme_bw() + coord_sf(datum=NA) +
   remove_all_axes + 
   theme(legend.position = "none") + 

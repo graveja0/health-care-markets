@@ -26,14 +26,20 @@ sf_zcta <-  sf::read_sf(here("public-data/shape-files/zcta-2017/tl_2017_us_zcta5
   mutate(zip_code =  zcta5ce10) %>% 
   left_join(zcta_to_state,"zip5") %>% 
   filter(state_01 %in% states) %>% 
-  st_simplify(dTolerance = 100)  %>% 
+ #st_simplify(dTolerance = 1000)  %>% 
   move_ak_hi(state = state_01) 
 
 sf_zcta %>% 
+  st_simplify(dTolerance = 1000)  %>% 
   filter(state_01 =="TN") %>% 
   ggplot() + geom_sf()
 
 #dir.create(here("output/tidy-mapping-files/zcta/"))
 sf_zcta %>% 
+  st_simplify(dTolerance = 100)  %>% 
   sf::write_sf(here("output/tidy-mapping-files/zcta/01_zcta-shape-file.shp"))
+
+sf_zcta %>% 
+  #st_simplify(dTolerance = 10)  %>% 
+  sf::write_sf(here("output/tidy-mapping-files/zcta/01_zcta-shape-file-higher-resolution.shp"))
 
