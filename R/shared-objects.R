@@ -1,3 +1,4 @@
+
 project_bucket <- "health-care-markets"
 aws_files <- get_bucket(project_bucket) %>% 
   transpose() %>% 
@@ -11,6 +12,9 @@ aws_files <- get_bucket(project_bucket) %>%
 # put_folder("tidy-mapping-files",project_bucket)
 #put_folder("tidy-mapping-files/commuting-zone",project_bucket)
 
+rename_in_list <- function(x,from, to) {
+  x %>% rename_at(vars(contains(from)), funs(sub(from, to, .)))
+}
 
 census_regions <- 
   list(

@@ -24,6 +24,11 @@ estimate_hhi <-  function(df, id,  market, weight) {
   return(out)
 }
 
+# Kessler-McClellan Approach
+hhi_km <- function(bp) apply(apply(((100*t(apply(bp,1,function(x) x/sum(x))))^2),1,sum)*apply(bp,2,function(x) x/sum(x)),2,sum)
+hhi_net <- function(up) apply((100*t(apply(up,1,function(x) x/sum(x))))^2,1,sum)
+hhi_net <- function(up) apply((100*t(apply(up,1,function(x) x/sum(x))))^2,1,sum)
+
 estimate_market_share <-  function(df, id,  market, weight) {
   ii <- enquo(id)
   mm<- enquo(market)

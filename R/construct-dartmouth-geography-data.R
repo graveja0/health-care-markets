@@ -91,7 +91,7 @@ df_pcsa <-
 sf_state <- sf::read_sf(here("output/tidy-mapping-files/state/01_state-shape-file.shp")) %>% 
   sf::st_transform(crs ="+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96") %>% 
   st_simplify(dTolerance = 500) %>% 
-  filter(stusps %in% c("TX","HI","AK")) %>% 
+  #filter(stusps %in% c("TX","HI","AK")) %>% 
   move_ak_hi(state = stusps)
 
 sf_hrr <- zcta_map_shape %>% 

@@ -65,9 +65,8 @@ low-cost data.
 
 # Geographic Market Definitions
 
-Before moving on it is useful to put down, in one place, the specific
-methods and definitions used to construct each of the aforementioned
-geographic market definitions.
+Before moving on it is useful to put down, in one place, common methods
+and definitions used to define geographic markets.
 
 ## Hospital Service Areas (HSA)
 
@@ -209,10 +208,10 @@ geographies.
 Next we will consider HHI measures constructed based on the market
 geographies defined above. For these examples we’ll focus on hospitals.
 
-Before we do, however, it is useful to first lay out two different ways
-this can be done for a given market geography. *These different methods
-will yield different HHI measures for the same market geography* (e.g.,
-CZ).
+Before we do, however, it is useful to first lay out a variety different
+ways this can be done for a given market geography. *These different
+methods will yield different HHI measures for the same market geography*
+(e.g., CZ).
 
 1.  **Geographic Location Method**: Under this method we identify all
     hospitals *located in the geographic market.* The HHI measure is
@@ -232,14 +231,43 @@ CZ).
     average (with weights defined by population share, or total
     admission share, etc.).
 
-It is critical to observe that both of these methods likely suffer from
-endogeneity problems. That is, the choice of geographic location of
-(new) hospitals, the survival of existing hospitals, and the flow of
-patients to existing hospitals from the surrounding area, may depend on
-the relative quality of hospitals in the area market. A high-performing
-hospital, in other words, may draw in a high volume of patients from the
-local area–which could drive poorer-quality neighboring hospitals out of
-business. Indeed, we have [good
+3.  **Hospital HHI Based on a Weighted Average of Geographic HHIs**:
+    This method was pioneered in Kessler and McClellan (QJE 2000).
+    Essentially, this method draws on data on hospital demand (e.g.,
+    total number of patients, or some exogenous prediction of demand)
+    from a given geographic unit (e.g., a ZIP code). HHI measures are
+    then constructed for each geographic unit and then the
+    hospital’s-specific HHI measure is calculated as a weighted
+    average of these HHIs based on the share of the hospital’s patients
+    that come from each market geography. One can then aggregate these
+    hospital-level HHIs to the market geography level by taking another
+    weighted average (again, with weights equivalent to the share of
+    patients going to each hospital)
+
+4.  **Hosiptal HHI Based on Jointly Competitive Geographies**: This is
+    an alternative method to construct hosptial-level HHIs that we
+    develop here. The method essentially boils down to identifying the
+    total number of patients in geographies (e.g., ZIP codes) in which a
+    given hospital “competes” with other hospitals. The HHI measure is
+    the sum of the total market shares calculated from these
+    jointly-competitive geographies. The difference between this
+    approach and the Kessler-McClellan (KM) method essentially boils
+    down to the difference between calculating a weighted sum of
+    geographic HHIs (KM) and a single HHI based on total market shares
+    from jointly competitive geographies. Some examples below will flesh
+    this difference out further.
+
+## Endogeneity Concerns
+
+It is critical to observe that when using observed patient flows or
+market shares, these methods likely suffer from endogeneity problems.
+That is, the choice of geographic location of (new) hospitals, the
+survival of existing hospitals, and the flow of patients to existing
+hospitals from the surrounding area, may depend on the relative quality
+of hospitals in the area market. A high-performing hospital, in other
+words, may draw in a high volume of patients from the local area–which
+could drive poorer-quality neighboring hospitals out of business.
+Indeed, we have [good
 evidence](https://pubs.aeaweb.org/doi/pdfplus/10.1257/aer.20151080) that
 is is the case: higher-quality hospitals both have a larger market share
 at a point in time, and growing market share over time.
@@ -250,14 +278,15 @@ complicate efforts to, for example, examine the relationship between
 market concentration and patient outcomes. For this reason, some (e.g.,
 Kessler and McClellan 2000) have relied on predicted patient flows,
 rather than acutal patient flows, in the construction of HHI measures.
-This method isn’t fully absolved of endogeneity concerns, however, sine
+This method isn’t fully absolved of endogeneity concerns, however, since
 endogenous coding practices may still complicate efforts to construct
-unbiased predictions of patient flows.
+unbiased predictions of patient flows. But the more general point is
+that predicted market shares can easily be swapped in for actual market
+shares in any of the HHI calculation equations below.
 
-With that said, it is worth noting that the patient flow method
-generally lines up better with the underlying economic concept of what
-an HHI is trying to capture. A simple example below will demonstrate
-this.
+Finally, it is worth noting that the patient flow method generally lines
+up better with the underlying economic concept of what an HHI is trying
+to capture. A simple example below will demonstrate this.
 
 ## A Simple Example
 
@@ -365,9 +394,175 @@ assumption: **the geographic boundaries used capture all (or nearly all)
 of the relevant economic activity under consideration (e.g., hospital
 admissions).**
 
+## Calculating Hospital-Specific HHIs
+
+An alternative to directly calculating geographic HHIs is to first
+calculate hospital-specific HHIs and then aggregate these hosptial HHIs
+to the geographic market level. This aggregation is based on a weighted
+average of hospital HHIs, with weights defined by the share of patients
+from the geography that are treated at each hospital.
+
+As noted above there are two ways one can construct hosptial-specific
+HHIs. To demonstrate these methods it is useful to draw on some example
+data summarizing patient flows among ZIP codes and different hospitals.
+These data are represented in the matrix below. This matrix is
+representative of a **bipartite** network in which ZIP codes are linked
+with hospitals. The cells of this (hypothetical) biparite matrix
+summarize the total number of patients traveling to four hospitals
+(columns) from 10 different ZIP codes (rows).
+
+    ##       HOSP_A HOSP_B HOSP_C HOSP_D
+    ## ZIP_A     10     20      5      0
+    ## ZIP_B     15     10      2      0
+    ## ZIP_C     20      0      0     15
+    ## ZIP_D      0     10      0     30
+    ## ZIP_E      0      0      0     50
+    ## ZIP_F     10      5      5      0
+    ## ZIP_G      2      3      3      0
+    ## ZIP_H     10      0      0      3
+    ## ZIP_I      5     10     15      0
+    ## ZIP_J      0      0      0     30
+
+### Kessler-McClellan Approach
+
+The Kessler-McClellan approach to hospital-specific HHI measures
+proceeds in two steps:
+
+1.  Calculate ZIP-specific HHI measures for k = 1, … , K ZIP codes.
+2.  For each hosptial J, construct a weighted average of these
+    ZIP-specific ZIP codes, with weights defined as the proportion of
+    the hospital’s patients coming from that ZIP code.
+
+More formally, the total demand from ZIP *k* to hospital *j* is given by
+the sum of (predicted or otherwise exogenous) a measure
+ofpatients/amissions (indexed by *i*) from ZIP *k* who are treated in
+hosptial *j*. <!-- \[ -->
+<!-- \pi_{kj}  = \sum_{\textrm{i in k}} \pi_{ij} --> <!-- \] -->
+
+<img src="figs/km-eq1.png" width="100px" />
+
+The HHI for hospital \(j\) is therefore equal
+to:
+
+<!-- \[ -->
+
+<!-- HHI_j^{KM} = \sum_{k=1}^K \overbrace{\bigg( \frac{\pi_{kj}}{\sum_{k=1}^K \pi_{kj}} \bigg )}^{\textrm{Share of patients from }k} \overbrace{\bigg [ \sum_{j=1}^J \bigg (100 \cdot  \frac{\pi_{kj}}{\sum_{j=1}^J \pi_{kj}}\bigg)^2 \bigg ]}^{\textrm{HHI for ZIP }k}  -->
+
+<!-- \] -->
+
+<img src="figs/km-eq2.png" width="400px" />
+
+### Joint Competition Approach
+
+The KM approach to constructing hosptial-specific HHIs essentially boils
+down to asking: what is the average geographic HHI among patients
+treated by a given hospital?
+
+Another way to approach this is to ask a slightly different question:
+among geographies where a given hosptial competes with other hospitals
+for patients, what is the total market share of each hospital? We can
+then use *those* market shares to construct a hosptial-specific HHI
+measure for that hospital. We will call this the **joint competition**
+approach to a hospital HHI.
+
+(Note that I am using the terms “competes” and “competition” somewhat
+loosely here, as all we know is that two hosptials draw in patients from
+the same ZIP; we do not know for certain whether they actually compete
+for these patients. As an extreme example, a children’s hospital and an
+adult general acute care hosptial may both draw in patients from the
+same ZIP, but it is unlikely that they are actually competing for
+patients. In the data used here, however, we are drawing on FFS Medicare
+patients–so it may be more realistic to assume two hospitals are
+competing for these patients.)
+
+More formally, the competition faced by a given hosptial (*z*) across
+all j = 1, …, J hospitals can be expressed as
+
+<!-- \gamma_{zj} = \sum_{j=1}^J \pi_{kj} \cdot 1(\pi_{kz}>0) -->
+
+<img src="figs/net-eq1.png" width="250px" />
+
+The HHI for hospital *z* is therefore given by the following
+equation:
+
+<!-- HHI^{JC}_{z} = \sum_{j=1}^J \bigg [ \bigg ( 100 \cdot \frac{\gamma_{zj}}{\sum_{j=1}^J \gamma_{zj}}\bigg )^2 \bigg ] -->
+
+<img src="figs/net-eq2.png" width="250px" />
+
+The hospital-specific HHIs based on these two methods is provided in the
+table below.
+
+| Hospital |   KM |   JC |
+| :------- | ---: | ---: |
+| HOSP\_A  | 4735 | 3087 |
+| HOSP\_B  | 4505 | 2706 |
+| HOSP\_C  | 3928 | 3450 |
+| HOSP\_D  | 8464 | 6159 |
+
+### How do these approaches compare?
+
+The obvious first question to ask is: *why do these appraoches yield
+different HHI measures*? One reason essentially boils down to the
+difference between a sum of squares (KM) and a square of sums (JC). That
+is, the KM approach calculates the HHI at the ZIP level (i.e., sum of
+squared market shares in each ZIP), then constructs hosptial-specific
+HHIs based on a weighted sum. The JC approach, by comparison, first sums
+up the ZIP-level market shares, and then squares those market shares to
+construct the hospital-specific HHI.
+
+Another simple example can help further differentiate among the two
+methods. Suppose Hospital A draws 50% of its 20 patients from a ZIP in
+which Hospital A, B and C each draw 1/3 market shares (10 each). The
+other 50% of its 20 patients are drawn from a ZIP code in which only A
+and B draw 50% market shares (i.e., Hospital C doesn’t draw in any
+patients from ZIP 2).
+
+A simple representation of this scenario is depicted in the bipartite
+matrix below:
+
+    ##       HOSP_A HOSP_B HOSP_C
+    ## ZIP_1     10     10     10
+    ## ZIP_2     10     10      0
+
+Hospital A’s HHI under the KM approach would be 4,167 (i.e., 50% of its
+patients come from a ZIP with HHI of 3,333 and 50% from a ZIP with an
+HHI of 5,000).
+
+Overall, however, hospital A draws in a total of 20 patients and
+“competes” with B and C in areas where it could potentially draw in an
+additional 20 of Hospital B’s patients (10 from each ZIP) and 10 of
+Hospital C’s (only from ZIP 1).
+
+Among these “jointly competitive” geographies here are the total number
+of patients:
+
+    ## HOSP_A HOSP_B HOSP_C 
+    ##     20     20     10
+
+Which translates into the following “jointly competitive” market shares
+faced by Hospital A (note these are listed as percentages):
+
+    ## HOSP_A HOSP_B HOSP_C 
+    ##     40     40     20
+
+This translates into an HHI measure of 3,600, which is considerably
+lower than the HHI of 4,167 under the KM approach.
+
+The major difference stems from the treatment of the fact that Hopsital
+C does not draw in patients from ZIP 2, and thus ZIP 2 is more
+concentrated. **The KM method essentially assumes that hospitals
+differentiate among patients based on the competitiveness of their
+residential geography. That is, ZIP 2 is more concentrated, so Hospital
+A receives a higher HHI value under the KM method owing to this fact. By
+comparison, the JC method does not reflect this assumption; it is
+agnostic as to a specific geographic area’s concentration level.** I do
+not profess to have sufficient knowledge on hopsital strategy to say
+definitively whether one method is superior to the other–but it is
+important to understand the assumptions each method makes.
+
 ## Comparison of Geographic Location and Population Flow HHI Measures
 
-The next set of maps show how these two different HHI construction
+The next set of maps show how these various different HHI construction
 methods yield different answers for the same geographic market
 definition. We’ll consider both HRRs and CZs for this example, and focus
 on maps of TN, NC, VA and KY (though the underlying data cover the
@@ -394,7 +589,12 @@ following specific details.
     nearly identical HHI measures when total admissions were used, as
     shown in the plot below.
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+  - For the Hospital HHI methods we first construct hosptial-specific
+    HHIs and then construct a weighted mean of these HHIs, with weights
+    defined based on the fraction of geography-level patients who go to
+    each hosptial.
+
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
   - For the patient flow method, we used the [CMS Hospital Service Area
     files
@@ -409,7 +609,7 @@ Maps for each geographic market definition (HRR, CZ) and HHI
 construction method (geographic location, patient flow) are provided
 below.
 
-![](figs/01_HHI_geo-location-vs-pop-flow.png)
+![](figs/01_HHI_commuting-zones.png)
 
 We can see here that the geographic location method produced a more
 fragmented HRR map, with adjacent HRRs ranging from highly concentrated

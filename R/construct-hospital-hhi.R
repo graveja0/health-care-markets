@@ -5,11 +5,6 @@
 # The objective of this file is to make comparisons of Hirschman-Herfindahl Indexes across alternative 
 # geographic market definitions.
 
-# To Do:
-
-# [] TK NOTE THE COUNTY to RATING AREA MAPPING WILL MISS LA COUNTY AS WELL AS ALL COUNTIES IN NE, AK, AND MA. 
-#    Need to use geographic mapping code to assign those rating areas to counties. 
-
 # Load Shapefiles
 
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
@@ -28,6 +23,9 @@ sf_hrr <- read_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))  
   st_transform(crs = 4326)
 sf_cz <- read_sf(here("output/tidy-mapping-files/commuting-zone/01_commuting-zone-shape-file.shp")) %>% 
   st_transform(crs = 4326)
+sf_cd114 <- read_sf(here("output/tidy-mapping-files/congressional-district/01_congressional-district-114-shape-file.shp")) %>% 
+  st_transform(crs = 4326) %>% 
+  mutate(cd114fp = paste0(state,cd114fp))
 sf_ra <- read_sf(here("output/tidy-mapping-files/rating-area/01_rating-area-shape-file.shp")) %>%
   st_transform(crs = 4326) %>% 
   mutate(rating_area = ratng_r)
@@ -53,7 +51,7 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
                  "2007" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2007/FY2007 ASDB/COMMA/pubas07.csv",
                  "2006" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2006/FY2006 ASDB/COMMA/pubas06.csv"
   )
-  aha_files <- aha_files[6:8]
+  #aha_files <- aha_files[6:8]
     
   # Get latitude and longitue of general acute care hospitals in 2017 AHA survey. 
   aha <- 
@@ -118,12 +116,35 @@ if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
                         set_names(c("id","cz_id"))
     ))
   
+  # Assign each AHA hosptial to its commuting zone. 
+  plan(multiprocess)
+  aha_cd114 <- 
+    aha %>% 
+    future_map(~(
+      get_market_from_xy(df = ., 
+                         x = longitude, 
+                         y = latitude,
+                         sf = sf_cd114,
+                         market_id = cd114fp)
+    ))
+  
+  df_cd114 <- 
+    map2(aha_cd114,aha,~(.x %>% 
+                        set_names(.y[,"id"]) %>% 
+                        unlist() %>% 
+                        data.frame() %>% 
+                        rownames_to_column() %>% 
+                        set_names(c("id","cd114fp"))
+    ))
+  
+  
   aha_markets <- 
     names(aha_files) %>% 
     map(~(
       aha[[.x]] %>% 
       left_join(df_aha_rating_area[[.x]],"id") %>% 
-      left_join(df_cz[[.x]],"id")
+      left_join(df_cz[[.x]],"id") %>% 
+      left_join(df_cd114[[.x]],"id")
     )) %>% 
     set_names(names(aha_files))
   
@@ -278,6 +299,50 @@ ms_cz <-
 
 ms_cz %>% write_rds(path = here("output/market-comparisons/01_commuting-zone-market-shares.rds"))
 
+
+hhi_cd <-
+  hhi_years %>% 
+  map(~(
+    aha_markets[[.x]] %>%
+      estimate_hhi(id = system_id,
+                   weight = ffs_total_cases,
+                   market = cd114fp) %>% 
+      rename(hhi_cd = hhi,
+             total_weight_cd = total_weight) %>% 
+      ungroup() %>% 
+      mutate(cd114fp = paste0(cd114fp)) %>% 
+      left_join(
+        aha_markets[[.x]] %>%
+          estimate_hhi(id = system_id,
+                       weight = admtot,
+                       market = cd114fp ) %>% 
+          rename(hhi_cz_admtot = hhi,
+                 total_weight_cz_admtot = total_weight) %>% 
+          ungroup() %>% 
+          mutate(cd114fp = paste0(cd114fp)),
+        "cd114fp"
+      )
+  )) %>% 
+  set_names(hhi_years)
+
+ms_cd <-
+  hhi_years %>% 
+  map(~(
+    aha_markets[[.x]] %>%
+      estimate_market_share(id = system_id,
+                            weight = ffs_total_cases,
+                            market = cd114fp) %>% 
+      arrange(cd114fp,desc(market_share))%>%
+      left_join(aha_markets[[.x]] %>% select(system_id,sysname) %>% unique(), "system_id") %>% 
+      left_join(aha_markets[[.x]] %>% filter(sysname=="") %>% select(system_id,mname),"system_id") %>% 
+      mutate(sysname = ifelse(sysname=="",NA,sysname)) %>% 
+      mutate(name = coalesce(sysname,mname)) %>% 
+      select(cd114fp,name,market_share, hhi, everything())
+  )) %>% 
+  set_names(hhi_years) 
+
+ms_cz %>% write_rds(path = here("output/market-comparisons/01_congressional-district-market-shares.rds"))
+
 ## ZIP and Hopsital-Level HHIs
 plan(multiprocess)
   zip_hhi <-
@@ -313,6 +378,124 @@ plan(multiprocess)
   zip_market_shares %>% 
     write_rds(path = here("output/market-comparisons/01_ZIP-market-shares.rds"))
 
+  
+  
+  ###############################
+  ## Hospital-Level HHI Measures
+  ###############################
+  
+  minimum_market_share_zip <- 0.05
+  minimum_market_share_hosp <- 0.05
+  
+  convert_to_bipartite <- function(df,id) {
+    id <- enquo(id)
+    nn <- df %>% pull(!!id)
+    foo <- df %>% select(-!!id) %>%
+      as.matrix()
+    
+    rownames(foo) <- nn
+    foo
+  }
+  
+  
+  for (yy in hhi_years) {
+    cat(yy)
+    cat("\nPreparing Data ... \n")
+    df_hosp_zip_yy <- 
+      df_hosp_zip[[paste0(yy)]] %>% 
+      group_by(prvnumgrp) %>% 
+      mutate(market_share_hosp = total_cases/ sum(total_cases,na.rm=TRUE)) %>% 
+      group_by(zip_code) %>% 
+      mutate(market_share_zip = total_cases / sum(total_cases,na.rm =TRUE))  %>% 
+      filter(market_share_zip>minimum_market_share_zip | market_share_hosp>minimum_market_share_hosp ) %>% 
+      inner_join(aha_markets[[paste0(yy)]],"prvnumgrp") %>% 
+      rename(hosp_x = longitude,
+             hosp_y = latitude) %>% 
+      group_by(zip_code) %>% 
+      mutate(market_share = total_cases / sum(total_cases,na.rm=TRUE)) %>% 
+      ungroup()
+    
+    bp_zip_hosp_weighted <-
+      df_hosp_zip_yy %>%
+      #left_join(aha_markets[[.x]],"prvnumgrp") %>% 
+      select(prvnumgrp,zip_code,total_cases,system_id) %>% 
+      select(-prvnumgrp) %>% 
+      group_by(system_id,zip_code) %>% 
+      summarise_at(vars(total_cases),function(x) sum(x,na.rm=TRUE)) %>% 
+      spread(system_id, total_cases) %>%
+      convert_to_bipartite(id = zip_code)
+    bp_zip_hosp_weighted[is.na(bp_zip_hosp_weighted)] <- 0
+    
+    cat("Calculating bipartite matrix ...\n")
+    if  (!file.exists(paste0("output/market-comparisons/01_up-weighted-sysid-",yy,".rds"))) {
+      up_sysid_weighted <- t(bp_zip_hosp_weighted>0) %*% bp_zip_hosp_weighted
+      saveRDS(up_sysid_weighted,file=paste0("output/market-comparisons/01_up-weighted-sysid-",yy,".rds"))
+    } else {
+      up_sysid_weighted <- readRDS(paste0("output/market-comparisons/01_up-weighted-sysid-",yy,".rds"))
+    }
+    
+    cat("Calculating HHI ...\n")
+    hhi_kess_mcclellan <-  hhi_km(bp_zip_hosp_weighted)
+    hhi_network <- hhi_net(up_sysid_weighted)
+    
+    # get_hospital_system_hhi <- function(up) {
+    #   market_shares <-  100 * (up / apply(up,1,sum))
+    #   hhi <- apply(market_shares,1,function(x) sum(x^2))
+    #   out <- list(hhi = hhi, market_share_matrix = market_shares)
+    #   return(out)
+    # }
+    # 
+    # hhi_network2 <- get_hospital_system_hhi(up_sysid_weighted)$hhi
+    # 
+    
+    df_hhi_hosp <-
+      aha_markets[[yy]] %>% 
+      mutate(hhi_km = hhi_kess_mcclellan[system_id]) %>% 
+      mutate(hhi_net = hhi_network[system_id]) %>% 
+      mutate(year = yy)
+    
+    saveRDS(df_hhi_hosp,file=paste0("output/market-comparisons/01_hospital-level-hhi-",yy,".rds"))
+  }
+  
+  hhi_hospital <-   
+    hhi_years %>% 
+    map(~(
+      readRDS(df_hhi_hosp,file=paste0("output/market-comparisons/01_hospital-level-hhi-",.x,".rds")) %>% 
+        mutate(hrrnum= paste0(hrrnum),
+               hsanum = paste0(hsanum)) %>% 
+        select(-mcrnum)
+    )) %>% 
+    set_names(hhi_years) 
+  
+  hhi_hospital %>% 
+    bind_rows() %>% 
+    tbl_df() %>% 
+    mutate_at(vars(year),as.numeric) %>% 
+    ggplot(aes(x = jitter(year), y = hhi_km)) + geom_smooth(se = FALSE) + 
+    theme_bw() +
+    scale_y_continuous(limits = c(0,10000),breaks = c(0,1500,2500,5000,10000)) + 
+    geom_smooth(se = FALSE, aes(y = hhi_net)) 
+  
+  
+  plan(multiprocess)
+  zip_hhi_hosp <-
+    hhi_years %>% 
+    future_map(~(
+      df_hosp_zip[[.x]] %>% 
+        inner_join(hhi_hospital[[.x]] %>% 
+                     select(prvnumgrp, contains("hhi")),"prvnumgrp") %>% 
+        group_by(zip_code) %>% 
+        mutate(weight = total_cases/sum(total_cases,na.rm=TRUE)) %>% 
+        #filter(zip_code=="37023") %>% 
+        mutate(hhi_km = hhi_km * weight,
+               hhi_net = hhi_net * weight) %>% 
+        summarise_at(vars(hhi_km,hhi_net),function(x) sum(x,na.rm=TRUE)) %>% 
+        left_join(zip_hhi[[.x]])
+    )) %>% 
+    set_names(hhi_years)
+  
+  saveRDS(zip_hhi_hosp,file=paste0("output/market-comparisons/01_hospital-level-hhi-aggregated-to-zip.rds"))
+  
 
 # Link Market-Level HHI Measures to "COMMON UNIT" (i.e., county) to facilitate comparison
   
@@ -354,6 +537,7 @@ plan(multiprocess)
     filter(row_number()==1) %>% 
     ungroup()
   
+  
   # Need to aggregate ZIP level data up to county
   
   zip_to_county <- read_csv(here("public-data/zcta-to-fips-county/zcta-to-fips-county.csv")) %>% 
@@ -368,51 +552,83 @@ plan(multiprocess)
     filter(row_number() !=1) %>% 
     select(zip_code = zcta5, hrrnum = hrr, afact) %>% 
     mutate_at(vars(hrrnum,afact),function(x) as.numeric(paste0(x)))
+  
+  zip_to_cd <- 
+    data.table::fread(here("public-data/shape-files/congressional-district/zip-to-114th-congressional-district.csv")) %>% 
+    filter(row_number()>1) %>% 
+    janitor::clean_names() %>% 
+    select(zip_code = zcta5,cd114fp = cd114,state = stab,afact) %>%  
+    mutate(afact = as.numeric(paste0(afact))) %>% 
+    mutate(cd114fp = paste0(state,cd114fp)) %>% 
+    tbl_df()
     
   zip_hhi_aggregated_to_county <-
-    zip_hhi %>% 
-    map(~(.x %>% 
+    names(zip_hhi_hosp) %>% 
+     map(~(zip_hhi_hosp[[.x]] %>% 
       inner_join(zip_to_county,"zip_code") %>% 
       mutate(weight = afact * total_weight) %>% 
       group_by(fips_code) %>% 
-      summarise(hhi_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE))
-    ))
+      summarise(hhi_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE),
+                hhi_net = weighted.mean(hhi_net,weight,na.rm=TRUE),
+                hhi_km = weighted.mean(hhi_km,weight,na.rm=TRUE))
+    )) %>% 
+    set_names(names(zip_hhi_hosp))
   
   zip_hhi_aggregated_to_hrr <-
-    zip_hhi %>% 
-    map(~( .x %>% 
+    names(zip_hhi_hosp) %>%  
+    map(~( zip_hhi_hosp[[.x]] %>% 
       inner_join(zip_to_hrr,"zip_code") %>% 
       mutate(weight = afact * total_weight) %>% 
       group_by(hrrnum) %>% 
-      summarise(hhi_hrr_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE))
-    ))
+        summarise(hhi_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE),
+                  hhi_net = weighted.mean(hhi_net,weight,na.rm=TRUE),
+                  hhi_km = weighted.mean(hhi_km,weight,na.rm=TRUE))
+    ))  %>% 
+    set_names(names(zip_hhi_hosp))
   
   zip_hhi_aggregated_to_cz <- 
-    zip_hhi %>% 
-    map(~(.x %>% 
+    names(zip_hhi_hosp) %>%  
+    map(~(zip_hhi_hosp[[.x]]  %>% 
       inner_join(zip_to_county,"zip_code") %>% 
       mutate(weight = afact * total_weight) %>% 
       inner_join(county_to_cz,"fips_code") %>% 
       group_by(cz_id) %>% 
-      summarise(hhi_zip_cz = weighted.mean(hhi_zip,weight,na.rm=TRUE))
-    ))
+        summarise(hhi_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE),
+                  hhi_net = weighted.mean(hhi_net,weight,na.rm=TRUE),
+                  hhi_km = weighted.mean(hhi_km,weight,na.rm=TRUE))
+    )) %>% 
+    set_names(names(zip_hhi_hosp))
+  
+  zip_hhi_aggregated_to_cd <- 
+    names(zip_hhi_hosp) %>%  
+    map(~(zip_hhi_hosp[[.x]]  %>% 
+            inner_join(zip_to_cd,"zip_code") %>% 
+            mutate(weight = afact * total_weight) %>% 
+            group_by(cd114fp) %>% 
+            summarise(hhi_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE),
+                      hhi_net = weighted.mean(hhi_net,weight,na.rm=TRUE),
+                      hhi_km = weighted.mean(hhi_km,weight,na.rm=TRUE))
+    )) %>% 
+    set_names(names(zip_hhi_hosp))
   
   zip_to_rating_area <- 
     read_rds(here("output/geographic-crosswalks/01_zcta-to-rating-area-all-states.rds"))
   
   zip_hhi_aggregated_to_ra <- 
-    zip_hhi %>% 
-    map(~(.x %>% 
+    names(zip_hhi_hosp) %>%  
+    map(~(zip_hhi_hosp[[.x]]  %>% 
             inner_join(zip_to_rating_area,"zip_code") %>% 
             mutate(weight =pct_of_zip_in_rating_area * total_weight) %>% 
             group_by(rating_area) %>% 
-            summarise(hhi_zip_rating_area = weighted.mean(hhi_zip,weight,na.rm=TRUE))
-    ))
+            summarise(hhi_zip = weighted.mean(hhi_zip,weight,na.rm=TRUE),
+                      hhi_net = weighted.mean(hhi_net,weight,na.rm=TRUE),
+                      hhi_km = weighted.mean(hhi_km,weight,na.rm=TRUE))
+    )) %>% 
+    set_names(names(zip_hhi_hosp))
   
   
   df_county <- 
     hhi_years %>% 
-    
     map(~(
     county_to_cz %>% 
     full_join(county_to_hrr,"fips_code") %>% 
@@ -444,6 +660,20 @@ s3saveRDS(hhi_cz_final,
           object = "/01_HHI_genacute_cz.rds")
 
 
+hhi_cd_final <-
+  hhi_years %>% 
+  map(~(
+    hhi_cd[[.x]] %>% 
+      left_join(zip_hhi_aggregated_to_cd[[.x]],"cd114fp")
+  )) %>% 
+  set_names(hhi_years) %>% 
+  bind_rows(.id="year")
+hhi_cd_final %>% 
+  write_rds(here("output/market-comparisons/01_HHI_genacute_cd.rds"))
+s3saveRDS(hhi_cz_final,
+          bucket = paste0(project_bucket,"/market-comparisons"), 
+          object = "/01_HHI_genacute_cd.rds")
+
 hhi_hrr_final <- 
   hhi_years %>% 
   map(~(
@@ -459,7 +689,6 @@ s3saveRDS(hhi_hrr_final,
           bucket = paste0(project_bucket,"/market-comparisons"), 
           object = "/01_HHI_genacute_hrr.rds")
 
-
 hhi_rating_area_final <- 
   hhi_years %>% 
   map(~(
@@ -472,6 +701,7 @@ hhi_rating_area_final %>%
 s3saveRDS(hhi_rating_area_final,
           bucket = paste0(project_bucket,"/market-comparisons"), 
           object = "/01_HHI_genacute_rating_area.rds")
+
 
 ####################
 #### Construct Maps
@@ -527,7 +757,7 @@ p2 = sf_cz %>%
   left_join(zip_hhi_aggregated_to_cz[["2017"]] ,"cz_id") %>% 
   filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
   ggplot() + 
-  geom_sf(aes(fill = hhi_zip_cz)) +
+  geom_sf(aes(fill = hhi_zip)) +
   scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
   #theme(legend.position = "bottom") +
   geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
@@ -536,8 +766,36 @@ p2 = sf_cz %>%
   ggtitle("Commuting Zones\n(Patient Flow Method)") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
-p1 + p2 + plot_layout(ncol=1)
-ggsave(filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale =1,width = 6, height=12)
+p3 = sf_cz %>% 
+  left_join(zip_hhi_aggregated_to_cz[["2017"]] ,"cz_id") %>% 
+  filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = hhi_net)) +
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("Commuting Zones\n(Joint Competition Method)") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+
+p4 = sf_cz %>% 
+  left_join(zip_hhi_aggregated_to_cz[["2017"]] ,"cz_id") %>% 
+  filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = hhi_km)) +
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("Commuting Zones\n(Kessler-McClellan Method)") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+
+
+
+p1 + p2 + p3 + p4 + plot_layout(ncol=2,nrow=2)
+ggsave(filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale =1,width = 12, height=12)
 
 p1_hrr =   sf_hrr %>% 
   left_join(hhi_hrr[["2017"]],"hrrnum") %>% 
@@ -553,10 +811,10 @@ p1_hrr =   sf_hrr %>%
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p2_hrr = sf_hrr %>% 
-  left_join(hhi_hrr_final %>% filter(year==2017),"hrrnum") %>% 
+  left_join(hhi_hrr_final %>% filter(year==2017) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
-  geom_sf(aes(fill = hhi_hrr_zip))+
+  geom_sf(aes(fill = hhi_zip))+
   scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
   #theme(legend.position = "bottom") +
   geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
@@ -565,10 +823,38 @@ p2_hrr = sf_hrr %>%
   ggtitle("Hospital Referral Region\n(Patient Flow Method)") + 
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
-p1_hrr + p2_hrr + plot_layout(ncol=1)
-ggsave(filename = here("figs/01_HHI_hrr.png"),dpi = 300, scale =1,width = 6, height=12)
 
-p1 + p1_hrr + p2 + p2_hrr + plot_layout(ncol=2,nrow=2)
-ggsave(filename = here("figs/01_HHI_geo-location-vs-pop-flow.png"),dpi = 300, scale =1,width = 12, height=12)
+p3_hrr = sf_hrr %>% 
+  left_join(hhi_hrr_final %>% filter(year==2017) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
+  filter(hrrstate %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = hhi_net))+
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("Commuting Zones\n(Joint Competition Method)") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+
+
+p4_hrr = sf_hrr %>% 
+  left_join(hhi_hrr_final %>% filter(year==2017) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
+  filter(hrrstate %in% states_to_map) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = hhi_km))+
+  scale_fill_gradient2(low = scales::muted("blue"),mid = "white",high = scales::muted("red"),midpoint = 2500,limits = c(0,10000)) + 
+  #theme(legend.position = "bottom") +
+  geom_sf(data = sf_state %>% filter(stusps %in% states_to_map), alpha = 0,lwd=.7,colour = "black") + 
+  coord_sf(datum=NA) + 
+  remove_all_axes +
+  ggtitle("Commuting Zones\n(Kessler-McClellan Method)") + 
+  ggthemes::theme_tufte(base_family = "Gill Sans")
+
+p1_hrr + p2_hrr + p3_hrr + p4_hrr + plot_layout(ncol=2,nrow=2)
+ggsave(filename = here("figs/01_HHI_hrr.png"),dpi = 300, scale =1,width = 12, height=12)
+
+# p1 + p1_hrr + p2 + p2_hrr + plot_layout(ncol=2,nrow=2)
+# ggsave(filename = here("figs/01_HHI_geo-location-vs-pop-flow.png"),dpi = 300, scale =1,width = 12, height=12)
 
 

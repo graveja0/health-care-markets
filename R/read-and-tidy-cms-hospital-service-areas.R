@@ -50,18 +50,18 @@ names(df_hosp_serv_zip) %>%
 # variable will be attributed to the hospital-county pair. If only 50% is, then
 # we only attribute 50%.
 
-# df_zip_to_fips <- 
-#   read_rds(here("output/geographic-crosswalks/zcta-to-fips-county.rds"))
-# 
-# df_hosp_serv17_fips <- 
-#   df_hosp_serv_zip %>% 
-#   left_join(df_zip_to_fips,"zip_code") %>% 
-#   mutate_at(vars(total_days_of_care,total_charges, total_cases), function(x) x * .$pct_of_zip_in_fips) %>% 
-#   group_by(prvnumgrp,fips_code) %>% 
-#   summarise_at(vars(total_days_of_care,total_charges, total_cases),function(x) sum(x,na.rm=TRUE))
-# 
-# write_rds(df_hosp_serv17_fips,path = here("output/hospital-county-patient-data/2017/hospital-county-patient-data.rds"))
-# 
+df_zip_to_fips <-
+  read_rds(here("output/geographic-crosswalks/zcta-to-fips-county.rds"))
+
+df_hosp_serv17_fips <-
+  df_hosp_serv_zip %>%
+  left_join(df_zip_to_fips,"zip_code") %>%
+  mutate_at(vars(total_days_of_care,total_charges, total_cases), function(x) x * .$pct_of_zip_in_fips) %>%
+  group_by(prvnumgrp,fips_code) %>%
+  summarise_at(vars(total_days_of_care,total_charges, total_cases),function(x) sum(x,na.rm=TRUE))
+
+write_rds(df_hosp_serv17_fips,path = here("output/hospital-county-patient-data/2017/hospital-county-patient-data.rds"))
+
 
   
 
