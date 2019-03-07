@@ -244,7 +244,7 @@ methods will yield different HHI measures for the same market geography*
     weighted average (again, with weights equivalent to the share of
     patients going to each hospital)
 
-4.  **Hosiptal HHI Based on Jointly Competitive Geographies**: This is
+4.  **Hospital HHI Based on Jointly Competitive Geographies**: This is
     an alternative method to construct hosptial-level HHIs that we
     develop here. The method essentially boils down to identifying the
     total number of patients in geographies (e.g., ZIP codes) in which a
