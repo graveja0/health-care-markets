@@ -245,7 +245,7 @@ methods will yield different HHI measures for the same market geography*
     patients going to each hospital)
 
 4.  **Hospital HHI Based on Jointly Competitive Geographies**: This is
-    an alternative method to construct hosptial-level HHIs that we
+    an alternative method to construct hospital-level HHIs that we
     develop here. The method essentially boils down to identifying the
     total number of patients in geographies (e.g., ZIP codes) in which a
     given hospital “competes” with other hospitals. The HHI measure is
@@ -397,17 +397,17 @@ admissions).**
 ## Calculating Hospital-Specific HHIs
 
 An alternative to directly calculating geographic HHIs is to first
-calculate hospital-specific HHIs and then aggregate these hosptial HHIs
+calculate hospital-specific HHIs and then aggregate these hospital HHIs
 to the geographic market level. This aggregation is based on a weighted
 average of hospital HHIs, with weights defined by the share of patients
 from the geography that are treated at each hospital.
 
-As noted above there are two ways one can construct hosptial-specific
+As noted above there are two ways one can construct hospital-specific
 HHIs. To demonstrate these methods it is useful to draw on some example
 data summarizing patient flows among ZIP codes and different hospitals.
 These data are represented in the matrix below. This matrix is
 representative of a **bipartite** network in which ZIP codes are linked
-with hospitals. The cells of this (hypothetical) biparite matrix
+with hospitals. The cells of this (hypothetical) bipartite matrix
 summarize the total number of patients traveling to four hospitals
 (columns) from 10 different ZIP codes (rows).
 
@@ -429,14 +429,14 @@ The Kessler-McClellan approach to hospital-specific HHI measures
 proceeds in two steps:
 
 1.  Calculate ZIP-specific HHI measures for k = 1, … , K ZIP codes.
-2.  For each hosptial J, construct a weighted average of these
+2.  For each hospital J, construct a weighted average of these
     ZIP-specific ZIP codes, with weights defined as the proportion of
     the hospital’s patients coming from that ZIP code.
 
 More formally, the total demand from ZIP *k* to hospital *j* is given by
 the sum of (predicted or otherwise exogenous) a measure
-ofpatients/amissions (indexed by *i*) from ZIP *k* who are treated in
-hosptial *j*. <!-- \[ -->
+ofpatients/admissions (indexed by *i*) from ZIP *k* who are treated in
+hospital *j*. <!-- \[ -->
 <!-- \pi_{kj}  = \sum_{\textrm{i in k}} \pi_{ij} --> <!-- \] -->
 
 <img src="figs/km-eq1.png" width="100px" />
@@ -454,28 +454,28 @@ to:
 
 ### Joint Competition Approach
 
-The KM approach to constructing hosptial-specific HHIs essentially boils
+The KM approach to constructing hospital-specific HHIs essentially boils
 down to asking: what is the average geographic HHI among patients
 treated by a given hospital?
 
 Another way to approach this is to ask a slightly different question:
-among geographies where a given hosptial competes with other hospitals
+among geographies where a given hospital competes with other hospitals
 for patients, what is the total market share of each hospital? We can
-then use *those* market shares to construct a hosptial-specific HHI
+then use *those* market shares to construct a hospital-specific HHI
 measure for that hospital. We will call this the **joint competition**
 approach to a hospital HHI.
 
 (Note that I am using the terms “competes” and “competition” somewhat
-loosely here, as all we know is that two hosptials draw in patients from
+loosely here, as all we know is that two hospitals draw in patients from
 the same ZIP; we do not know for certain whether they actually compete
 for these patients. As an extreme example, a children’s hospital and an
-adult general acute care hosptial may both draw in patients from the
+adult general acute care hospital may both draw in patients from the
 same ZIP, but it is unlikely that they are actually competing for
 patients. In the data used here, however, we are drawing on FFS Medicare
 patients–so it may be more realistic to assume two hospitals are
 competing for these patients.)
 
-More formally, the competition faced by a given hosptial (*z*) across
+More formally, the competition faced by a given hospital (*z*) across
 all j = 1, …, J hospitals can be expressed as
 
 <!-- \gamma_{zj} = \sum_{j=1}^J \pi_{kj} \cdot 1(\pi_{kz}>0) -->
@@ -501,11 +501,11 @@ table below.
 
 ### How do these approaches compare?
 
-The obvious first question to ask is: *why do these appraoches yield
+The obvious first question to ask is: *why do these approaches yield
 different HHI measures*? One reason essentially boils down to the
 difference between a sum of squares (KM) and a square of sums (JC). That
 is, the KM approach calculates the HHI at the ZIP level (i.e., sum of
-squared market shares in each ZIP), then constructs hosptial-specific
+squared market shares in each ZIP), then constructs hospital-specific
 HHIs based on a weighted sum. The JC approach, by comparison, first sums
 up the ZIP-level market shares, and then squares those market shares to
 construct the hospital-specific HHI.
@@ -589,10 +589,10 @@ following specific details.
     nearly identical HHI measures when total admissions were used, as
     shown in the plot below.
 
-  - For the Hospital HHI methods we first construct hosptial-specific
+  - For the Hospital HHI methods we first construct hospital-specific
     HHIs and then construct a weighted mean of these HHIs, with weights
     defined based on the fraction of geography-level patients who go to
-    each hosptial.
+    each hospital.
 
 ![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
@@ -653,9 +653,9 @@ market power.
 
 With these issues in mind, let’s now briefly explore the relationship
 between distance traveled and hospital market share. We will again draw
-on the 2017 hosptial-zip data from CMS. In particular, using these data
-we can, for each ZIP-hosptial comparison, calculate the approximate
-distance traveled (using ZIP centroids and hosptial latitude and
+on the 2017 hospital-zip data from CMS. In particular, using these data
+we can, for each ZIP-hospital comparison, calculate the approximate
+distance traveled (using ZIP centroids and hospital latitude and
 longitude data from AHA). We can also use the same data to calculate the
 market share by hospital system ID, and take a weighted average of the
 distance traveled (weighted by patient volume from the ZIP) by hospital
@@ -682,16 +682,16 @@ We see here some evidence that people from the same ZIP are willing to
 travel farther. At relatively low distances (e.g., within a few miles of
 difference) there is a positive relationship between distance traveled
 at market share. But then, at larger distances between the ZIP and the
-hosptial, this relationship attenuates and then becomes negative. So
+hospital, this relationship attenuates and then becomes negative. So
 more people from the same ZIP may be willing to travel farther–but not
 too far–to get to “better” hospitals. We can explore whether these
-longer-distance hosptials are of higher quality at some point later.
+longer-distance hospitals are of higher quality at some point later.
 
 ![](figs/01_check-endogeneity-distance.png)
 
 ## Market Concentration Over Time
 
-The file [R/animate-hosptial-hhi.R](R/animate-hospital-hhi.R) reads in
+The file [R/animate-hospital-hhi.R](R/animate-hospital-hhi.R) reads in
 the panel data set for HHI measures bassed on ZIP hospital flows
 aggregated to commuting zone and animates the change in HHI for each
 commuting zone since 2010. Note that in principle earlier years could be
