@@ -249,9 +249,9 @@ xy_hosp <- bind_cols(xy_aha %>% filter(prvnumgrp %in% unique(df_hosp_zip$prvnumg
 
 ## ZIP Codes and Hospitals in Philadelphia County, PA
 
-In this plot, we map the ZIP codes with geographic centroids contained within Philadelphia County, PA. In addition, we plot the location and market share (point size) of all hosptials based on the treatment patterns observed among traditional Medicare patients in 2015. In order for a hospital to be included, at least `r 100*minimum_market_share_zip` percent of ZIP patients, or at least `r 100*minimum_market_share_hosp` percent of the hospital's total FFS Medicare patients, must have been treated. These thresholds help trim the data by excluding hospitals that treated only a handful of patients from the geographic area.  
+In this plot, we map the ZIP codes with geographic centroids contained within Philadelphia County, PA. In addition, we plot the location and market share (point size) of all hospitals based on the treatment patterns observed among traditional Medicare patients in 2015. In order for a hospital to be included, at least `r 100*minimum_market_share_zip` percent of ZIP patients, or at least `r 100*minimum_market_share_hosp` percent of the hospital's total FFS Medicare patients, must have been treated. These thresholds help trim the data by excluding hospitals that treated only a handful of patients from the geographic area.  
 
-Also note that the hospital plotted in red is St. Joseph's Hospital, a 146 bed hospital that closed on March 11, 2016. We will use this closing in an event study to validate the market classifications--the idea being that hospitals within the market containing St. Joseph's should have been more affected by its closing (i.e., total FFS Medicare patients goes up) than hospitals outside it. 
+Also note that the hospital plotted in red is St. Joseph's Hospital, a 146 bed hospital that closed on March 11, 2016. We will (eventually) use this closing in an event study to validate the market classifications--the idea being that hospitals within the market containing St. Joseph's should have been more affected by its closing (i.e., total FFS Medicare patients goes up) than hospitals outside it. 
 
 ```{r, fig.cap = "Hospitals and ZIP Codes in Philadelphia County, PA, 2015",fig.align = "center",fig.pos="H", fig.height = 4, fig.width = 4, echo = FALSE, echo = FALSE}
 # Map the Hospitals
@@ -269,7 +269,7 @@ sf_zip_excounty %>%
 
 
 ```{r, echo = FALSE}
-# Get a dataset of edges (i.e., share of patients going to each hosptial from each ZIP)
+# Get a dataset of edges (i.e., share of patients going to each hospital from each ZIP)
 df_edges <- df_hosp_zip %>% 
   select(zip_code,prvnumgrp,market_share,hosp_x,hosp_y,zip_x,zip_y) %>% 
   gather(type,value,-zip_code,-prvnumgrp,-market_share) %>% 
@@ -308,7 +308,7 @@ In the next plot we show the care use patterns among FFS Medicare patients who r
 
 ```
 
-The next figure plots the "edges" in a bipartite network that connects ZIP codes with hosptials. These edges are depicted as lines connecting the ZIP centroid to the hospital location. The plotted line width is also proportional to the total volume of of patients. That is, a thin line connecting a ZIP-hospital pair indicates that only a small fraction of patients from the ZIP code are treated at that particular hospital. 
+The next figure plots the "edges" in a bipartite network that connects ZIP codes with hospitals. These edges are depicted as lines connecting the ZIP centroid to the hospital location. The plotted line width is also proportional to the total volume of of patients. That is, a thin line connecting a ZIP-hospital pair indicates that only a small fraction of patients from the ZIP code are treated at that particular hospital. 
 
 Distinct markets for hospital services can be seen even in this simple visualization of patient flows. For example, patients residing in the ZIP codes clustered in the southwest corner of the county all flow into hospitals located there, and there are few "shared" connections among these hospitals with other ZIP codes in the county. 
 
@@ -327,7 +327,7 @@ sf_zip_excounty %>%
    scale_size_continuous(range=c(0,2))
 ```
 
-In the next plot, we remove the geographic location layering on the map and simply plot a bipartite network representation of the same data. That is, we no longer tether each hosptial and ZIP to its geographic location and centroid, respectively. Rather, we utilize a large graph layout (LGL) algorithm to improve the visualization of ties between ZIP codes and hosptials. As in the map in figure TK, the strength of ties between ZIP codes and hosptials is represented by the width of the line. 
+In the next plot, we remove the geographic location layering on the map and simply plot a bipartite network representation of the same data. That is, we no longer tether each hospital and ZIP to its geographic location and centroid, respectively. Rather, we utilize a large graph layout (LGL) algorithm to improve the visualization of ties between ZIP codes and hospitals. As in the map in figure above, the strength of ties between ZIP codes and hospitals is represented by the width of the line. 
 
 
 ```{r, echo = FALSE}
@@ -376,6 +376,8 @@ net_bp <-
   mutate(label = ifelse(!is.na(mname),mname,name))
 ```
 
+
+
 ```{r, fig.cap = "Visualization of ZIP-Hospital Patient Flows as a Bipartite Network Object", fig.width = 8, fig.height=8,fig.pos="H", echo = FALSE}
 set.seed(1)
 net_bp %>% 
@@ -390,8 +392,8 @@ net_bp %>%
 
 ```
 
-The underlying market structure of Philadelphia-area hospitals becomes more clear in this representation of the data. For example, we see that ZIP codes tend to cluster around a certain set of hospitals. In the upper right, for example, we see that Holy Reedeemer, Nazareth, Aria - Jefferson and Jeanes Hospital tend to draw on patients from similar ZIP codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and Lankeneau Medical Center draw patients from a different cluster of ZIPs. 
 
+The underlying market structure of Philadelphia-area hospitals becomes more clear in this representation of the data. For example, we see that ZIP codes tend to cluster around a certain set of hospitals. In the upper right, for example, we see that Holy Reedeemer, Nazareth, Aria - Jefferson and Jeanes Hospital tend to draw on patients from similar ZIP codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and Lankeneau Medical Center draw patients from a different cluster of ZIPs. 
 
 ```{r, echo = FALSE}
 
@@ -454,6 +456,12 @@ gf_ex <- tidygraph::as_tbl_graph(net_ex,directed=FALSE) %>%
   mutate(market_info = factor(market_info$market[name]))
 
 ```
+
+Next we will take this bipartite matrix and transform it into a unipartite matrix summarizing the total number of shared hospital connections between ZIP codes. For example, if ZIP A sends 100 patients to a given hospital, and ZIP B sends 100 patients to that hospital, then ZIPs A and B are connected. 
+
+For now we will define two ZIP codes as connected via a hospital if at least ``r minimum_market_share_zip*100`` percent of patients from each ZIP are treated at the hospital. This helps avoid a situation where just one person from two different ZIP codes is treated in a hospital--in that case, we wouldn't want to treat those two ZIPs as "connected" based a random one-off admission. If we did not impose this threshold restriction then nearly every ZIP code would be "connected."  
+
+After imposing this ``r minimum_market_share_zip*100`` percent threshold restriction, here is a visualization of the unipartite network of ZIP codes in Philadelphia county. Again, we can see clear "clustering" of ZIPs. That is, these are ZIPs that tend to draw on the same hospitals. 
 
 ```{r, fig.cap = "Visualization of ZIP-Hospital Connections as a Unipartite Network of ZIP Codes", fig.height =5, fig.width = 5,fig.pos="H", echo = FALSE}
 set.seed(234)

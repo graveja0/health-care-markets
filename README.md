@@ -204,7 +204,7 @@ Philadelphia.
 
 In this plot, we map the ZIP codes with geographic centroids contained
 within Philadelphia County, PA. In addition, we plot the location and
-market share (point size) of all hosptials based on the treatment
+market share (point size) of all hospitals based on the treatment
 patterns observed among traditional Medicare patients in 2015. In order
 for a hospital to be included, at least 10 percent of ZIP patients, or
 at least 10 percent of the hospital’s total FFS Medicare patients, must
@@ -213,11 +213,11 @@ hospitals that treated only a handful of patients from the geographic
 area.
 
 Also note that the hospital plotted in red is St. Joseph’s Hospital, a
-146 bed hospital that closed on March 11, 2016. We will use this closing
-in an event study to validate the market classifications–the idea being
-that hospitals within the market containing St. Joseph’s should have
-been more affected by its closing (i.e., total FFS Medicare patients
-goes up) than hospitals outside
+146 bed hospital that closed on March 11, 2016. We will (eventually) use
+this closing in an event study to validate the market
+classifications–the idea being that hospitals within the market
+containing St. Joseph’s should have been more affected by its closing
+(i.e., total FFS Medicare patients goes up) than hospitals outside
 it.
 
 <img src="README_files/figure-gfm/unnamed-chunk-6-1.png" title="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" alt="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" style="display: block; margin: auto;" />
@@ -234,7 +234,7 @@ hospital.
 Codes](README_files/figure-gfm/unnamed-chunk-8-1.png)
 
 The next figure plots the “edges” in a bipartite network that connects
-ZIP codes with hosptials. These edges are depicted as lines connecting
+ZIP codes with hospitals. These edges are depicted as lines connecting
 the ZIP centroid to the hospital location. The plotted line width is
 also proportional to the total volume of of patients. That is, a thin
 line connecting a ZIP-hospital pair indicates that only a small fraction
@@ -251,11 +251,11 @@ PA, 2015](README_files/figure-gfm/unnamed-chunk-9-1.png)
 
 In the next plot, we remove the geographic location layering on the map
 and simply plot a bipartite network representation of the same data.
-That is, we no longer tether each hosptial and ZIP to its geographic
+That is, we no longer tether each hospital and ZIP to its geographic
 location and centroid, respectively. Rather, we utilize a large graph
 layout (LGL) algorithm to improve the visualization of ties between ZIP
-codes and hosptials. As in the map in figure TK, the strength of ties
-between ZIP codes and hosptials is represented by the width of the line.
+codes and hospitals. As in the map in figure above, the strength of ties
+between ZIP codes and hospitals is represented by the width of the line.
 
 ![Visualization of ZIP-Hospital Patient Flows as a Bipartite Network
 Object](README_files/figure-gfm/unnamed-chunk-11-1.png)
@@ -267,6 +267,25 @@ upper right, for example, we see that Holy Reedeemer, Nazareth, Aria -
 Jefferson and Jeanes Hospital tend to draw on patients from similar ZIP
 codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and
 Lankeneau Medical Center draw patients from a different cluster of ZIPs.
+
+Next we will take this bipartite matrix and transform it into a
+unipartite matrix summarizing the total number of shared hospital
+connections between ZIP codes. For example, if ZIP A sends 100 patients
+to a given hospital, and ZIP B sends 100 patients to that hospital, then
+ZIPs A and B are connected.
+
+For now we will define two ZIP codes as connected via a hospital if at
+least `10` percent of patients from each ZIP are treated at the
+hospital. This helps avoid a situation where just one person from two
+different ZIP codes is treated in a hospital–in that case, we wouldn’t
+want to treat those two ZIPs as “connected” based a random one-off
+admission. If we did not impose this threshold restriction then nearly
+every ZIP code would be “connected.”
+
+After imposing this `10` percent threshold restriction, here is a
+visualization of the unipartite network of ZIP codes in Philadelphia
+county. Again, we can see clear “clustering” of ZIPs. That is, these are
+ZIPs that tend to draw on the same hospitals.
 
 ![Visualization of ZIP-Hospital Connections as a Unipartite Network of
 ZIP Codes](README_files/figure-gfm/unnamed-chunk-13-1.png)
