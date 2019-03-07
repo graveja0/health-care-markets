@@ -7,8 +7,11 @@ bibliography: ../../../box/Research-Provider_Networks/manuscripts/networks-r01-b
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 source(here("R/map-theme.R"))
+source(here("R/shared-objects.R"))
 source(here("R/theme-tufte-revised.R"))
 ```
 
@@ -86,6 +89,440 @@ For now, the zones used here will draw on the shapefiles constructed for 2010 at
 This description of the history and methods of commuting zones from the U.S. Department of Agriculture (USDA) is useful:
 
 > The ERS Commuting Zones (CZs) and Labor Market Areas (LMAs) were first developed in the 1980s as ways to better delineate local economies. County boundaries are not always adequate confines for a local economy and often reflect political boundaries rather than an area's local economy. CZs and LMAs are geographic units of analysis intended to more closely reflect the local economy where people live and work. Beginning in 1980 and continuing through 2000, hierarchical cluster analysis was used along with the Census Bureau's journey to work data to group counties into these areas. In 2000, there were 709 CZs delineated for the U.S., 741 in 1990, and 768 in 1980. LMAs are similar to CZs except that they had to have a minimum population of 100,000 persons. LMAs were only estimated in 1980 and 1990. This was done in order for the Census Bureau to create microdata samples using decennial census data (1980 PUMS-D, 1990 PUMS-L) that avoided disclosure. The LMAs were discontinued in 2000 because researchers found them to be too large and not as useful as the CZs. The identical methodology was used to develop CZs for all three decades.
+
+# Market Definitions Based on Community Detection
+
+This section outlines a novel approach for identifying markets for health care services. The methodology draws on insights and analytic appraoches from network theory to, in essense, identify clusters of geographies that are highly linked in terms of their economic linkages with area hospitals. 
+
+To build up intuition for the method we will focus on a single county, Philadelphia County, PA which, not surprisingly, contains the city of Philadelphia.  
+
+```{r, echo = FALSE}
+# St. Joseph's Hospital in Philadelphia closed March 11, 2016. North Philadelphia Health System closed the 146-bed hospital as it consolidated operations to help improve its finances. North Philadelphia Health System filed for bankruptcy Dec. 30.
+north_phila <- "390132"
+north_phila_zip <- "19130"
+zip1  <-19116
+zip2 <- 19130
+```
+
+```{r, echo = FALSE}
+library(ggrepel)
+
+# Load shape files
+sf_state <- read_sf(here("output/tidy-mapping-files/state/01_state-shape-file.shp")) %>% 
+  st_transform(crs = 4326) 
+sf_county <- read_sf(here("output/tidy-mapping-files/county/01_county-shape-file.shp")) %>% 
+  st_transform(crs = 4326) 
+sf_zip <- read_sf(here("output/tidy-mapping-files/zcta/01_zcta-shape-file.shp")) %>% 
+  st_transform(crs = 4326) 
+
+# Centroids of each ZIP
+cent_zip <- sf_zip %>% st_centroid()
+
+# Just excounty County, TN
+sf_excounty_alone <- 
+  sf_county %>% 
+  filter(fips_code=="42101")
+  #filter(fips_code == "47037")
+
+# Zips with centroids within excounty County, TN
+zips_to_show <- cent_zip %>% 
+  filter(row_number() %in% unlist(st_intersects(sf_excounty_alone, cent_zip))) %>% 
+  pull(zcta5ce10)
+
+# Shapefile of these ZIPS
+sf_zip_excounty <- sf_zip %>% 
+  filter(zcta5ce10  %in% zips_to_show)
+
+# Centroids of these ZIPs
+cent_zip_excounty <- 
+  sf_zip_excounty %>% 
+    st_centroid() 
+
+# Get teh X,Y coordinates of the centroids (bind as extra columns)
+cent_zip_excounty <-  
+  bind_cols(cent_zip_excounty, cent_zip_excounty %>% st_coordinates() %>% tbl_df() %>% set_names(c("x","y")))  %>% 
+  ungroup() %>% data.frame() %>% tbl_df()
+
+```
+
+
+```{r, cache = TRUE, echo = FALSE}
+# Get the Hospital x,y coordinates from the AHA Data.
+aha_files <- c("2017" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2017/FY2017 ASDB/COMMA/ASPUB17.CSV",
+               "2016" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2016/FY2016 Annual Survey Database/COMMA/ASPUB16.CSV",
+                "2015" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2015/FY2015 Annual Survey Database/COMMA/ASPUB15.CSV"
+)
+
+# Get latitude and longitue of general acute care hospitals in 2017 AHA survey. 
+aha <- 
+  aha_files %>% 
+  map(~(
+    data.table::fread(here(.x)) %>% 
+      janitor::clean_names() %>% 
+      filter(mstate %in% states) %>% 
+      filter(mstate !="AK" & mstate!="HI") %>% 
+      mutate(system_id = ifelse(!is.na(sysid),paste0("SYS_",sysid),id)) %>% 
+      filter(serv==10))) %>% 
+  map(~rename_in_list(x = .x, from = "hcfaid", to = "mcrnum")) %>% 
+  map(~(.x %>% 
+          select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id, mloczip, sysname,fips_code=fcounty) %>% 
+          mutate(hrrnum = paste0(hrrnum)) %>% 
+          mutate(hsanum = paste0(hsanum)) %>% 
+          mutate(prvnumgrp = str_pad(mcrnum,width = 6, pad="0")) %>% 
+          mutate(hosp_zip_code = str_sub(mloczip,1,5)) %>% 
+          mutate(longitude = as.numeric(paste0(longitude))) %>% 
+          mutate(latitude = as.numeric(paste0(latitude))) %>% 
+          filter(!is.na(longitude) & !is.na(latitude))
+  )) %>% 
+  set_names(names(aha_files)) #%>% 
+
+# Shape file of x,y coordinates of all hospitals
+xy_aha <- aha[["2016"]] %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+```
+
+
+```{r, echo = FALSE}
+
+minimum_market_share_zip <- 0.10
+minimum_market_share_hosp <- 0.10
+
+# Load the hospital-county patient sharing file
+df_hosp_zip <- read_rds(here("output/hospital-county-patient-data/2015/hospital-zip-patient-data.rds")) %>% 
+  #bind_rows(read_rds(here("output/hospital-county-patient-data/2015/hospital-zip-patient-data.rds"))) %>% 
+  #group_by(prvnumgrp,zip_code) %>% 
+  #summarize_at(vars(total_cases),function(x) sum(x,na.rm=TRUE)) %>% 
+  group_by(prvnumgrp) %>% 
+  mutate(market_share_hosp = total_cases/ sum(total_cases,na.rm=TRUE)) %>% 
+  filter(zip_code %in% zips_to_show) %>% 
+  group_by(zip_code) %>% 
+  mutate(market_share_zip = total_cases / sum(total_cases,na.rm =TRUE))  %>% 
+  filter(market_share_zip>minimum_market_share_zip | market_share_hosp>minimum_market_share_zip ) %>% 
+  inner_join(aha[["2015"]],"prvnumgrp") %>% 
+  rename(hosp_x = longitude,
+         hosp_y = latitude) %>% 
+  inner_join(cent_zip_excounty %>% select(zip_code = zcta5ce10 , zip_x = x, zip_y = y), "zip_code") %>% 
+  group_by(zip_code) %>% 
+  mutate(market_share = total_cases / sum(total_cases,na.rm=TRUE)) %>% 
+  ungroup() 
+
+# Summarize hopsital market shares from these ZIPs
+df_hosp_summ <- 
+  df_hosp_zip %>% 
+  group_by(prvnumgrp) %>% 
+  summarise(total_cases = sum(total_cases)) %>% 
+  mutate(total_cases_orig = total_cases) %>% 
+  mutate(total_cases = scales::rescale(total_cases,to = c(0,1)))
+
+# Summarise hospital market shares for specific ZIPs to use as examples
+df_hosp_zip1 <- 
+  df_hosp_zip %>% 
+  #filter(zip_code == zip1) %>% 
+  filter(zip_code==zip1) %>% 
+  group_by(prvnumgrp) %>% 
+  summarise(total_cases_zip1 = sum(total_cases)) %>% 
+  mutate(total_cases_zip1 = scales::rescale(total_cases_zip1,to = c(0,1)))
+
+df_hosp_zip2 <- 
+  df_hosp_zip %>% 
+  #filter(zip_code == zip2) %>% 
+  filter(zip_code==zip2) %>% 
+  group_by(prvnumgrp) %>% 
+  summarise(total_cases_zip2 = sum(total_cases)) %>% 
+  mutate(total_cases_zip2 = scales::rescale(total_cases_zip2,to = c(0,1)))
+```
+
+```{r, echo = FALSE}
+# Find the nearby hospitals in the AHA data with X,Y coordinates.
+hospitals_to_show <- xy_aha %>% 
+  filter(prvnumgrp %in% unique(df_hosp_zip$prvnumgrp))
+
+xy_hosp <- bind_cols(xy_aha %>% filter(prvnumgrp %in% unique(df_hosp_zip$prvnumgrp)) %>% ungroup() %>% data.frame(),
+                     xy_aha %>% 
+                     filter(prvnumgrp %in% unique(df_hosp_zip$prvnumgrp)) %>% 
+                     st_coordinates() %>% tbl_df() %>% set_names(c('x','y'))) %>% 
+  left_join(df_hosp_summ,"prvnumgrp") %>% 
+  left_join(df_hosp_zip1,"prvnumgrp") %>% 
+  left_join(df_hosp_zip2,"prvnumgrp")
+```
+
+## ZIP Codes and Hospitals in Philadelphia County, PA
+
+In this plot, we map the ZIP codes with geographic centroids contained within Philadelphia County, PA. In addition, we plot the location and market share (point size) of all hosptials based on the treatment patterns observed among traditional Medicare patients in 2015. In order for a hospital to be included, at least `r 100*minimum_market_share_zip` percent of ZIP patients, or at least `r 100*minimum_market_share_hosp` percent of the hospital's total FFS Medicare patients, must have been treated. These thresholds help trim the data by excluding hospitals that treated only a handful of patients from the geographic area.  
+
+Also note that the hospital plotted in red is St. Joseph's Hospital, a 146 bed hospital that closed on March 11, 2016. We will use this closing in an event study to validate the market classifications--the idea being that hospitals within the market containing St. Joseph's should have been more affected by its closing (i.e., total FFS Medicare patients goes up) than hospitals outside it. 
+
+```{r, fig.cap = "Hospitals and ZIP Codes in Philadelphia County, PA, 2015",fig.align = "center",fig.pos="H", fig.height = 4, fig.width = 4, echo = FALSE, echo = FALSE}
+# Map the Hospitals
+sf_zip_excounty %>% 
+  ggplot() + geom_sf() + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  coord_sf(datum=NA) +
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) +
+  geom_point(data = xy_hosp, aes(x=x,y=y,size = total_cases)) +
+  theme(legend.position = "non") +
+  geom_text_repel(data = cent_zip_excounty, aes(x=x,y=y,label = zcta5ce10 ), cex = 1) + 
+  geom_point(data = xy_hosp %>% filter(mname=="North Philadelphia Health System"),color="red",aes(x=x,y=y))
+```
+
+
+```{r, echo = FALSE}
+# Get a dataset of edges (i.e., share of patients going to each hosptial from each ZIP)
+df_edges <- df_hosp_zip %>% 
+  select(zip_code,prvnumgrp,market_share,hosp_x,hosp_y,zip_x,zip_y) %>% 
+  gather(type,value,-zip_code,-prvnumgrp,-market_share) %>% 
+  separate(type,into=c("type","coord")) %>% 
+  spread(coord,value) %>% 
+  unite(id,prvnumgrp,zip_code) 
+
+df_edges_w <- df_edges %>% 
+  gather(key,value,-id,-market_share,-type) %>% 
+  unite(key,type,key)  %>% 
+  spread(key,value)
+
+df_nodes <- df_hosp_zip %>% 
+  select(zip_code,prvnumgrp,hosp_x,hosp_y,zip_x,zip_y) %>% 
+  unique()
+```
+
+In the next plot we show the care use patterns among FFS Medicare patients who reside in two ZIP codes: `r paste0(zip1)` and `r paste0(zip2)`.  As seen in the figure, patients from these ZIP codes are treated at fundamentally different hospitals. These hospitals, moreover, are within close geographic proximity to the ZIP code. Finally, it is worth noting that many patients from ZIP `r paste0(zip1)` are observed to travel to an out-of-county hospital. 
+
+
+```{r, fig.cap = "Hospitals Utilized Among FFS Medicare Beneficiaries from Select ZIP Codes", fig.height = 4, fig.width = 4,fig.pos="H", echo = FALSE}
+ sf_zip_excounty %>% 
+  ggplot() + geom_sf() + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  geom_sf(data = sf_zip_excounty %>% filter(zcta5ce10  %in% c(zip1,zip2)), aes(fill = zcta5ce10),alpha = 0.5) +
+  coord_sf(datum=NA) +
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) +
+  geom_point(data = xy_hosp, aes(x=x,y=y,size = total_cases_zip1),colour = "darkblue") +
+  geom_point(data = xy_hosp, aes(x=x,y=y,size = total_cases_zip2),colour = "darkblue") +
+  theme(legend.position = "non") +
+  geom_text_repel(data = cent_zip_excounty, aes(x=x,y=y,label = zcta5ce10 ), cex = 1) + 
+  #geom_path(data = df_edges_w %>% filter(grepl(zip1,id)), aes(x=zip_x,y = zip_y,xend=hosp_x,yend=hosp_y)) +
+  geom_line(data = df_edges %>% filter(grepl(zip1,id)|grepl(zip2,id)),aes(x=x,y=y,group=id),size = 1) +
+  scale_size_continuous(range=c(1,10),limits = c(1,10))
+
+```
+
+The next figure plots the "edges" in a bipartite network that connects ZIP codes with hosptials. These edges are depicted as lines connecting the ZIP centroid to the hospital location. The plotted line width is also proportional to the total volume of of patients. That is, a thin line connecting a ZIP-hospital pair indicates that only a small fraction of patients from the ZIP code are treated at that particular hospital. 
+
+Distinct markets for hospital services can be seen even in this simple visualization of patient flows. For example, patients residing in the ZIP codes clustered in the southwest corner of the county all flow into hospitals located there, and there are few "shared" connections among these hospitals with other ZIP codes in the county. 
+
+```{r, fig.cap = "Patient Flows Among ZIP Codes and Hospitals in Philadelphia County, PA, 2015",fig.pos="H", echo = FALSE}
+sf_zip_excounty %>% 
+  ggplot() + geom_sf() + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  coord_sf(datum=NA) +
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) +
+  theme(legend.position = "non") +
+  geom_text_repel(data = cent_zip_excounty, aes(x=x,y=y,label = zcta5ce10 ), cex = 1) + 
+  geom_line(data = df_edges ,aes(x=x,y=y,group=id,size=market_share),colour="darkblue") +
+  #geom_path(data = df_edges_w, aes(xend=zip_x,yend=zip_y,x=hosp_x,y=hosp_y,size=market_share),arrow = arrow(length = unit(0.01, "npc")) )+
+    geom_point(data = xy_hosp, aes(x=x,y=y,label = mname,size = total_cases)) +
+   scale_size_continuous(range=c(0,2))
+```
+
+In the next plot, we remove the geographic location layering on the map and simply plot a bipartite network representation of the same data. That is, we no longer tether each hosptial and ZIP to its geographic location and centroid, respectively. Rather, we utilize a large graph layout (LGL) algorithm to improve the visualization of ties between ZIP codes and hosptials. As in the map in figure TK, the strength of ties between ZIP codes and hosptials is represented by the width of the line. 
+
+
+```{r, echo = FALSE}
+# COnstruct Network objects
+library(ggraph)
+library(tidygraph)
+
+# Create function to convert dataframe to bipartite matrix
+convert_to_bipartite <- function(df,id) {
+  id <- enquo(id)
+  nn <- df %>% pull(!!id)
+  foo <- df %>% select(-!!id) %>%
+    as.matrix()
+  
+  rownames(foo) <- nn
+  foo
+}
+
+
+minimum_share = 0.10
+minimum_number = 10
+
+bp_zip_hosp_weighted <-
+  df_hosp_zip %>%
+  filter(prvnumgrp %in% hospitals_to_show$prvnumgrp & zip_code %in% zips_to_show) %>% 
+  group_by(zip_code) %>%
+  mutate(share_of_patients = total_cases / sum(total_cases, na.rm = TRUE)) %>%
+  ungroup() %>% 
+  mutate(connected = as.integer(share_of_patients >= minimum_share))  %>%
+  mutate(share = ifelse(connected==1,share_of_patients,0)) %>% 
+  select(zip_code, prvnumgrp, total_cases) %>%
+  spread(prvnumgrp, total_cases) %>%
+  convert_to_bipartite(id = zip_code)
+bp_zip_hosp_weighted[is.na(bp_zip_hosp_weighted)] <- 0
+# bp_zip_hosp[1:10,1:10]
+
+
+net_bp <- 
+  graph_from_incidence_matrix(bp_zip_hosp_weighted,weighted=TRUE) %>% 
+  simplify(., remove.loops=TRUE) %>% 
+  as_tbl_graph() %>% 
+  activate(nodes) %>% 
+  left_join(xy_hosp %>% ungroup() %>% 
+              as.data.frame() %>% 
+              select(name = prvnumgrp,mname),"name") %>% 
+  mutate(label = ifelse(!is.na(mname),mname,name))
+```
+
+```{r, fig.cap = "Visualization of ZIP-Hospital Patient Flows as a Bipartite Network Object", fig.width = 8, fig.height=8,fig.pos="H", echo = FALSE}
+set.seed(1)
+net_bp %>% 
+  ggraph(layout='lgl') + 
+  #scale_x_continuous(limits = c(-15,10)) + 
+  #scale_y_continuous(limits = c(-20,6)) +
+  geom_edge_link(aes(width = weight,alpha=weight),show.legend = FALSE) + 
+  geom_node_point(aes(colour=type), cex = 6) +
+  geom_node_text(aes(label = label),cex = 3) +
+  remove_all_axes  + 
+  theme(legend.position = "none")  
+
+```
+
+The underlying market structure of Philadelphia-area hospitals becomes more clear in this representation of the data. For example, we see that ZIP codes tend to cluster around a certain set of hospitals. In the upper right, for example, we see that Holy Reedeemer, Nazareth, Aria - Jefferson and Jeanes Hospital tend to draw on patients from similar ZIP codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and Lankeneau Medical Center draw patients from a different cluster of ZIPs. 
+
+
+```{r, echo = FALSE}
+
+bp_zip_hosp <-
+  df_hosp_zip %>%
+  filter(prvnumgrp %in% hospitals_to_show$prvnumgrp & zip_code %in% zips_to_show) %>% 
+  group_by(zip_code) %>%
+  mutate(share_of_patients = total_cases / sum(total_cases, na.rm = TRUE)) %>%
+  ungroup() %>% 
+  mutate(connected = as.integer(share_of_patients >= minimum_share))  %>%
+  mutate(share = ifelse(connected==1,share_of_patients,0)) %>% 
+  select(zip_code, prvnumgrp, connected) %>%
+  spread(prvnumgrp, connected) %>%
+  convert_to_bipartite(id = zip_code)
+bp_zip_hosp[is.na(bp_zip_hosp)] <- 0
+# bp_zip_hosp[1:10,1:10]
+
+up_zip <-bp_zip_hosp %*% t(bp_zip_hosp)
+
+
+net_ex <- 
+  graph_from_adjacency_matrix(up_zip, weighted = TRUE,mode="undirected") %>%
+  simplify(., remove.loops = TRUE) 
+
+get_community <- function(gg,method,...) {
+  if (method == "walktrap") {
+    initial_communities <-
+      walktrap.community(gg,...)
+  } else if (method == "fast_greedy") {
+    initial_communities = 
+      cluster_fast_greedy(gg,...)
+  } else if (method =="multilevel") {
+    initial_communities <- multilevel.community(gg,...)
+  } else if (method == "spinglass") {
+    initial_communities <- spinglass.community(gg,...)
+  } else if (method == "infomap") {
+    initial_communities <- infomap.community(gg,...)
+  }
+  return(list(fit = initial_communities, market = membership(initial_communities)))
+}
+
+market_cw <- net_ex %>% get_community(method = "walktrap", 
+                          steps = 5,
+                          merges = TRUE,
+                          modularity = TRUE,
+                          membership = TRUE)
+
+market_fg <- net_ex %>% get_community(method = "fast_greedy")
+market_ml <- net_ex %>% get_community(method = "multilevel")
+market_sg <- net_ex %>% get_community(method = "spinglass")
+market_info <- net_ex %>% get_community(method = "infomap")
+
+gf_ex <- tidygraph::as_tbl_graph(net_ex,directed=FALSE) %>% 
+  activate(nodes)  %>% 
+  mutate(zip_code = name) %>% 
+  mutate(market_cw = factor(market_cw$market[name])) %>% 
+  mutate(market_fg = factor(market_fg$market[name])) %>% 
+  mutate(market_ml = factor(market_ml$market[name])) %>% 
+  mutate(market_sg = factor(market_sg$market[name])) %>% 
+  mutate(market_info = factor(market_info$market[name]))
+
+```
+
+```{r, fig.cap = "Visualization of ZIP-Hospital Connections as a Unipartite Network of ZIP Codes", fig.height =5, fig.width = 5,fig.pos="H", echo = FALSE}
+set.seed(234)
+gf_ex %>% 
+  activate(edges) %>% 
+  filter(weight>0) %>% 
+  ggraph(layout='fr') + 
+  geom_edge_link(aes(width = weight, alpha = weight), show.legend = FALSE) + 
+  geom_node_point(aes(colour=market_cw),size = 6) +
+  geom_node_text(aes(label = zip_code)) +
+  remove_all_axes  +
+  theme(legend.position = "none")
+```
+
+```{r, echo = FALSE}
+df_markets_ensemble <- 
+  cbind.data.frame(zip_code = names(market_cw$market), market_cw = market_cw$market %>% unname() %>% as.vector()) %>% 
+  mutate(market_fg = market_fg$market[zip_code]) %>% 
+  mutate(market_ml = market_ml$market[zip_code]) %>% 
+  mutate(market_sg = market_sg$market[zip_code]) %>% 
+  mutate(market_info = market_info$market[zip_code])
+  
+df_hosp_markets <- 
+  df_hosp_zip %>% 
+  left_join(df_markets_ensemble %>% 
+              gather(type,market,-zip_code),"zip_code")  %>% 
+  group_by(type,market,prvnumgrp) %>% 
+  summarise(total_cases = sum(total_cases)) %>% 
+  ungroup() %>% 
+  mutate(type2 = gsub("market_","total_cases_",type)) %>% 
+  gather(key,value,-type,-type2,-prvnumgrp,-market) %>% 
+  group_by(prvnumgrp) %>%  
+  mutate(foo = row_number()) %>% 
+  unique() %>% 
+  #filter(row_number() %in% c(67,80))
+  spread(type,market) %>% 
+  select(-key) %>% 
+  spread(type2,value) %>% 
+  select(-foo)
+#df_hosp_markets$[is.na(df_hosp_markets)] <- 0
+
+xy_hosp_market <-
+  xy_hosp %>% 
+  left_join(df_hosp_markets,"prvnumgrp")
+
+sf_markets <- sf_zip_excounty %>% 
+  mutate(zip_code = zcta5ce10) %>% 
+  left_join(df_markets_ensemble, "zip_code") 
+```
+
+With ZIP codes classified into geographic markets we can now map this out for the entire county. Each panel of this plot shows the ZIP codes included in a detected market. The dots again correspond to the geographic location of hospitals visited by individuals from that market. The dot sizes are furthermore scaled to be proportional to patient volume / market share. 
+
+```{r,fig.cap = "Geographic Markets Identified by Multilevel Algorithm",fig.height = 8, fig.width =8,fig.pos="H", echo = FALSE}
+sf_zip_excounty %>% 
+  filter(zcta5ce10 != "19112") %>% 
+  ggplot() + geom_sf(alpha = 0.1)  + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) + 
+  theme(legend.position = "none") +
+  geom_sf(data = sf_markets %>% filter(zcta5ce10 != "19112") , aes(fill = "grey"),fill ="lightgrey") + 
+  geom_point(data = xy_hosp_market %>% filter(!is.na(market_ml)), aes(x=x,y=y,size = total_cases_ml)) + 
+ # scale_fill_distiller(palette=3) + 
+  facet_wrap(~market_ml) +
+  coord_sf(datum=NA) 
+```
+
+
+
 
 # Visualization of Market Definitions for Tennesee
 

@@ -188,6 +188,99 @@ U.S. Department of Agriculture (USDA) is useful:
 > found them to be too large and not as useful as the CZs. The identical
 > methodology was used to develop CZs for all three decades.
 
+# Market Definitions Based on Community Detection
+
+This section outlines a novel approach for identifying markets for
+health care services. The methodology draws on insights and analytic
+appraoches from network theory to, in essense, identify clusters of
+geographies that are highly linked in terms of their economic linkages
+with area hospitals.
+
+To build up intuition for the method we will focus on a single county,
+Philadelphia County, PA which, not surprisingly, contains the city of
+Philadelphia.
+
+## ZIP Codes and Hospitals in Philadelphia County, PA
+
+In this plot, we map the ZIP codes with geographic centroids contained
+within Philadelphia County, PA. In addition, we plot the location and
+market share (point size) of all hosptials based on the treatment
+patterns observed among traditional Medicare patients in 2015. In order
+for a hospital to be included, at least 10 percent of ZIP patients, or
+at least 10 percent of the hospital’s total FFS Medicare patients, must
+have been treated. These thresholds help trim the data by excluding
+hospitals that treated only a handful of patients from the geographic
+area.
+
+Also note that the hospital plotted in red is St. Joseph’s Hospital, a
+146 bed hospital that closed on March 11, 2016. We will use this closing
+in an event study to validate the market classifications–the idea being
+that hospitals within the market containing St. Joseph’s should have
+been more affected by its closing (i.e., total FFS Medicare patients
+goes up) than hospitals outside
+it.
+
+<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" title="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" alt="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" style="display: block; margin: auto;" />
+
+In the next plot we show the care use patterns among FFS Medicare
+patients who reside in two ZIP codes: 19116 and 19130. As seen in the
+figure, patients from these ZIP codes are treated at fundamentally
+different hospitals. These hospitals, moreover, are within close
+geographic proximity to the ZIP code. Finally, it is worth noting that
+many patients from ZIP 19116 are observed to travel to an out-of-county
+hospital.
+
+![Hospitals Utilized Among FFS Medicare Beneficiaries from Select ZIP
+Codes](README_files/figure-gfm/unnamed-chunk-8-1.png)
+
+The next figure plots the “edges” in a bipartite network that connects
+ZIP codes with hosptials. These edges are depicted as lines connecting
+the ZIP centroid to the hospital location. The plotted line width is
+also proportional to the total volume of of patients. That is, a thin
+line connecting a ZIP-hospital pair indicates that only a small fraction
+of patients from the ZIP code are treated at that particular hospital.
+
+Distinct markets for hospital services can be seen even in this simple
+visualization of patient flows. For example, patients residing in the
+ZIP codes clustered in the southwest corner of the county all flow into
+hospitals located there, and there are few “shared” connections among
+these hospitals with other ZIP codes in the county.
+
+![Patient Flows Among ZIP Codes and Hospitals in Philadelphia County,
+PA, 2015](README_files/figure-gfm/unnamed-chunk-9-1.png)
+
+In the next plot, we remove the geographic location layering on the map
+and simply plot a bipartite network representation of the same data.
+That is, we no longer tether each hosptial and ZIP to its geographic
+location and centroid, respectively. Rather, we utilize a large graph
+layout (LGL) algorithm to improve the visualization of ties between ZIP
+codes and hosptials. As in the map in figure TK, the strength of ties
+between ZIP codes and hosptials is represented by the width of the line.
+
+![Visualization of ZIP-Hospital Patient Flows as a Bipartite Network
+Object](README_files/figure-gfm/unnamed-chunk-11-1.png)
+
+The underlying market structure of Philadelphia-area hospitals becomes
+more clear in this representation of the data. For example, we see that
+ZIP codes tend to cluster around a certain set of hospitals. In the
+upper right, for example, we see that Holy Reedeemer, Nazareth, Aria -
+Jefferson and Jeanes Hospital tend to draw on patients from similar ZIP
+codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and
+Lankeneau Medical Center draw patients from a different cluster of ZIPs.
+
+![Visualization of ZIP-Hospital Connections as a Unipartite Network of
+ZIP Codes](README_files/figure-gfm/unnamed-chunk-13-1.png)
+
+With ZIP codes classified into geographic markets we can now map this
+out for the entire county. Each panel of this plot shows the ZIP codes
+included in a detected market. The dots again correspond to the
+geographic location of hospitals visited by individuals from that
+market. The dot sizes are furthermore scaled to be proportional to
+patient volume / market share.
+
+![Geographic Markets Identified by Multilevel
+Algorithm](README_files/figure-gfm/unnamed-chunk-15-1.png)
+
 # Visualization of Market Definitions for Tennesee
 
 We will next visualize several commonly used geographic market
@@ -201,7 +294,7 @@ geographies.
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
-![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
@@ -594,7 +687,7 @@ following specific details.
     defined based on the fraction of geography-level patients who go to
     each hospital.
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
   - For the patient flow method, we used the [CMS Hospital Service Area
     files
