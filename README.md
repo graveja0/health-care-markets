@@ -1,5 +1,5 @@
 
-# Defining Geographic Markets for Health Care Services
+# Defining Markets for Health Care Services
 
 The objective of this repository is to lay out some thoughts, analytics,
 and data for defining geographic markets for health care services. In
