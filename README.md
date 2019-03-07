@@ -250,22 +250,22 @@ these hospitals with other ZIP codes in the county.
 PA, 2015](README_files/figure-gfm/unnamed-chunk-9-1.png)
 
 In the next plot, we remove the geographic location layering on the map
-and simply plot a bipartite network representation of the same data.
-That is, we no longer tether each hospital and ZIP to its geographic
-location and centroid, respectively. Rather, we utilize a large graph
-layout (LGL) algorithm to improve the visualization of ties between ZIP
-codes and hospitals. As in the map in figure above, the strength of ties
-between ZIP codes and hospitals is represented by the width of the line.
+and simply plot the bipartite network. That is, we no longer tether each
+hospital and ZIP to its geographic location and centroid, respectively.
+Rather, we utilize a large graph layout (LGL) algorithm to improve the
+visualization of ties between ZIP codes and hospitals. As in the map in
+figure above, the strength of ties between ZIP codes and hospitals is
+represented by the width of the line.
 
 ![Visualization of ZIP-Hospital Patient Flows as a Bipartite Network
 Object](README_files/figure-gfm/unnamed-chunk-11-1.png)
 
-The underlying market structure of Philadelphia-area hospitals becomes
-more clear in this representation of the data. For example, we see that
-ZIP codes tend to cluster around a certain set of hospitals. In the
-upper right, for example, we see that Holy Reedeemer, Nazareth, Aria -
-Jefferson and Jeanes Hospital tend to draw on patients from similar ZIP
-codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and
+The underlying market structure of Philadelphia-area hospitals starts to
+become more clear in this representation of the data. For example, we
+see that ZIP codes tend to cluster around a certain set of hospitals. In
+the lower left, for example, we see that Holy Reedeemer, Nazareth, Aria
+- Jefferson and Jeanes Hospital tend to draw on patients from similar
+ZIP codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and
 Lankeneau Medical Center draw patients from a different cluster of ZIPs.
 
 Next we will take this bipartite matrix and transform it into a
@@ -274,28 +274,26 @@ connections between ZIP codes. For example, if ZIP A sends 100 patients
 to a given hospital, and ZIP B sends 100 patients to that hospital, then
 ZIPs A and B are connected.
 
-For now we will define two ZIP codes as connected via a hospital if at
-least `10` percent of patients from each ZIP are treated at the
-hospital. This helps avoid a situation where just one person from two
-different ZIP codes is treated in a hospital–in that case, we wouldn’t
-want to treat those two ZIPs as “connected” based a random one-off
-admission. If we did not impose this threshold restriction then nearly
-every ZIP code would be “connected.”
+The plot below provides visualization of the unipartite network of ZIP
+codes in Philadelphia county. Again, we can see clear “clustering” of
+ZIPs. That is, these are ZIPs that tend to draw on the same hospitals.
 
-After imposing this `10` percent threshold restriction, here is a
-visualization of the unipartite network of ZIP codes in Philadelphia
-county. Again, we can see clear “clustering” of ZIPs. That is, these are
-ZIPs that tend to draw on the same hospitals.
+In addition, each node has been colored based on the ZIP codes
+assignment to a distinct market. To identify these markets, we fed this
+unipartite network through the [Multilevel
+algorithm](https://arxiv.org/abs/0803.0476)–one of a [variety of
+community detection
+algorithms](https://www.nature.com/articles/srep30750) that have been
+developed.
 
 ![Visualization of ZIP-Hospital Connections as a Unipartite Network of
 ZIP Codes](README_files/figure-gfm/unnamed-chunk-13-1.png)
 
-With ZIP codes classified into geographic markets we can now map this
-out for the entire county. Each panel of this plot shows the ZIP codes
-included in a detected market. The dots again correspond to the
-geographic location of hospitals visited by individuals from that
-market. The dot sizes are furthermore scaled to be proportional to
-patient volume / market share.
+We now map out the geographic markets identified by the Multilevel
+algorithm. Each panel of this plot shows the ZIP codes included in a
+detected market. The dots again correspond to the geographic location of
+hospitals visited by individuals from that market. The dot sizes are
+furthermore scaled to be proportional to patient volume / market share.
 
 ![Geographic Markets Identified by Multilevel
 Algorithm](README_files/figure-gfm/unnamed-chunk-15-1.png)
