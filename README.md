@@ -263,8 +263,8 @@ Object](README_files/figure-gfm/unnamed-chunk-11-1.png)
 The underlying market structure of Philadelphia-area hospitals starts to
 become more clear in this representation of the data. For example, we
 see that ZIP codes tend to cluster around a certain set of hospitals. In
-the lower left, for example, we see that Holy Reedeemer, Nazareth, Aria
-- Jefferson and Jeanes Hospital tend to draw on patients from similar
+the lower left, for example, we see that Holy Reedeemer, Nazareth,
+Aria-Jefferson and Jeanes Hospital tend to draw on patients from similar
 ZIP codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and
 Lankeneau Medical Center draw patients from a different cluster of ZIPs.
 
