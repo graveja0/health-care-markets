@@ -235,34 +235,37 @@ it.
 <img src="README_files/figure-gfm/unnamed-chunk-6-1.png" title="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" alt="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" style="display: block; margin: auto;" />
 
 In the next plot we show the care use patterns among FFS Medicare
-patients who reside in two ZIP codes: 19116 and 19130. As seen in the
-figure, patients from these ZIP codes are treated at fundamentally
-different hospitals. These hospitals, moreover, are within close
-geographic proximity to the ZIP code. Finally, it is worth noting that
-many patients from ZIP 19116 are observed to travel to an out-of-county
-hospital.
+patients who reside in two ZIP codes: 19116 and 19130. Patient flows
+from the ZIP code to area hospitals is represtened by the “edge line”
+liking the ZIP centroid to the geographic location of each hospital.
+
+As seen in the figure, patients from the two example ZIP codes are
+treated at fundamentally different hospitals. These hospitals, moreover,
+are within close geographic proximity to each ZIP code. Finally, it is
+worth noting that many patients from ZIP 19116 are observed to travel to
+an out-of-county hospital.
 
 ![Hospitals Utilized Among FFS Medicare Beneficiaries from Select ZIP
 Codes](README_files/figure-gfm/unnamed-chunk-8-1.png)
 
-The next figure plots the “edges” in a bipartite network that connects
-ZIP codes with hospitals. These edges are depicted as lines connecting
-the ZIP centroid to the hospital location. The plotted line width is
-also proportional to the total volume of of patients. That is, a thin
-line connecting a ZIP-hospital pair indicates that only a small fraction
-of patients from the ZIP code are treated at that particular hospital.
+The next figure plots all “edge links” among all ZIPs and hosptials in
+Philadelphia County. The plotted line width is also proportional to the
+total volume of of patients. That is, a thin line connecting a
+ZIP-hospital pair indicates that only a small fraction of patients from
+the ZIP code are treated at that particular hospital.
 
-Distinct markets for hospital services can be seen even in this simple
-visualization of patient flows. For example, patients residing in the
-ZIP codes clustered in the southwest corner of the county all flow into
-hospitals located there, and there are few “shared” connections among
-these hospitals with other ZIP codes in the county.
+While things will become more clear in a later plot, a rough sense of
+distinct markets for hospital services can be seen in this simple
+map-based visualization of patient flows. For example, patients residing
+in the ZIP codes clustered in the southwest corner of the county all
+flow into hospitals located there, and there are few “shared”
+connections among these hospitals with other ZIP codes in the county.
 
 ![Patient Flows Among ZIP Codes and Hospitals in Philadelphia County,
 PA, 2015](README_files/figure-gfm/unnamed-chunk-9-1.png)
 
-In the next plot, we remove the geographic location layering on the map
-and simply plot the bipartite network. That is, we no longer tether each
+The next plot removes the geographic location layering on the map and
+simply plot the bipartite network. That is, we no longer tether each
 hospital and ZIP to its geographic location and centroid, respectively.
 Rather, we utilize a large graph layout (LGL) algorithm to improve the
 visualization of ties between ZIP codes and hospitals. As in the map in
@@ -273,18 +276,22 @@ represented by the width of the line.
 Object](README_files/figure-gfm/unnamed-chunk-11-1.png)
 
 The underlying market structure of Philadelphia-area hospitals starts to
-become more clear in this representation of the data. For example, we
-see that ZIP codes tend to cluster around a certain set of hospitals. In
-the lower left, for example, we see that Holy Reedeemer, Nazareth,
-Aria-Jefferson and Jeanes Hospital tend to draw on patients from similar
-ZIP codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and
-Lankeneau Medical Center draw patients from a different cluster of ZIPs.
+become a bit more clear in this representation of the data. Again, we
+see that ZIP codes tend to cluster around certain sets of hospitals. For
+example, Holy Reedeemer, Nazareth, Aria-Jefferson and Jeanes Hospital
+all tend to draw on patients from similar ZIP codes. By comparison,
+Mercy Fitzgerald, the UPenn Hospitals, and Lankeneau Medical Center draw
+patients from a different cluster of ZIPs.
 
 Next we will take this bipartite matrix and transform it into a
 unipartite matrix summarizing the total number of shared hospital
-connections between ZIP codes. For example, if ZIP A sends 100 patients
-to a given hospital, and ZIP B sends 100 patients to that hospital, then
-ZIPs A and B are connected.
+connections between ZIP codes. Here, we will define two ZIPs as
+“connected” if, for one or more hospitals, at least 10% of the
+patients from that ZIP are treated at the hospital. Thus, if 15% of
+patients from ZIP A and 25% of patients from ZIP B go to Hospital 1,
+those two ZIPs would be connected. However if just 1% of patients from
+ZIP A and 25% of patients from ZIP B go to the hospital, those ZIPs
+would not be counted as connected.
 
 The plot below provides visualization of the unipartite network of ZIP
 codes in Philadelphia county. Again, we can see clear “clustering” of
