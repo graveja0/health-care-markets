@@ -42,9 +42,9 @@ Census, though researchers have
 2010 data. HRRs and HSAs, by comparison, are defined by patient flows to
 hospitals in 1992 and 1993.
 
-Clearly, flows patients and commuters have changed substantially in many
-areas in the last 20-30 years. Whether these changes are material to
-defining geographic boundaries of contemporary health care markets
+Clearly, flows of patients and commuters have changed substantially in
+many areas in the last 20-30 years. Whether these changes are material
+to defining geographic boundaries of contemporary health care markets
 remains an open question we will explore here.
 
 Finally, it is worth mentioning that regulatory and antitrust reviews
@@ -102,7 +102,7 @@ Whereas HSAs are intented to capture the geographic catchment area where
 residents of a ZIP code receive most of their overall hospital services,
 HRRs are meant to capture larger teritary referral areas.
 
-To identify HRRS, Dartmouth researchers aggregated HSAs into contiguous
+To identify HRRs, Dartmouth researchers aggregated HSAs into contiguous
 geographies based on where residents of the HSA received the most
 cardiovascular procedures and neurosurgeries. Thus, HSAs serve as the
 basic building block of HRRs. HRRs are also constructed to meet the
@@ -118,10 +118,11 @@ the United States.
 
 ## Primary Care Service Areas
 
-PCSAs are intented to serve as HSAs for primary care. Thus, a PCSA is
-defined as a collection of contiguous ZIP codes with at least one
-primary care provider, and where the plurality of primary care services
-is obtained among fee-for-service Medicare beneficiaries.
+PCSAs are intented to serve as the analogue of HSAs for primary care
+services. Thus, a PCSA is defined as a collection of contiguous ZIP
+codes with at least one primary care provider, and where the plurality
+of primary care services is obtained among fee-for-service Medicare
+beneficiaries.
 
 There are 6,542 PCSAs in the U.S. – or roughly double the number of
 HSAs. On average there are 4.9 ZCTAs in a PCTA (median =3, max = 81, min
@@ -144,7 +145,9 @@ the default (MSA+1) standard. The vast majority of the states submitted
 clusterings of counties as their rating area definitions. Another
 handful of states (MA, NE, AK) uses clusters of 3-digit ZIP codes, while
 CA uses a combination of counties and 3-digit ZIPs. Specifically, LA
-county is split into two rating areas based on 3-digit ZIP.
+county is split into two rating areas based on 3-digit ZIP, while the
+remainder of the state is apportioned into rating areas based on county
+boundaries.
 
 What this means is there is signficant heterogeneity across states in
 the geographic and population size of rating areas. South Carolina, for
@@ -160,12 +163,12 @@ zone geography
 files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/)
 are based on patterns observed in the 2000 census. However, more recent
 county-to-county commuting data are available based on the 2009-2013
-American Community Survey (ACS) [are also
-available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html)
-and could be used to construct new commuting zone geographies.
+American Community Survey (ACS) and could be used to construct new
+commuting zone geographies.
 
-For now, the zones used here will draw on the shapefiles constructed for
-2010 at [Penn State](https://sites.psu.edu/psucz/).
+For now, the zones used here will draw on the shapefiles constructed
+based on 2010 Census data by researchers at [Penn
+State](https://sites.psu.edu/psucz/).
 
 This description of the history and methods of commuting zones from the
 U.S. Department of Agriculture (USDA) is useful:

@@ -29,7 +29,7 @@ There are other important considerations at play as well. For example, some mark
 
 In addition, the underlying population data used to define commonly used geographic markets is out of date. The latest offical commuting zone boundaries are derived from commuting patterns ascertained in the 2000 Census, though researchers have [updated]( https://sites.psu.edu/psucz/data/) these boundaries based on 2010 data. HRRs and HSAs, by comparison, are defined by patient flows to hospitals in 1992 and 1993. 
 
-Clearly, flows patients and commuters have changed substantially in many areas in the last 20-30 years. Whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question we will explore here.
+Clearly, flows of patients and commuters have changed substantially in many areas in the last 20-30 years. Whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question we will explore here.
 
 Finally, it is worth mentioning that regulatory and antitrust reviews have drawn on a diverse set of addtional market geography definitions. The history, use and controversies surrounding these definitions are nicely covered in the Department of Justice chapter entitled ["Competition Law: Hospitals."](https://www.justice.gov/atr/chapter-4-competition-law-hospitals) 
 These alternative DOJ market definitions tend to rely on rich  data on prices in health care markets. While in theory such information could be obtained nationwide, in practice the construction of market definitions using price data is contigent on the painstaking collection of local data from relevant market participants. I do not profess to have the human capital or funding resources to undertake such an exercise here. So we will focus on more general market geography definitions that can more easily scale--particularly using publicly-available and relatively low-cost data. 
@@ -57,7 +57,7 @@ According to the Dartmouth methods appendix, data from 1992-93 were used to cons
 
 Whereas HSAs are intented to capture the geographic catchment area where residents of a ZIP code receive most of their overall hospital services, HRRs are meant to capture larger teritary referral areas. 
 
-To identify HRRS, Dartmouth researchers aggregated HSAs into contiguous geographies based on where residents of the HSA received the most cardiovascular procedures and neurosurgeries. Thus, HSAs serve as the basic building block of HRRs. HRRs are also constructed to meet the following criteria:
+To identify HRRs, Dartmouth researchers aggregated HSAs into contiguous geographies based on where residents of the HSA received the most cardiovascular procedures and neurosurgeries. Thus, HSAs serve as the basic building block of HRRs. HRRs are also constructed to meet the following criteria:
 
 - Population of at least 120,000.
 - At least 65% of residents' services occurred within the region.
@@ -67,7 +67,7 @@ In cases where the above criteria were not met, neighboring areas were pooled to
 
 ## Primary Care Service Areas
 
-PCSAs are intented to serve as HSAs for primary care. Thus, a PCSA is defined as a collection of contiguous ZIP codes with at least one primary care provider, and where the plurality of primary care services is obtained among fee-for-service Medicare beneficiaries. 
+PCSAs are intented to serve as the analogue of HSAs for primary care services. Thus, a PCSA is defined as a collection of contiguous ZIP codes with at least one primary care provider, and where the plurality of primary care services is obtained among fee-for-service Medicare beneficiaries. 
 
 There are 6,542 PCSAs in the U.S. -- or roughly double the number of HSAs. On average there are 4.9 ZCTAs in a PCTA (median =3, max = 81, min = 1).  61% of primary care services, on average, are obtained within PCSAs.
 
@@ -75,16 +75,16 @@ There are 6,542 PCSAs in the U.S. -- or roughly double the number of HSAs. On av
 
 Marketplace rating areas are geographically contiguous areas used for the purpopses of insurance plan rate setting in the non-group market. The default geography used to set rating areas is the Metropolitan Statistical Area (MSA) plus the remainder of the state not in an MSA (MSA+1 definition). However, states have the option to define alternative county,  3-digit ZIP, or MSA/non-MSA clusters if they deem some alternative definition more important for regulation and rate setting within the state. 
 
-In practice, only 7 states (AL, NM, ND, OK, TX, VA, WY) went along with the default (MSA+1) standard. The vast majority of the states submitted clusterings of counties as their rating area definitions. Another handful of states (MA, NE, AK) uses clusters of 3-digit ZIP codes, while CA uses a combination of counties and 3-digit ZIPs. Specifically, LA county is split into two rating areas based on 3-digit ZIP. 
+In practice, only 7 states (AL, NM, ND, OK, TX, VA, WY) went along with the default (MSA+1) standard. The vast majority of the states submitted clusterings of counties as their rating area definitions. Another handful of states (MA, NE, AK) uses clusters of 3-digit ZIP codes, while CA uses a combination of counties and 3-digit ZIPs. Specifically, LA county is split into two rating areas based on 3-digit ZIP, while the remainder of the state is apportioned into rating areas based on county boundaries. 
 
 What this means is there is signficant heterogeneity across states in the geographic and population size of rating areas. South Carolina, for example, has 46 rating areas -- more than *double* the 19 rating areas that define California!
 
 
 ## Commuting Zones
 
-Commuting zones are comprised of geographically contiguous counties with strong within-area clustering of commuting ties between residental and work county, and weak across-area ties. The [latest official commuting zone geography files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/) are based on patterns observed in the 2000 census. However, more recent county-to-county commuting data are available based on the 2009-2013 American Community Survey (ACS)  [are also available](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html) and could be used to construct new commuting zone geographies. 
+Commuting zones are comprised of geographically contiguous counties with strong within-area clustering of commuting ties between residental and work county, and weak across-area ties. The [latest official commuting zone geography files](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/) are based on patterns observed in the 2000 census. However, more recent county-to-county commuting data are available based on the 2009-2013 American Community Survey (ACS)  and could be used to construct new commuting zone geographies. 
 
-For now, the zones used here will draw on the shapefiles constructed for 2010 at [Penn State](https://sites.psu.edu/psucz/).
+For now, the zones used here will draw on the shapefiles constructed based on 2010 Census data by researchers at [Penn State](https://sites.psu.edu/psucz/).
 
 This description of the history and methods of commuting zones from the U.S. Department of Agriculture (USDA) is useful:
 
