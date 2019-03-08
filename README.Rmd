@@ -776,7 +776,7 @@ knitr::include_graphics("figs/km-eq2.png")
 
 The KM approach to constructing hospital-specific HHIs essentially boils down to asking: what is the average geographic HHI among patients treated by a given hospital?
 
-Another way to approach this is to ask a slightly different question: among geographies where a given hospital competes with other hospitals for patients, what is the total market share of each hospital? We can then use *those* market shares to construct a hospital-specific HHI measure for that hospital. We will call this the **joint competition** approach to a hospital HHI. 
+Another way to approach this is to ask a slightly different question: among geographies where a given hospital "competes" with other hospitals for patients, what is the total market share of each hospital? We can then use *those* market shares to construct a hospital-specific HHI measure for that hospital. We will call this the **joint competition** approach to a hospital HHI. 
 
 (Note that I am using the terms "competes" and "competition" somewhat loosely here, as all we know is that two hospitals draw in patients from the same ZIP; we do not know for certain whether they actually compete for these patients. As an extreme example, a children's hospital and an adult general acute care hospital may both draw in patients from the same ZIP, but it is unlikely that they are actually competing for patients. In the data used here, however, we are drawing on FFS Medicare patients--so it may be more realistic to assume two hospitals are competing for these patients.)
 
@@ -794,7 +794,7 @@ The HHI for hospital *z* is therefore given by the following equation:
 knitr::include_graphics("figs/net-eq2.png")
 ```
 
-The hospital-specific HHIs based on these two methods is provided in the table below. 
+The hospital-specific HHIs for the example above, and based on these two methods, is provided in the table below. 
 
 ```{r, echo = FALSE}
 hhi_km <- function(bp) apply(apply(((100*t(apply(bp,1,function(x) x/sum(x))))^2),1,sum)*apply(bp,2,function(x) x/sum(x)),2,sum)
@@ -811,7 +811,7 @@ data.frame(hospital = names(hhi_km(bp)), km = hhi_km(bp), unipartite = hhi_net(b
 
 The obvious first question to ask is: *why do these approaches yield different HHI measures*? One reason essentially boils down to the difference between a sum of squares (KM) and a square of sums (JC). That is, the KM approach calculates the HHI at the ZIP level (i.e., sum of squared market shares in each ZIP), then constructs hospital-specific HHIs based on a weighted sum. The JC approach, by comparison, first sums up the ZIP-level market shares, and then squares those market shares to construct the hospital-specific HHI. 
 
-Another simple example can help further differentiate among the two methods. Suppose Hospital A draws 50% of its 20 patients from a ZIP in which Hospital A, B and C each draw 1/3 market shares (10 each). The other 50% of its 20 patients are drawn from a ZIP code in which only A and B draw 50% market shares (i.e., Hospital C doesn't draw in any patients from ZIP 2).
+Another simple example can help further differentiate among the two methods. Suppose Hospital A draws 50% of its 20 patients from a ZIP in which Hospital A, B and C each draw 1/3 market shares (10 each). The other 50% of its 20 patients are drawn from a ZIP code in which A and B draw 50% market shares (i.e., Hospital C doesn't draw in any patients from ZIP 2).
 
 A simple representation of this scenario is depicted in the bipartite matrix below:
 
@@ -836,15 +836,15 @@ tmp
 ```
 
 
-Which translates into the following "jointly competitive" market shares faced by Hospital A (note these are listed as percentages):
+This translates into the following "jointly competitive" market shares (row percentages):
 
 ```{r, echo = FALSE}
 100 * tmp/sum(tmp)
 ```
 
-This translates into an HHI measure of 3,600, which is considerably lower than the HHI of 4,167 under the KM approach. 
+This translates into an HHI measure of 3,600, which is considerably lower than the HHI of 4,167 under the KM approach.
 
-The major difference stems from the treatment of the fact that Hopsital C does not draw in patients from ZIP 2, and thus ZIP 2 is more concentrated.  **The KM method essentially assumes that hospitals differentiate among patients based on the competitiveness of their residential geography. That is, ZIP 2 is more concentrated, so Hospital A receives a higher HHI value under the KM method owing to this fact. By comparison, the JC method does not reflect this assumption; it is agnostic as to a specific geographic area's concentration level.** I do not profess to have sufficient knowledge on hopsital strategy to say definitively whether one method is superior to the other--but it is important to understand the assumptions each method makes. 
+A key difference stems from the treatment of the fact that Hopsital C does not draw in patients from ZIP 2, and thus ZIP 2 is more concentrated.  **The KM method essentially assumes that hospitals differentiate among patients based on the competitiveness of their residential geography. That is, ZIP 2 is more concentrated, so Hospital A receives a higher HHI value under the KM method owing to this fact. By comparison, the JC method does not reflect this assumption; it is agnostic as to a specific geographic area's concentration level.** I do not profess to have sufficient knowledge on hopsital strategy to say definitively whether one method is superior to the other--but it is important to understand the assumptions each method makes. 
 
 ## Comparison of Geographic Location and Population Flow HHI Measures 
 

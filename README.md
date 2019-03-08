@@ -588,7 +588,7 @@ down to asking: what is the average geographic HHI among patients
 treated by a given hospital?
 
 Another way to approach this is to ask a slightly different question:
-among geographies where a given hospital competes with other hospitals
+among geographies where a given hospital “competes” with other hospitals
 for patients, what is the total market share of each hospital? We can
 then use *those* market shares to construct a hospital-specific HHI
 measure for that hospital. We will call this the **joint competition**
@@ -618,8 +618,8 @@ equation:
 
 <img src="figs/net-eq2.png" width="250px" />
 
-The hospital-specific HHIs based on these two methods is provided in the
-table below.
+The hospital-specific HHIs for the example above, and based on these two
+methods, is provided in the table below.
 
 | Hospital |   KM |   JC |
 | :------- | ---: | ---: |
@@ -642,9 +642,9 @@ construct the hospital-specific HHI.
 Another simple example can help further differentiate among the two
 methods. Suppose Hospital A draws 50% of its 20 patients from a ZIP in
 which Hospital A, B and C each draw 1/3 market shares (10 each). The
-other 50% of its 20 patients are drawn from a ZIP code in which only A
-and B draw 50% market shares (i.e., Hospital C doesn’t draw in any
-patients from ZIP 2).
+other 50% of its 20 patients are drawn from a ZIP code in which A and B
+draw 50% market shares (i.e., Hospital C doesn’t draw in any patients
+from ZIP 2).
 
 A simple representation of this scenario is depicted in the bipartite
 matrix below:
@@ -668,8 +668,8 @@ of patients:
     ## HOSP_A HOSP_B HOSP_C 
     ##     20     20     10
 
-Which translates into the following “jointly competitive” market shares
-faced by Hospital A (note these are listed as percentages):
+This translates into the following “jointly competitive” market shares
+(row percentages):
 
     ## HOSP_A HOSP_B HOSP_C 
     ##     40     40     20
