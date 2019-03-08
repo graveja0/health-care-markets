@@ -264,10 +264,10 @@ connections among these hospitals with other ZIP codes in the county.
 ![Patient Flows Among ZIP Codes and Hospitals in Philadelphia County,
 PA, 2015](README_files/figure-gfm/unnamed-chunk-9-1.png)
 
-The next plot removes the geographic location layering on the map and
-simply plot the bipartite network. That is, we no longer tether each
-hospital and ZIP to its geographic location and centroid, respectively.
-Rather, we utilize a large graph layout (LGL) algorithm to improve the
+The next plot removes the geographic location layering and simply plots
+the bipartite network. That is, we no longer tether each hospital and
+ZIP to its geographic location and centroid, respectively. Rather, we
+utilize a large graph layout (LGL) algorithm to improve the
 visualization of ties between ZIP codes and hospitals. As in the map in
 figure above, the strength of ties between ZIP codes and hospitals is
 represented by the width of the line.

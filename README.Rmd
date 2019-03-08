@@ -328,7 +328,7 @@ sf_zip_excounty %>%
    scale_size_continuous(range=c(0,2))
 ```
 
-The next plot removes the geographic location layering on the map and simply plot the bipartite network. That is, we no longer tether each hospital and ZIP to its geographic location and centroid, respectively. Rather, we utilize a large graph layout (LGL) algorithm to improve the visualization of ties between ZIP codes and hospitals. As in the map in figure above, the strength of ties between ZIP codes and hospitals is represented by the width of the line. 
+The next plot removes the geographic location layering  and simply plots the bipartite network. That is, we no longer tether each hospital and ZIP to its geographic location and centroid, respectively. Rather, we utilize a large graph layout (LGL) algorithm to improve the visualization of ties between ZIP codes and hospitals. As in the map in figure above, the strength of ties between ZIP codes and hospitals is represented by the width of the line. 
 
 
 ```{r, echo = FALSE}
