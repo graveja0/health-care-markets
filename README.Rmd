@@ -92,9 +92,9 @@ This description of the history and methods of commuting zones from the U.S. Dep
 
 # Market Definitions Based on Community Detection
 
-This section outlines a novel approach for identifying markets for health care services. The methodology draws on insights and analytic appraoches from network theory to, in essense, identify clusters of geographies that are highly linked in terms of their economic linkages with area hospitals. 
+Measures of economic activity (e.g., patient flows, predicted demand) between individuals or geographies and health care service providers can be used to construct a bipartite network summarizing their economic links. This network can then be used to construct unipartite networks of geographies that are linked via common ties with health care providers. Alternatively, the same biparite matrix can also be used to construct a unipartite network of hospitals that are linked because they draw patients from common geographies. These unipartite networks can then be fed through an ensemble of community-dection algorithms to identify mutually exclusive clusters (i.e., markets) of either geographies or health care providers. 
 
-To build up intuition for the method we will focus on a single county, Philadelphia County, PA which, not surprisingly, contains the city of Philadelphia.  
+This section walks through such a process for identifying geographic markets for hospital services. To do so, we focus on ZIP codes and hosptials within a single county: Philadelphia County, PA (which, not surprisingly, contains the city of Philadelphia). As we will show later, the methodology is easily scalable nationally and to other geographies and health care service types (e.g., physicians, insurers).
 
 ```{r, echo = FALSE}
 # St. Joseph's Hospital in Philadelphia closed March 11, 2016. North Philadelphia Health System closed the 146-bed hospital as it consolidated operations to help improve its finances. North Philadelphia Health System filed for bankruptcy Dec. 30.
