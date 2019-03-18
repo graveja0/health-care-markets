@@ -402,6 +402,8 @@ isloated pockets of “clustering” off the diagnoal (e.g., in the rows for
 
 ## An Ensemble-Based Approach to Community Detection
 
+![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
 | Algorithm    | Modularity |
 | :----------- | ---------: |
 | ensemble     |     0.5294 |
@@ -413,7 +415,7 @@ isloated pockets of “clustering” off the diagnoal (e.g., in the rows for
 | louvain      |     0.5294 |
 
 ![Geographic Markets Identified by Cluster Walktrap
-Algorithm](README_files/figure-gfm/unnamed-chunk-21-1.png)
+Algorithm](README_files/figure-gfm/unnamed-chunk-22-1.png)
 
 # Visualization of Market Definitions for Tennesee
 
@@ -428,7 +430,7 @@ geographies.
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
@@ -821,7 +823,7 @@ following specific details.
     defined based on the fraction of geography-level patients who go to
     each hospital.
 
-![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
   - For the patient flow method, we used the [CMS Hospital Service Area
     files

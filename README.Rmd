@@ -714,6 +714,32 @@ We can also see in both the network plot and the heatmap plot that there are som
 
 ## An Ensemble-Based Approach to Community Detection
 
+
+
+```{r, echo = FALSE}
+gf_F %>% 
+  data.frame() %>% 
+  rownames_to_column() %>% 
+  rename(zip_code = rowname) %>% tbl_df() %>% 
+  gather(zip2, frequency, -zip_code) %>% 
+  mutate(zip_code = as.numeric(paste0(zip_code))) %>% 
+  mutate(zip2 = gsub("X","",zip2))  %>% 
+  mutate(zip2 = as.numeric(paste0(zip2))) %>% 
+  mutate(zip_code = factor(zip_code, levels = names(membership(fit))[order.dendrogram(market.dendro)])) %>% 
+  mutate(zip2 = factor(zip2, levels = names(membership(fit))[order.dendrogram(market.dendro)])) %>% 
+  ggplot(aes(x = zip_code,y=zip2)) + 
+  geom_tile(aes(fill = frequency)) + 
+  theme(axis.text.x=element_text(angle = -90, hjust = 0,size =6),
+        axis.text.y= element_text(size =6)) + 
+  scale_fill_gradient(low = "white", high = "black") + 
+  labs(fill = "Freqency", x = "ZIP Code", y= "ZIP Code")+
+  theme(legend.position ="right")
+```
+
+
+
+
+
 ```{r, echo = FALSE}
 df_modularity %>% t() %>% data.frame() %>% 
   rownames_to_column() %>% 
