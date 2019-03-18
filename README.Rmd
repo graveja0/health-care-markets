@@ -31,7 +31,7 @@ In addition, the underlying population data used to define commonly used geograp
 
 Clearly, flows of patients and commuters have changed substantially in many areas in the last 20-30 years. Whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question we will explore here.
 
-Finally, it is worth mentioning that regulatory and antitrust reviews have drawn on a diverse set of addtional market geography definitions. The history, use and controversies surrounding these definitions are nicely covered in the Department of Justice chapter entitled ["Competition Law: Hospitals."](https://www.justice.gov/atr/chapter-4-competition-law-hospitals) 
+Finally, it is worth mentioning that regulatory and antitrust reviews have drawn on a diverse set of addtional market geography definitions. The history, use and controversies surrounding these definitions are nicely covered in the Department of Justice chapter entitled ["Competition Law: hospitals."](https://www.justice.gov/atr/chapter-4-competition-law-hospitals) 
 These alternative DOJ market definitions tend to rely on rich  data on prices in health care markets. While in theory such information could be obtained nationwide, in practice the construction of market definitions using price data is contigent on the painstaking collection of local data from relevant market participants. I do not profess to have the human capital or funding resources to undertake such an exercise here. So we will focus on more general market geography definitions that can more easily scale--particularly using publicly-available and relatively low-cost data. 
 
 
@@ -94,7 +94,7 @@ This description of the history and methods of commuting zones from the U.S. Dep
 
 Measures of economic activity (e.g., patient flows, predicted demand) between individuals or geographies and health care service providers can be used to construct a bipartite network summarizing their economic links. This network can then be used to construct unipartite networks of geographies that are linked via common ties with health care providers. Alternatively, the same biparite matrix can also be used to construct a unipartite network of hospitals that are linked because they draw patients from common geographies. These unipartite networks can then be fed through an ensemble of community-dection algorithms to identify mutually exclusive clusters (i.e., markets) of either geographies or health care providers. 
 
-This section walks through such a process for identifying geographic markets for hospital services. To do so, we focus on ZIP codes and hosptials within a single county: Philadelphia County, PA (which, not surprisingly, contains the city of Philadelphia). As we will show later, the methodology is easily scalable nationally and to other geographies and health care service types (e.g., physicians, insurers).
+This section walks through such a process for identifying geographic markets for hospital services. To do so, we focus on ZIP codes and hospitals within a single county: Philadelphia County, PA (which, not surprisingly, contains the city of Philadelphia). As we will show later, the methodology is easily scalable nationally and to other geographies and health care service types (e.g., physicians, insurers).
 
 ```{r, echo = FALSE}
 # St. Joseph's Hospital in Philadelphia closed March 11, 2016. North Philadelphia Health System closed the 146-bed hospital as it consolidated operations to help improve its finances. North Philadelphia Health System filed for bankruptcy Dec. 30.
@@ -147,7 +147,7 @@ cent_zip_excounty <-
 
 
 ```{r, cache = TRUE, echo = FALSE}
-# Get the Hospital x,y coordinates from the AHA Data.
+# Get the hospital x,y coordinates from the AHA Data.
 aha_files <- c("2017" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2017/FY2017 ASDB/COMMA/ASPUB17.CSV",
                "2016" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2016/FY2016 Annual Survey Database/COMMA/ASPUB16.CSV",
                 "2015" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2015/FY2015 Annual Survey Database/COMMA/ASPUB15.CSV"
@@ -251,10 +251,10 @@ xy_hosp <- bind_cols(xy_aha %>% filter(prvnumgrp %in% unique(df_hosp_zip$prvnumg
 
 In this plot, we map the ZIP codes with geographic centroids contained within Philadelphia County, PA. In addition, we plot the location and market share (point size) of all hospitals based on the treatment patterns observed among traditional Medicare patients in 2015. In order for a hospital to be included, at least `r 100*minimum_market_share_zip` percent of ZIP patients, or at least `r 100*minimum_market_share_hosp` percent of the hospital's total FFS Medicare patients, must have been treated. These thresholds help trim the data by excluding hospitals that treated only a handful of patients from the geographic area.  
 
-Also note that the hospital plotted in red is St. Joseph's Hospital, a 146 bed hospital that closed on March 11, 2016. We will (eventually) use this closing in an event study to validate the market classifications--the idea being that hospitals within the market containing St. Joseph's should have been more affected by its closing (i.e., total FFS Medicare patients goes up) than hospitals outside it. 
+Also note that the hospital plotted in red is St. Joseph's hospital, a 146 bed hospital that closed on March 11, 2016. We will (eventually) use this closing in an event study to validate the market classifications--the idea being that hospitals within the market containing St. Joseph's should have been more affected by its closing (i.e., total FFS Medicare patients goes up) than hospitals outside it. 
 
 ```{r, fig.cap = "Hospitals and ZIP Codes in Philadelphia County, PA, 2015",fig.align = "center",fig.pos="H", fig.height = 4, fig.width = 4, echo = FALSE, echo = FALSE}
-# Map the Hospitals
+# Map the hospitals
 sf_zip_excounty %>% 
   ggplot() + geom_sf() + 
   remove_all_axes + 
@@ -309,7 +309,7 @@ As seen in the figure, patients from the two example ZIP codes are treated at fu
 
 ```
 
-The next figure plots all "edge links" among all ZIPs and hosptials in Philadelphia County. The plotted line width is also proportional to the total volume of of patients. That is, a thin line connecting a ZIP-hospital pair indicates that only a small fraction of patients from the ZIP code are treated at that particular hospital. 
+The next figure plots all "edge links" among all ZIPs and hospitals in Philadelphia County. The plotted line width is also proportional to the total volume of of patients. That is, a thin line connecting a ZIP-hospital pair indicates that only a small fraction of patients from the ZIP code are treated at that particular hospital. 
 
 While things will become more clear in a later plot, a rough sense of distinct markets for hospital services can be seen  in this simple map-based visualization of patient flows. For example, patients residing in the ZIP codes clustered in the southwest corner of the county all flow into hospitals located there, and there are few "shared" connections among these hospitals with other ZIP codes in the county. 
 
@@ -332,7 +332,7 @@ The next plot removes the geographic location layering  and simply plots the bip
 
 
 ```{r, echo = FALSE}
-# COnstruct Network objects
+# Construct Network objects
 library(ggraph)
 library(tidygraph)
 
@@ -348,23 +348,19 @@ convert_to_bipartite <- function(df,id) {
 }
 
 
-minimum_share = 0.10
-minimum_number = 10
-
 bp_zip_hosp_weighted <-
   df_hosp_zip %>%
   filter(prvnumgrp %in% hospitals_to_show$prvnumgrp & zip_code %in% zips_to_show) %>% 
   group_by(zip_code) %>%
   mutate(share_of_patients = total_cases / sum(total_cases, na.rm = TRUE)) %>%
   ungroup() %>% 
-  mutate(connected = as.integer(share_of_patients >= minimum_share))  %>%
+  # Two ZIPs are connected if at least XX% of their total patients to the same hospital
+  mutate(connected = as.integer(share_of_patients >= minimum_market_share_zip))  %>%
   mutate(share = ifelse(connected==1,share_of_patients,0)) %>% 
   select(zip_code, prvnumgrp, total_cases) %>%
   spread(prvnumgrp, total_cases) %>%
   convert_to_bipartite(id = zip_code)
 bp_zip_hosp_weighted[is.na(bp_zip_hosp_weighted)] <- 0
-# bp_zip_hosp[1:10,1:10]
-
 
 net_bp <- 
   graph_from_incidence_matrix(bp_zip_hosp_weighted,weighted=TRUE) %>% 
@@ -390,21 +386,20 @@ net_bp %>%
   geom_node_text(aes(label = label),cex = 3) +
   remove_all_axes  + 
   theme(legend.position = "none")  
-
 ```
 
 
-The underlying market structure of Philadelphia-area hospitals starts to become a  bit more clear in this representation of the data. Again, we see that ZIP codes tend to cluster around certain sets of hospitals.  For example, Holy Reedeemer, Nazareth, Aria-Jefferson and Jeanes Hospital all tend to draw on patients from similar ZIP codes. By comparison, Mercy Fitzgerald, the UPenn Hospitals, and Lankeneau Medical Center draw patients from a different cluster of ZIPs. 
+The underlying market structure of Philadelphia-area hospitals starts to become a  bit more clear in this representation of the data. Again, we see that ZIP codes tend to cluster around certain sets of hospitals.  For example, Holy Reedeemer, Nazareth, Aria-Jefferson and Jeanes hospital all tend to draw on patients from similar ZIP codes. By comparison, Mercy Fitzgerald, the UPenn hospitals, and Lankeneau Medical Center draw patients from a different cluster of ZIPs. 
 
 ```{r, echo = FALSE}
-
+#https://arxiv.org/pdf/1309.0242.pdf
 bp_zip_hosp <-
   df_hosp_zip %>%
   filter(prvnumgrp %in% hospitals_to_show$prvnumgrp & zip_code %in% zips_to_show) %>% 
   group_by(zip_code) %>%
   mutate(share_of_patients = total_cases / sum(total_cases, na.rm = TRUE)) %>%
   ungroup() %>% 
-  mutate(connected = as.integer(share_of_patients >= minimum_share))  %>%
+  mutate(connected = as.integer(share_of_patients >= minimum_market_share_zip))  %>%
   mutate(share = ifelse(connected==1,share_of_patients,0)) %>% 
   select(zip_code, prvnumgrp, connected) %>%
   spread(prvnumgrp, connected) %>%
@@ -414,10 +409,20 @@ bp_zip_hosp[is.na(bp_zip_hosp)] <- 0
 
 up_zip <-bp_zip_hosp %*% t(bp_zip_hosp)
 
+# Get a weighted version (i.e., continuous fraction of patients, rather than using threshold)
+up_zip_tmp <- bp_zip_hosp_weighted %*% t(bp_zip_hosp_weighted>0)
+up_zip_w <- up_zip_tmp / diag(up_zip_tmp)
 
+# This just uses the binary "connected"
 net_ex <- 
   graph_from_adjacency_matrix(up_zip, weighted = TRUE,mode="undirected") %>%
   simplify(., remove.loops = TRUE) 
+
+# This uses the fraction shared
+net_ex_weighted <- 
+  graph_from_adjacency_matrix(up_zip_w, weighted = TRUE,mode="undirected") %>%
+  simplify(., remove.loops = TRUE) 
+
 
 get_community <- function(gg,method,...) {
   if (method == "walktrap") {
@@ -432,20 +437,23 @@ get_community <- function(gg,method,...) {
     initial_communities <- spinglass.community(gg,...)
   } else if (method == "infomap") {
     initial_communities <- infomap.community(gg,...)
+  } else if (method == "louvain") {
+    initial_communities <- cluster_louvain(gg, weights = NULL)
   }
   return(list(fit = initial_communities, market = membership(initial_communities)))
 }
 
-market_cw <- net_ex %>% get_community(method = "walktrap", 
+market_cw <- net_ex_weighted %>% get_community(method = "walktrap", 
                           steps = 5,
                           merges = TRUE,
                           modularity = TRUE,
                           membership = TRUE)
 
-market_fg <- net_ex %>% get_community(method = "fast_greedy")
-market_ml <- net_ex %>% get_community(method = "multilevel")
-market_sg <- net_ex %>% get_community(method = "spinglass")
-market_info <- net_ex %>% get_community(method = "infomap")
+market_fg <- net_ex_weighted %>% get_community(method = "fast_greedy")
+market_ml <- net_ex_weighted %>% get_community(method = "multilevel")
+market_sg <- net_ex_weighted %>% get_community(method = "spinglass")
+market_info <- net_ex_weighted %>% get_community(method = "infomap")
+market_louv <- net_ex_weighted %>% get_community(method = "louvain")
 
 gf_ex <- tidygraph::as_tbl_graph(net_ex,directed=FALSE) %>% 
   activate(nodes)  %>% 
@@ -454,17 +462,45 @@ gf_ex <- tidygraph::as_tbl_graph(net_ex,directed=FALSE) %>%
   mutate(market_fg = factor(market_fg$market[name])) %>% 
   mutate(market_ml = factor(market_ml$market[name])) %>% 
   mutate(market_sg = factor(market_sg$market[name])) %>% 
-  mutate(market_info = factor(market_info$market[name]))
+  mutate(market_info = factor(market_info$market[name])) %>% 
+  mutate(market_louv = factor(market_louv$market[name]))
+
+
 
 ```
 
-Next we will take this bipartite matrix and transform it into a unipartite matrix summarizing the total number of shared hospital connections between ZIP codes. Here, we will define two ZIPs as "connected" if, for one or more hospitals, at least 10% of the  patients from that ZIP are treated at the hospital. Thus, if 15% of patients from ZIP A and 25% of patients from ZIP B go to Hospital 1, those two ZIPs would be connected. However if just 1% of patients from ZIP A and 25% of patients from ZIP B go to the hospital, those ZIPs would not be counted as connected.
 
-The plot below provides visualization of the unipartite network of ZIP codes in Philadelphia county. Again, we can see clear "clustering" of ZIPs. That is, these are ZIPs that tend to draw on the same hospitals. 
+Next we will take this bipartite matrix and transform it into a unipartite matrix summarizing the total number of shared hospital connections between ZIP codes. Here, we will define two ZIPs as "connected" if, for one or more hospitals, at least `r minimum_market_share_zip` of the  patients from that ZIP are treated at the hospital. Thus, if 15% of patients from ZIP A and 25% of patients from ZIP B go to hospital 1, those two ZIPs would be connected. However if just 1% of patients from ZIP A and 25% of patients from ZIP B go to the hospital, those ZIPs would not be counted as connected.
 
-In addition, each node has been colored based on the ZIP codes assignment to a distinct market. To identify these markets, we fed this unipartite network through the [Multilevel algorithm](https://arxiv.org/abs/0803.0476)--one of a [variety of community detection algorithms](https://www.nature.com/articles/srep30750) that have been developed.
+The plot below provides visualization of the unipartite network of ZIP codes in Philadelphia county. Again, we can see clear "clustering" of ZIPs. That is, these are ZIPs that tend to draw on the same hospitals. In the plot, the weight of the edge lines linking two ZIP codes is proportional to the total number of "connected" hospitals those two ZIPs have. 
+
 
 ```{r, fig.cap = "Visualization of ZIP-Hospital Connections as a Unipartite Network of ZIP Codes", fig.height =5, fig.width = 5,fig.pos="H", echo = FALSE}
+set.seed(234)
+gf_ex %>% 
+  activate(edges) %>% 
+  filter(weight>0) %>% 
+  ggraph(layout='fr') + 
+  geom_edge_link(aes(width = weight, alpha = weight), show.legend = FALSE) + 
+  #geom_node_point(aes(colour=market_cw),size = 6) +
+  geom_node_point(size=6,colour="lightblue")+
+  geom_node_text(aes(label = zip_code)) +
+  remove_all_axes  +
+  theme(legend.position = "none")
+```
+
+
+## Identifying Markets via Community Detection 
+
+Our next tep is to use this network representation of hospital use to "detect" markets for hospital services. A nice feature of this approach is that we can detect markets from any perspective: the geography (i.e., what ZIP codes tend to send patients to similar hospitals) or the hospital (i.e., what hospitals tend to draw patients from similar ZIP codes?).
+
+We can see in the representation of Philadelphia that the ZIP code geographies tend to cluster around each other--that is, patients from clusters of geographically-proximate ZIP codes tend to use the same hospitals. There is a clear separation of certain clusters of ZIP codes, while other ZIP codes (e.g., 19133) straddle different hospital "communities."
+
+Over the years a [variety of community detection algorithms](https://www.nature.com/articles/srep30750)  have been developed. Each takes as its input a network as seen here, and returns a community membership attribute to each node in the network. The algorithms are constructed such that hte network is sub-dividied into mutually exclusive communities--though some [more recent work](https://dl.acm.org/citation.cfm?id=2501657) has allowed for nodes to be represented in more than one community. 
+
+We'll begin by delploying the Cluster Walktrap algorithm on the unipartite (ZIP-ZIP) network for Philadelphia county. The output from this algorithm has been added to the plot below. 
+
+```{r, fig.cap = "Visualization of Hospital Markets as Detected by the Cluster Walktrap Algorithm", fig.height =5, fig.width = 5,fig.pos="H", echo = FALSE}
 set.seed(234)
 gf_ex %>% 
   activate(edges) %>% 
@@ -477,14 +513,88 @@ gf_ex %>%
   theme(legend.position = "none")
 ```
 
+
+```{r, echo = FALSE}
+# Fit Ensemble 
+
+get_up_market_matrix <- function(foo) {
+  foo2 <- foo %>% data.frame() %>% 
+    mutate(connected = 1) %>% 
+    spread(market,connected) %>% 
+    convert_to_bipartite(id=zip_code) 
+  foo2[is.na(foo2)] <- 0
+  foo2 %*% t(foo2)
+}
+
+
+up_market <- 
+  gf_ex %>% 
+    activate(nodes) %>% 
+    data.frame() %>% 
+    select(-name) %>% 
+    gather(algorithm,market,-zip_code) %>% 
+    group_by(algorithm) %>% 
+    nest() %>% 
+    mutate(bp =map(data,~(
+      get_up_market_matrix(.x)
+    )))
+
+#https://arxiv.org/pdf/1309.0242.pdf , pp5
+# "Firstly, a complete graph, G = (V, F), is constructed using the
+# data from candidate communities, which are the output
+# from some community detection algorithm(s). The set
+# of nodes, V , is the original set of nodes in the network,
+# and the set of edges F now indicate that two nodes have
+# been found in the same community. The matrix, F =
+# [Fij ], where the element in row i and column j, Fij is the
+# frequency of the event that nodes i and j has been found
+# in the same candidate community."
+
+gf_F <- up_market$bp[[1]]
+for (i in 2:length(up_market$bp)) {
+ gf_F  <- gf_F + up_market$bp[[i]]
+}
+
+# Agglomorative Hierarchical Clustering
+ensemble.clust <- hclust(dist(gf_F))
+# Dendrogram of the Clustering 
+ensemble_dendro <- as.dendrogram(ensemble.clust) 
+# GGplot of the dendogram
+ensemble_dendro_plot <- ensemble_dendro %>% ggdendrogram(rotate = TRUE)
+
+# Get the modularity at each height
+ensemble_modularity_all <- 
+  1:100 %>% 
+  map_dbl(~(modularity(net_ex, cutree(ensemble.clust , h = .x)))) 
+ensemble_modularity_max_which <- min(which(ensemble_modularity_all == max(ensemble_modularity_all)))
+ensemble_modularity_max <- ensemble_modularity_all[ensemble_modularity_max_which]
+ensemble_membership <- cutree(ensemble.clust , h = ensemble_modularity_max_which)
+gf_ex <- 
+  gf_ex %>% 
+  activate(nodes) %>% 
+  mutate(market_ensemble = factor(ensemble_membership[name]))
+
+
+df_modularity <- 
+  data.frame(ensemble = modularity(net_ex,ensemble_membership),
+             walktrap = modularity(net_ex,market_cw$market),
+             fast_greedy = modularity(net_ex, market_fg$market), 
+             multilevel = modularity(net_ex,market_ml$market),
+             spinglass = modularity(net_ex,market_sg$market),
+             infomap = modularity(net_ex,market_info$market),
+             louvain = modularity(net_ex,market_louv$market))
+```
+
+
 ```{r, echo = FALSE}
 df_markets_ensemble <- 
   cbind.data.frame(zip_code = names(market_cw$market), market_cw = market_cw$market %>% unname() %>% as.vector()) %>% 
   mutate(market_fg = market_fg$market[zip_code]) %>% 
   mutate(market_ml = market_ml$market[zip_code]) %>% 
   mutate(market_sg = market_sg$market[zip_code]) %>% 
-  mutate(market_info = market_info$market[zip_code])
-  
+  mutate(market_info = market_info$market[zip_code]) %>% 
+  mutate(market_ensemble = ensemble_membership[zip_code])#
+
 df_hosp_markets <- 
   df_hosp_zip %>% 
   left_join(df_markets_ensemble %>% 
@@ -513,9 +623,10 @@ sf_markets <- sf_zip_excounty %>%
   left_join(df_markets_ensemble, "zip_code") 
 ```
 
-We now map out the geographic markets identified by the Multilevel algorithm. Each panel of this plot shows the ZIP codes included in a detected market. The dots again correspond to the geographic location of hospitals visited by individuals from that market. The dot sizes are furthermore scaled to be proportional to patient volume / market share. 
+The algorithm has identified four distinct communities. In the plot below, we map out each of these communities. Each panel of this plot shows the ZIP codes included in a detected market. The dots again correspond to the geographic location of hospitals visited by individuals from that market. The dot sizes are furthermore scaled to be proportional to patient volume / market share. 
 
-```{r,fig.cap = "Geographic Markets Identified by Multilevel Algorithm",fig.height = 8, fig.width =8,fig.pos="H", echo = FALSE}
+
+```{r,fig.cap = "Geographic Markets Identified by Cluster Walktrap Algorithm",fig.height = 8, fig.width =8,fig.pos="H", echo = FALSE}
 sf_zip_excounty %>% 
   filter(zcta5ce10 != "19112") %>% 
   ggplot() + geom_sf(alpha = 0.1)  + 
@@ -524,9 +635,105 @@ sf_zip_excounty %>%
   geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) + 
   theme(legend.position = "none") +
   geom_sf(data = sf_markets %>% filter(zcta5ce10 != "19112") , aes(fill = "grey"),fill ="lightgrey") + 
-  geom_point(data = xy_hosp_market %>% filter(!is.na(market_ml)), aes(x=x,y=y,size = total_cases_ml)) + 
+  geom_point(data = xy_hosp_market %>% filter(!is.na(market_cw)), aes(x=x,y=y,size = total_cases_cw)) + 
  # scale_fill_distiller(palette=3) + 
-  facet_wrap(~market_ml) +
+  facet_wrap(~market_cw) +
+  coord_sf(datum=NA) 
+```
+
+Because the cluster walktrap algorithm is hierarchical, it's useful to plot out a heatmap and dendogram of the unipartite (ZIP-ZIP) matrix. This allows us to visualize not only the strengh of hospital connections between two ZIPs, but also the specific clustering hierarchy that gives rise to the detected communities. 
+
+```{r,fig.width = 8, fig.height=8, eval = TRUE, echo = FALSE}
+fit <- market_cw$fit
+market.dendro <- as.dendrogram(fit)
+dendro.plot <- ggdendrogram(data = market.dendro, rotate = TRUE)  + theme(axis.text.y = element_text(size = 6))
+
+
+heatmap.plot <- 
+  up_zip_w %>% data.frame() %>% rownames_to_column() %>% 
+  rename(zip_code = rowname) %>% 
+  gather(zip2,share,-zip_code) %>% 
+
+  tbl_df() %>% 
+  mutate(market = membership(fit)[zip_code]) %>% 
+  mutate(zip_code = factor(zip_code, levels = names(membership(fit))[order.dendrogram(market.dendro)])) %>% 
+  mutate(zip2 = gsub("X","",zip2))  %>% 
+  mutate(zip2 = factor(zip2, levels = names(membership(fit))[order.dendrogram(market.dendro)])) %>% 
+  mutate(share = share*100) %>% 
+  ggplot(aes(x = zip2,y=zip_code)) + 
+  # geom_tile(aes(color = as.factor(market)),alpha = 0.1) +
+  geom_tile(aes(fill = share, colour = as.factor(market))) +
+  scale_fill_gradient2(low="white",high="darkred") +
+  theme(axis.text.y = element_text(size = 6)) + 
+  theme(axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "none") +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0,size =6))  +
+  labs(fill = "",x ="ZIP Code") +
+  scale_colour_manual(guide=FALSE,values = c("purple","brown","darkblue","green"))
+
+
+postscript(file = here("output/figures/dendogram-cluster-walktrap.eps"), horiz = FALSE, onefile = FALSE, width = 8, height = 8, fonts=c("serif"))
+grid::grid.newpage()
+ print(heatmap.plot, vp = grid::viewport(x = 0.4, y = 0.5, width = 0.8, height = .93))
+ print(dendro.plot, vp = grid::viewport(x = 0.9, y = 0.51, width = 0.2, height = .97))
+ x<- dev.off()
+
+ png(file = here("output/figures/dendogram-cluster-walktrap.png"),  width = 6*100 ,height = 6*100,res=100)
+grid::grid.newpage()
+ print(heatmap.plot, vp = grid::viewport(x = 0.4, y = 0.5, width = 0.8, height = .93))
+ print(dendro.plot, vp = grid::viewport(x = 0.9, y = 0.51, width = 0.2, height = .97))
+ x <- dev.off()
+ 
+```
+
+
+![](output/figures/dendogram-cluster-walktrap.png)
+
+In the plot above, the rows have been subdivided (by cell line color) into the four total markets identified via community detection. That is, these are the ZIP codes corresponding to each of the four markets. The cell shadings are scaled to visualize the strength of connections between ZIPs. 
+
+For example, in total 1,182 patients from ZIP 19128 are treated at 2 hospitals, 29% at Chetnut Hill hospital (390026) and 71% at Roxborough Memorial hospital (390304). By comparison, the 1,807 patients from ZIP 19144 are treated at Chestnut Hill (21%), Einstein Medical Center (63%; ID = 390142) and Roxborough Memorial (16%). 
+
+```{r, echo = FALSE}
+bp_zip_hosp_weighted %>% t() %>% data.frame() %>% rownames_to_column() %>% 
+  filter(X19128>0|X19144>0) %>% 
+  select(rowname,X19128,X19144) %>% 
+  mutate_at(vars(2:3),function(x) paste0(x," (",round(100*x/sum(x),0),"%)")) %>% 
+  kable(col.names = c("Hospital ID","ZIP 19128","ZIP 19144")) 
+
+```
+
+From this table we can see that 100% of ZIP 19128's hospital use is in "shared" hospitals as 19144, while 37% of ZIP 19144's hospital use is in "shared" hospitals. This is precisely the information portrayed in the cell shadings in the heatmap: the full red shading for row 19128, column 19144 (near the top right of the plot) indicates that 100% of 19128's patients are treated in similar hospitals as used by patients in 19144. By comparison, the shading for row 19144, column 19128 is shaded a lighter red, reflecting the fact that as noted above, only 37% of 19144's patients go to similar hospitals as used by those in 19128. 
+
+With this shading scheme in mind, we can now turn to the dendogram on the righthand side of the plot to see how it shapes together. For example, heatmap cells shaded bright red indicate clusters of ZIPs where patients essentially go the same hospitals. This results in a pairing far down the tree diagram represented in the dendogram. With these tightly connected ZIP pairs we can then start to work up the tree, bringing in new ZIP codes that share a subtantial, but not 100% share, of hospital overlap.  Eventually, the four distinct markets shake out: this is visible by the four "blocks" running diagonal from southwest to northeast in the heatmap. 
+
+We can also see in both the network plot and the heatmap plot that there are some ZIP codes that straddle markets. That is, these are ZIPs that could just as easily be classified in one market vs. another. In the network reprsentation plot, these ZIP codes (e.g., 19140, 19134) as in-between the clusters of ZIP codes. In the heatmap, we see this in hte isloated pockets of "clustering" off the diagnoal (e.g., in the rows for 19141 and 19134).
+
+
+## An Ensemble-Based Approach to Community Detection
+
+```{r, echo = FALSE}
+df_modularity %>% t() %>% data.frame() %>% 
+  rownames_to_column() %>% 
+  mutate_at(vars(2),round,4) %>% 
+  set_names("Algorithm","Modularity") %>% 
+  kable()
+```
+
+
+```{r,fig.cap = "Geographic Markets Identified by Cluster Walktrap Algorithm",fig.height = 8, fig.width =8,fig.pos="H", echo = FALSE}
+sf_zip_excounty %>% 
+  filter(zcta5ce10 != "19112") %>% 
+  ggplot() + geom_sf(alpha = 0.1)  + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) + 
+  theme(legend.position = "none") +
+  geom_sf(data = sf_markets %>% filter(zcta5ce10 != "19112") , aes(fill = "grey"),fill ="lightgrey") + 
+  geom_point(data = xy_hosp_market %>% filter(!is.na(market_ensemble)), aes(x=x,y=y,size = total_cases_ensemble)) + 
+ # scale_fill_distiller(palette=3) + 
+  facet_wrap(~market_ensemble) +
   coord_sf(datum=NA) 
 ```
 
@@ -683,7 +890,7 @@ hhi_pop %>% mutate_at(2:3,function(x) round(x,0)) %>% knitr::kable(col.names=c("
   
   2. In Scenario 2 we accurately capture the change in competitiveness in Area A. The HHI measure drops from 10,000 to 5,000--reflecting the fact that the new hospital has redirected half of the inpatient admissions formerly going to hospital H1. 
   
-  3. In Scenario 2 we also accurately capture the fact that Area B had no change in the underlying competitiveness--the introduction of Hospital H3 did not affect admissions at H2, as we correspondingly see no change in our HHI measure. 
+  3. In Scenario 2 we also accurately capture the fact that Area B had no change in the underlying competitiveness--the introduction of hospital H3 did not affect admissions at H2, as we correspondingly see no change in our HHI measure. 
 
 It's worth noting that the population flow method is also more robust to alternative geographic market definitions. Suppose that we define a new geographic boundary that includes H1 within area A. We'll also draw (in dotted lines) the previous geographic boundary from above, and assume that 25 admissions from within that boundary area (i.e., the area formerly in B) still go to H2. In other words, the only thing that has changed is the (arbitrary) geographic boundary point delineating area A from B. 
 
@@ -811,7 +1018,7 @@ data.frame(hospital = names(hhi_km(bp)), km = hhi_km(bp), unipartite = hhi_net(b
 
 The obvious first question to ask is: *why do these approaches yield different HHI measures*? One reason essentially boils down to the difference between a sum of squares (KM) and a square of sums (JC). That is, the KM approach calculates the HHI at the ZIP level (i.e., sum of squared market shares in each ZIP), then constructs hospital-specific HHIs based on a weighted sum. The JC approach, by comparison, first sums up the ZIP-level market shares, and then squares those market shares to construct the hospital-specific HHI. 
 
-Another simple example can help further differentiate among the two methods. Suppose Hospital A draws 50% of its 20 patients from a ZIP in which Hospital A, B and C each draw 1/3 market shares (10 each). The other 50% of its 20 patients are drawn from a ZIP code in which A and B draw 50% market shares (i.e., Hospital C doesn't draw in any patients from ZIP 2).
+Another simple example can help further differentiate among the two methods. Suppose hospital A draws 50% of its 20 patients from a ZIP in which hospital A, B and C each draw 1/3 market shares (10 each). The other 50% of its 20 patients are drawn from a ZIP code in which A and B draw 50% market shares (i.e., hospital C doesn't draw in any patients from ZIP 2).
 
 A simple representation of this scenario is depicted in the bipartite matrix below:
 
@@ -824,9 +1031,9 @@ rownames(bp3) <- c("ZIP_1","ZIP_2")
 bp3
 ```
 
-Hospital A's HHI under the KM approach would be 4,167 (i.e., 50% of its patients come from a ZIP with HHI of 3,333 and 50% from a ZIP with an HHI of 5,000). 
+hospital A's HHI under the KM approach would be 4,167 (i.e., 50% of its patients come from a ZIP with HHI of 3,333 and 50% from a ZIP with an HHI of 5,000). 
 
-Overall, however, hospital A draws in a total of 20 patients and "competes" with B and C in areas where it could potentially draw in an additional 20 of Hospital B's patients (10 from each ZIP) and  10 of Hospital C's (only from ZIP 1).
+Overall, however, hospital A draws in a total of 20 patients and "competes" with B and C in areas where it could potentially draw in an additional 20 of hospital B's patients (10 from each ZIP) and  10 of hospital C's (only from ZIP 1).
 
 Among these "jointly competitive" geographies here are the total number of patients:
 
@@ -844,7 +1051,7 @@ This translates into the following "jointly competitive" market shares (row perc
 
 This translates into an HHI measure of 3,600, which is considerably lower than the HHI of 4,167 under the KM approach.
 
-A key difference stems from the treatment of the fact that Hopsital C does not draw in patients from ZIP 2, and thus ZIP 2 is more concentrated.  **The KM method essentially assumes that hospitals differentiate among patients based on the competitiveness of their residential geography. That is, ZIP 2 is more concentrated, so Hospital A receives a higher HHI value under the KM method owing to this fact. By comparison, the JC method does not reflect this assumption; it is agnostic as to a specific geographic area's concentration level.** I do not profess to have sufficient knowledge on hopsital strategy to say definitively whether one method is superior to the other--but it is important to understand the assumptions each method makes. 
+A key difference stems from the treatment of the fact that Hopsital C does not draw in patients from ZIP 2, and thus ZIP 2 is more concentrated.  **The KM method essentially assumes that hospitals differentiate among patients based on the competitiveness of their residential geography. That is, ZIP 2 is more concentrated, so hospital A receives a higher HHI value under the KM method owing to this fact. By comparison, the JC method does not reflect this assumption; it is agnostic as to a specific geographic area's concentration level.** I do not profess to have sufficient knowledge on hopsital strategy to say definitively whether one method is superior to the other--but it is important to understand the assumptions each method makes. 
 
 ## Comparison of Geographic Location and Population Flow HHI Measures 
 
@@ -858,7 +1065,7 @@ To construct these maps the two methods above were used, with the following spec
 
 - For the Geographic Location HHI Method, we identify all hospitals within the geographic area. We then then construct HHI measures based on market shares defined by FFS Medicare Patients. Note that this allows us to be consistent with the patient definition used in the patient flow method, as describd below. In practice this yielded nearly identical HHI measures when total admissions were used, as shown in the plot below. 
 
-- For the Hospital HHI methods we first construct hospital-specific HHIs and then construct a weighted mean of these HHIs, with weights defined based on the fraction of geography-level patients who go to each hospital. 
+- For the hospital HHI methods we first construct hospital-specific HHIs and then construct a weighted mean of these HHIs, with weights defined based on the fraction of geography-level patients who go to each hospital. 
 
 ```{r, echo= FALSE, fig.width = 3, fig.height = 3}
 read_rds(here("output/market-comparisons/01_HHI_genacute_hrr.rds")) %>% 
@@ -870,7 +1077,7 @@ read_rds(here("output/market-comparisons/01_HHI_genacute_hrr.rds")) %>%
   theme_tufte_revised() 
 ```
 
-- For the patient flow method,  we used  the [CMS Hospital Service Area files for 2017](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html) to construct ZIP-level HHI measures. These zip-level HHI measures were based on the hospitals visited among FFS Medicare patients in each ZIP code. We then aggregated these ZIP level measures to the HRR or CZ level using a weighted average (with weights defined by total FFS Medicare patient volume from the ZIP). 
+- For the patient flow method,  we used  the [CMS Hospital Service Area files for 2017](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/hospital-Service-Area-File/index.html) to construct ZIP-level HHI measures. These zip-level HHI measures were based on the hospitals visited among FFS Medicare patients in each ZIP code. We then aggregated these ZIP level measures to the HRR or CZ level using a weighted average (with weights defined by total FFS Medicare patient volume from the ZIP). 
 
 Maps for each geographic market definition (HRR, CZ) and HHI construction method (geographic location, patient flow) are provided below. 
 
@@ -900,7 +1107,7 @@ We see here some evidence that people from the same ZIP are willing to travel fa
 
 ## Market Concentration Over Time
 
-The file [R/animate-hospital-hhi.R](R/animate-hospital-hhi.R) reads in the panel data set for HHI measures bassed on ZIP hospital flows aggregated to commuting zone and animates the change in HHI for each commuting zone since 2010. Note that in principle earlier years could be evaluated, however the [CMS service area files](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html) are only available dating back to 2010. 
+The file [R/animate-hospital-hhi.R](R/animate-hospital-hhi.R) reads in the panel data set for HHI measures bassed on ZIP hospital flows aggregated to commuting zone and animates the change in HHI for each commuting zone since 2010. Note that in principle earlier years could be evaluated, however the [CMS service area files](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/hospital-Service-Area-File/index.html) are only available dating back to 2010. 
 
 ![](output/figures/hhi_2010-to-2017-change_midwest_east.gif)       
 ![](output/figures/hhi_2010-to-2017-change_midwest_west.gif)        
@@ -1047,30 +1254,30 @@ zip_market_shares %>%
 
 - The file [R/construct-rating-area-data.R](R/construct-rating-area-data.md) constructs ggplot-friendly rating area map data based on the marketplace rating area definitions as of 2019-01-23 (these have barely changed, if any, over time, however). The sub-program [R/construct-rating-area-file-from-cciio-website.R](construct-rating-area-file-from-cciio-website.R) reads the HTML tables from the CCIIO website, which list either the counties or ZIP3 for each rating area. The program also separately creates 3-digit ZIP rating areas for Los Angeles county--the only county in CA that uses 3-digit ZIPs; however, the 3-digit ZIPs in LA County also span other counties, requiring some further manipulation to get the intersection. 
 
-- The file [R/construct-dartmouth-geography-data.R](R/construct-dartmouth-geography-data.md) constructs ggplot-friendly mapping data for Dartmouth Atlas geographies including Hospital Referral Region (HRR), Hospital Service Region (HSA) and Primary Care Service Region (PCSA). It also constructs a data file listed at the geographic market level, and which contains data on centroids and contiguous markets. Note that the basis for these files is the ZIP to HRR/HSA and PCSA crosswalk files available for download at the [NBER website](https://www.nber.org/data/dartmouth-atlas-geography.html) and in [archived versions of the Dartmouth Atlas webpage](http://archive.dartmouthatlas.org/tools/downloads.aspx?tab=42).  There are also shapefiles already constructed and [available for use on the archived Dartmouth website](http://archive.dartmouthatlas.org/tools/downloads.aspx?tab=39)--though I found these difficult to work with (e.g., I could not easily extract contiguous geographies using them, as I can by building up a HRR/HSA/PCSA shapefile from a ZCTA map)
+- The file [R/construct-dartmouth-geography-data.R](R/construct-dartmouth-geography-data.md) constructs ggplot-friendly mapping data for Dartmouth Atlas geographies including hospital Referral Region (HRR), hospital Service Region (HSA) and Primary Care Service Region (PCSA). It also constructs a data file listed at the geographic market level, and which contains data on centroids and contiguous markets. Note that the basis for these files is the ZIP to HRR/HSA and PCSA crosswalk files available for download at the [NBER website](https://www.nber.org/data/dartmouth-atlas-geography.html) and in [archived versions of the Dartmouth Atlas webpage](http://archive.dartmouthatlas.org/tools/downloads.aspx?tab=42).  There are also shapefiles already constructed and [available for use on the archived Dartmouth website](http://archive.dartmouthatlas.org/tools/downloads.aspx?tab=39)--though I found these difficult to work with (e.g., I could not easily extract contiguous geographies using them, as I can by building up a HRR/HSA/PCSA shapefile from a ZCTA map)
 
 - The file [R/construct-commuting-zone-data.R](R/construct-commuting-zone-data.md) constructs ggplot-friendly mapping data for Commuting Zones defined using the 2000 census. The underying county-to-commuting zone data can be found on the [USDA website](https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/). 
 
 ## Patient Sharing Files
 
-- The file [R/read-and-tidy-cms-hospital-service-areas.R](R/read-and-tidy-cms-hospital-service-areas.R) reads in the CMS Hospital Service Area file for 2017. Note the source of these data are downloaded csv files from the interactive CMS data explorer available at the links at [this link](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html). The final file is rolled up to the FIPS county level and is storeed in `output/hospital-county-patient-data/2017/hospital-county-patient-data.rds`. 
+- The file [R/read-and-tidy-cms-hospital-service-areas.R](R/read-and-tidy-cms-hospital-service-areas.R) reads in the CMS hospital Service Area file for 2017. Note the source of these data are downloaded csv files from the interactive CMS data explorer available at the links at [this link](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/hospital-Service-Area-File/index.html). The final file is rolled up to the FIPS county level and is storeed in `output/hospital-county-patient-data/2017/hospital-county-patient-data.rds`. 
 
 
 ## References to Incorporate
 
 - [The accuracy of hospital merger screening methods](https://onlinelibrary.wiley.com/doi/full/10.1111/1756-2171.12215)
 
-- [Hospital Consolidation And Negotiated PPO Prices](https://www.healthaffairs.org/doi/10.1377/hlthaff.23.2.175)
+- [hospital Consolidation And Negotiated PPO Prices](https://www.healthaffairs.org/doi/10.1377/hlthaff.23.2.175)
 
-- [Hospital interdependence in a competitive institutional environment: Evidence from Italy HEDG HEALTH, ECONOMETRICS AND DATA GROUP Hospital interdependence in a competitive institutional environment: Evidence from Italy](https://www.researchgate.net/publication/315653564_Hospital_interdependence_in_a_competitive_institutional_environment_Evidence_from_Italy_HEDG_HEALTH_ECONOMETRICS_AND_DATA_GROUP_Hospital_interdependence_in_a_competitive_institutional_environment_Evid)
+- [hospital interdependence in a competitive institutional environment: Evidence from Italy HEDG HEALTH, ECONOMETRICS AND DATA GROUP hospital interdependence in a competitive institutional environment: Evidence from Italy](https://www.researchgate.net/publication/315653564_hospital_interdependence_in_a_competitive_institutional_environment_Evidence_from_Italy_HEDG_HEALTH_ECONOMETRICS_AND_DATA_GROUP_hospital_interdependence_in_a_competitive_institutional_environment_Evid)
 
 - [Techniques for defining markets for private healthcare in the UK: literature review](https://www.oxera.com/publications/techniques-for-defining-markets-for-private-healthcare-in-the-uk-literature-review/)
 
 - [Health Care Market Concentration Trends In The United States: Evidence And Policy Responses](https://www.healthaffairs.org/doi/10.1377/hlthaff.2017.0556)
 
-- [A Structural Approach to Market Definition With an Application to the Hospital Industry†](https://onlinelibrary.wiley.com/doi/abs/10.1111/joie.12015)
+- [A Structural Approach to Market Definition With an Application to the hospital Industry†](https://onlinelibrary.wiley.com/doi/abs/10.1111/joie.12015)
 
-- [Getting Market Defintiion Right: Hospital Merger Cases and Beyond](https://www.competitionpolicyinternational.com/wp-content/uploads/2017/07/CPI-Gaynor-Pflum.pdf)
+- [Getting Market Defintiion Right: hospital Merger Cases and Beyond](https://www.competitionpolicyinternational.com/wp-content/uploads/2017/07/CPI-Gaynor-Pflum.pdf)
 
 - [Competition and market power in option demand markets](https://pdfs.semanticscholar.org/868f/28b7b1f33c170f2f5e3fbeff6d3a4b1ecd7c.pdf)
 
