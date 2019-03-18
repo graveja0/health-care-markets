@@ -305,7 +305,7 @@ ZIP Codes](README_files/figure-gfm/unnamed-chunk-13-1.png)
 
 ## Identifying Markets via Community Detection
 
-Our next tep is to use this network representation of hospital use to
+Our next step is to use this network representation of hospital use to
 “detect” markets for hospital services. A nice feature of this
 approach is that we can detect markets from any perspective: the
 geography (i.e., what ZIP codes tend to send patients to similar

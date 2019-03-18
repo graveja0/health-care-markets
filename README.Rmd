@@ -492,7 +492,7 @@ gf_ex %>%
 
 ## Identifying Markets via Community Detection 
 
-Our next tep is to use this network representation of hospital use to "detect" markets for hospital services. A nice feature of this approach is that we can detect markets from any perspective: the geography (i.e., what ZIP codes tend to send patients to similar hospitals) or the hospital (i.e., what hospitals tend to draw patients from similar ZIP codes?).
+Our next step is to use this network representation of hospital use to "detect" markets for hospital services. A nice feature of this approach is that we can detect markets from any perspective: the geography (i.e., what ZIP codes tend to send patients to similar hospitals) or the hospital (i.e., what hospitals tend to draw patients from similar ZIP codes?).
 
 We can see in the representation of Philadelphia that the ZIP code geographies tend to cluster around each other--that is, patients from clusters of geographically-proximate ZIP codes tend to use the same hospitals. There is a clear separation of certain clusters of ZIP codes, while other ZIP codes (e.g., 19133) straddle different hospital "communities."
 
@@ -703,6 +703,7 @@ bp_zip_hosp_weighted %>% t() %>% data.frame() %>% rownames_to_column() %>%
   kable(col.names = c("Hospital ID","ZIP 19128","ZIP 19144")) 
 
 ```
+
 
 From this table we can see that 100% of ZIP 19128's hospital use is in "shared" hospitals as 19144, while 37% of ZIP 19144's hospital use is in "shared" hospitals. This is precisely the information portrayed in the cell shadings in the heatmap: the full red shading for row 19128, column 19144 (near the top right of the plot) indicates that 100% of 19128's patients are treated in similar hospitals as used by patients in 19144. By comparison, the shading for row 19144, column 19128 is shaded a lighter red, reflecting the fact that as noted above, only 37% of 19144's patients go to similar hospitals as used by those in 19128. 
 
