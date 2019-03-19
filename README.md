@@ -197,7 +197,7 @@ Measures of economic activity (e.g., patient flows, predicted demand,
 prices) among market participants form the essential building blocks for
 defining health care markets. These linkages can be combined into a
 “network” that summarizes the strength of economic linkages between
-relevant market units–for example, linkages between indiviudals / ZIP
+relevant market units–for example, linkages between individuals / ZIP
 codes and their health care providers. This network, moreover, can be
 used to identify commonalities *within* market units. For instance, for
 defining geographic markets we might be interested in identifying ZIP
@@ -206,16 +206,16 @@ Alternatively, we may be interested in clustering hospitals into groups
 based on economic ties among them (e.g., markets of “competing”
 hospitals that draw patients from similar ZIP codes).
 
-Identification of these clusters is the objective of
-commmunity-detection algorithms that have been developed to partition a
-network into “communities” (i.e., markets). A variety of these
-algorithms have been developed across diverse fields ranging from
-physics, biology, and sociology. Typically, communities identified via
-these methods are mutually exclusive–though more [recent
+Identification of these clusters is the objective of community-detection
+algorithms that have been developed to partition a network into
+“communities” (i.e., markets). A variety of these algorithms have been
+developed across diverse fields ranging from physics, biology, and
+sociology. Typically, communities identified via these methods are
+mutually exclusive–though more [recent
 work](https://arxiv.org/abs/1110.5813) has expanded into the detection
 of overlapping communities.
 
-In this section, we outline a network-analytic approach to defnining
+In this section, we outline a network-analytic approach to defining
 hospital markets based on community detection. To do so, we focus on ZIP
 codes and hospitals within a single county: Philadelphia County, PA. As
 we will show later, with appropriate data, the methodology is easily
@@ -253,7 +253,7 @@ flows to acute care hospitals among fee-for-service Medicare patients.
 But in principle, flows of other patient populations–defined by service
 type (e.g., emergency patients, cardiovascular patients, etc.) or
 population (e.g., low-income patients, commercially-insured patients)
-could be used. That is, data on patient sub-populations coudl be used to
+could be used. That is, data on patient sub-populations could be used to
 partition geographies or hospitals into *different* markets. Future
 research on how market definitions vary for different patient
 populations would be quite useful.
