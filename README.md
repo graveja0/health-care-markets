@@ -196,7 +196,7 @@ U.S. Department of Agriculture (USDA) is useful:
 Measures of economic activity (e.g., patient flows, predicted demand)
 between individuals or geographies and health care service providers can
 be used to construct a bipartite network summarizing economic links.
-This network can then be coonverted into unipartite networks of
+This network can then be converted into unipartite networks of
 geographies that are linked via common ties with health care providers.
 Alternatively, the same biparite matrix can also be used to construct a
 unipartite network of hospitals that are linked because they draw
@@ -285,7 +285,7 @@ patients from a different cluster of ZIPs.
 Next we will take this bipartite matrix and transform it into a
 unipartite matrix summarizing the total number of shared hospital
 connections between ZIP codes. Here, we will define two ZIPs as
-“connected” if, for one or more hospitals, at least 0.1 of the
+“connected” if, for one or more hospitals, at least 10 percent of the
 patients from that ZIP are treated at the hospital. Thus, if 15% of
 patients from ZIP A and 25% of patients from ZIP B go to hospital 1,
 those two ZIPs would be connected. However if just 1% of patients from
@@ -308,14 +308,14 @@ Our next step is to use this network representation of hospital use to
 “detect” markets for hospital services. A nice feature of this
 approach is that we can detect markets from two perspectives: the
 geography (i.e., what ZIP codes tend to send patients to similar
-hospitals) or the hospital (i.e., what hospitals tend to draw patients
+hospitals?) or the hospital (i.e., what hospitals tend to draw patients
 from similar ZIP codes?).
 
 We can see in the representation of Philadelphia that the ZIP code
 geographies tend to cluster around each other–that is, patients from
 clusters of geographically-proximate ZIP codes tend to use the same
 hospitals. There is a clear separation of certain clusters of ZIP codes,
-while other ZIP codes (e.g., 19133) straddle different hospital
+while other ZIP codes (e.g., 19134s) straddle different hospital
 “communities.”
 
 Over the years a [variety of community detection
@@ -430,21 +430,20 @@ is the approach we will lay out here.
 
 ### Modularity
 
-Before we proceed, we must first establish a measure to asesss the
+Before we proceed, it is useful to define a measure to asesss the
 relative performance of community detection algorithms in partitioning
 our network into geographic markets. **Modularity** is a widely used
 measure for this purpose.
 
-[Modularity is defined
-as](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1482622/) the fraction
-of *observed* edges that fall within defined groups in a network minus
-the expected fraction of edges within the group if the edges were placed
-at random. Modularity measures between -1 and 1, and will be positive
-when the number of edges within the groups exceeds the expected number
-based on random allocation of edges.
+[Modularity is](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1482622/)
+the fraction of *observed* edges that fall within defined groups in a
+network minus the expected fraction of edges within the group if the
+edges were placed at random. Modularity measures between -1 and 1, and
+will be positive when the number of edges within the groups exceeds the
+expected number based on random allocation of edges.
 
 In most applications, the randomization of edges is done while
-preserving the observed \*\*degree\* of each node. Degree is a count of
+preserving the observed **degree** of each node. Degree is a count of
 the total number of connections a node has. In an unweighted network,
 degree is simply the number of edge (connection) lines coming from the
 node; in a weighted network (as used here) it the sum of the weights
@@ -470,11 +469,90 @@ summarized in the table below:
 The table shows that some other community detection approaches (e.g.,
 the Multilevel algorithm, the Spinglass algorithm, and the [Louvain
 modularity approach](https://en.wikipedia.org/wiki/Louvain_Modularity))
+achieve higher modularity values, indicating that they have done a
+better job at partitioning the network.
+
+### Frequency Matrix
+
+We’ll next construct a **frequency matrix** which summarizes the total
+frequency that ZIPs *i* and *j* are assigned to the same market across
+the `9` detection algorithms we will use in the ensemble.
+
+\[
+\mathbf{F} = [F_{ij}]
+\]
+
+This frequency matrix is visualized in the heatmap below. What is clear
+from this matrix is that each of the community detection methods groups
+ZIPs into similar markets. This is apparent from the diagonal black
+blocks running from southwest to northeast in the figure. These blocks
+are mostly shaded black–indicating that the ZIP combination was
+classified into the same market in all community detection approaches.
+
+Again, as under the single detection approach considered above, we see
+examples of a few ZIP codes that are classified in different markets–for
+example, 19133 an 19132 are not consistently categoried in the same
+market.
 
 ![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
+### Ensemble Clustering
+
+We next fit an agglomerative hierarchical clustering algorithm to the
+frequency matrix to, in essense, find the clusterings of ZIP codes with
+the strongest ties across the various community detection methods.
+
+This clustering method begins by assigning each ZIP to its own cluster
+(market). For the first iteration, it groups the clusters that are the
+most similar on some measure (in this case, that measure is the
+frequency at which they are assigned to the same market). This same
+procedure then iterates by grouping in additional ZIPs until eventually,
+there is just a single cluster that contains all ZIP codes. After this
+step, the algorithm stops.
+
+For this example we will use the `hclust()` function default, which
+draws on the [“complete linkage”
+method](https://en.wikipedia.org/wiki/Complete-linkage_clustering). In
+principle, however, any clustering method could be used.
+
+First we will plot the dendrogram produced by the clustering algorithm.
+Here we can see that even early on (e.g., at iteration 0), ZIP codes
+naturally start to sort into markets. In addition, note that at
+iteration 5 the “marginal” ZIPs identified above (19133 and 19132) get
+assigned to their own small market. Then, as we iterate forward (e.g.,
+around iteration 20), these ZIPs get folded in to markets they are more
+similar with.
+
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+The step is to define our final markets. We could define them based on
+the clusterings of ZIP codes at any point along the X axis in the
+dendrogram. On the extreme ends, we could use the 10 markets defined at
+iteration 0, or we could assign all ZIPs to the same market (i.e., ZIP
+clusters as defined at iteration 50).
+
+The modularity score, again, is useful here. That is, we can work our
+way up the dendrogram–at each step calculating a modularity score–and
+use the level that maximizes modularity as our final market definitions.
+
+Modularity values as a function of iteration are plotted below. For the
+sake of comparison, we also plot (using horizontal lines) the modularity
+scores from each of the individal market detection algorithms.
+
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+We see that modularity is maximized at 0.592, or at about iteration 22.
+Coincidentally, his is the modularity score for several of the
+individual algorithms–indicating that these algorithms did as good of a
+job at identifying the markets as the ensemble method did (but there was
+no guarantee this would be the case).
+
+Taking the ZIP market definitions at this iteration and plotting them,
+we arrive at the following **final** map of hospital markets for
+Philadelphia county:
+
 ![Geographic Markets Identified by Ensemble-Based
-Approach](README_files/figure-gfm/unnamed-chunk-22-1.png)
+Approach](README_files/figure-gfm/unnamed-chunk-24-1.png)
 
 # Visualization of Market Definitions for Tennesee
 
@@ -489,7 +567,7 @@ geographies.
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
@@ -882,7 +960,7 @@ following specific details.
     defined based on the fraction of geography-level patients who go to
     each hospital.
 
-![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
 
   - For the patient flow method, we used the [CMS Hospital Service Area
     files
