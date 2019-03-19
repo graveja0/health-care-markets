@@ -48,7 +48,7 @@ to defining geographic boundaries of contemporary health care markets
 remains an open question we will explore here.
 
 Finally, it is worth mentioning that regulatory and antitrust reviews
-have drawn on a diverse set of addtional market geography definitions.
+have drawn on a diverse set of additional market geography definitions.
 The history, use and controversies surrounding these definitions are
 nicely covered in the Department of Justice chapter entitled
 [“Competition Law:
@@ -224,6 +224,17 @@ types (e.g., physicians, insurers). An interesting path for future work
 might also look at how markets differ by patient sub-populations defined
 by disease or service use (e.g., emergency care vs. elective surgery),
 income, or insurance type.
+
+In addition to outlining the specifics of our method, we also discuss
+how our method compares to more common health care market definitions.
+Interestingly, almost all of the definitions outlined above–including
+HSAs, commuting zones, and even the hypothetical monopolist test used in
+antitrust reviews–can be seen as special cases of community detection
+that fit within the network analytic methods and hierarchical clustering
+algorithms we employ here. We compare our method with many of these
+methods, and discuss common ties between them, in more detail below.
+
+## Some Caveats and Ideas for Future Research
 
 It is important to emphasize that the approach we articulate is not
 intended as a substitute for market definitions guided by economic
@@ -601,6 +612,108 @@ Philadelphia county:
 ![Geographic Markets Identified by Ensemble-Based
 Approach](README_files/figure-gfm/unnamed-chunk-24-1.png)
 
+## Relationship Between Community Detection and Other Common Market Definition Approaches
+
+A useful exercise is to think through how other common market
+definitions (HSAs, HRRs, commuting zones) compare and tie into the
+network analytic approach articulated above. These market definitions as
+applied to Philadelphia can be seen in the maps below.
+
+![Geographic Markets Identified by HSA, HRR, and Commuting
+Zone](README_files/figure-gfm/unnamed-chunk-25-1.png)
+
+### Community Detection vs. Health Service Areas (HSAs)
+
+HSAs are constructed via what is essentially unique community detection
+algorithm. This algorithm takes as its input a bipartite matrix
+summarizing patient flows from ZIPs to hospitals. Notably, this
+bipartite matrix is the same one as used to input into the community
+detection algorithms above. A key difference is the network analytic
+method above converts the bipartite (ZIP-Hospital) matrix into a
+unipartite matrix (ZIP-ZIP) summarizing the total number of hospital
+connections among ZIP codes.
+
+Rather than construct the unipartite (ZIP-ZIP) matrix, the HSA method
+selects, for each row of the bipartite matrix (ZIPs), the column
+(hospital) with the highest value; this procedure effectively implements
+the plurality rule used to construct HSAs. Each hospital is mapped to
+its city/town name, and all ZIPs linked (via the hospital with the
+plurality of patients) to the same town/city name are grouped into the
+same HSA. Additional edits are then made by hand to ensure that the ZIPs
+that comprise the HSA are geographically contiguous.
+
+### Community Detection vs. Hospital Referral Regions (HRRs)
+
+Hospital Referral Regions (HRRs) are constructed in a similar way. A
+primary difference is the bipartite matrix used to construct HRRs
+utilizes patient counts from HSAs to define the rows, rather than
+patient counts from ZIP codes. Moreover, the patient counts are further
+restricted to cardiovascular and neurosurgeries to capture procedures
+that are more elective in nature. Further adjustments are made (by
+pooling candidate HRRs together) to ensure minimum population sizes
+(120,000 or above) and to ensure that only contiguous HSAs are used.
+
+### Community Detection vs. Commuting Zones
+
+In many important ways, the [method used to construct commuting
+zones](https://usa.ipums.org/usa/resources/volii/cmz90.pdf) echoes the
+network analytic method outlined above. Commuting zones are defined
+based on measures of “linkages” between geographies. In this case, those
+linkages defined in terms of commuting patterns between residental and
+work county as ascertained in the U.S. Census and American Community
+Survey (ACS). These linkages are fed through a hierarchical clustering
+algorithm–much like some of the community detection algorithms use, and
+that we used in the ensemble approach above. This process partitions the
+US into “clusters” of counties where the within county commuting ties
+are stronger than the between county ties. These clusters are then
+relabeled as commuting zones, and some are pooled together to meet
+minimum population targets.
+
+A key difference with relevance here is the smallest geographic unit
+used to construct Commuting Zones is the county, rather than the ZIP
+code. Thus, by construction the entirety of Philadelphia county is
+included in the same geographic market.
+
+### Community Detection vs. Hypothetical Monopolist Test
+
+As noted in the introduction to this document, antitrust reviews often
+draw on different market definition methods based on detailed pricing
+data. A [widely used
+methodology](https://www.justice.gov/atr/operationalizing-hypothetical-monopolist-test)
+is the so-called “hypothetical monopolist” or SSNIP (Small but
+Significant and Non‐transitory Increase in Price) test to define
+markets. Interestingly, this approach, too, has strong echoes with the
+network analytic approach discussed above.
+
+From [Gaynor, Kleiner and
+Vogt](https://onlinelibrary.wiley.com/doi/full/10.1111/joie.12015), the
+SSNIP test process is as follows:
+
+> The SSNIP (Small but Significant and Non‐transitory Increase in Price)
+> test begins by defining a narrow market and asking whether a
+> hypothetical monopolist in the defined market could profitably
+> implement a SSNIP (usually a 5% price increase for one year). If
+> sufficient numbers of consumers are likely to switch to alternative
+> products so that the price increase is unprofitable, then the firm or
+> cartel lacks the power to raise price. The relevant market therefore
+> needs to be expanded. The next closest substitute is added and the
+> process is repeated until the point is reached where a hypothetical
+> cartel or monopolist could profitably impose a 5% price increase. The
+> set of products/locations so defined constitutes the relevant market.
+
+This process is essentially another version of hierarchical
+clustering–again, as employed by several community detection
+algorithms and in our ensemble-based approach. In this case, the
+“network” object could be a unipartite network summarizing
+non-transitory price correlations among hospitals, or possibly predicted
+patient flows in response to price increases. The SSNIP clustering
+algorithm begins with the narrowest possible market, and then iterates
+by folding in additional hospitals until the point where the
+hypothetical monopolist could profitably impose a 5% price increase. One
+could imagine this process tracing out a dendrogram, with stopping
+points defined by the hypothetical monopolist test criteria rather than
+a maximum modularity score as we used above.
+
 # Visualization of Market Definitions for Tennesee
 
 We will next visualize several commonly used geographic market
@@ -614,7 +727,7 @@ geographies.
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
@@ -1007,7 +1120,7 @@ following specific details.
     defined based on the fraction of geography-level patients who go to
     each hospital.
 
-![](README_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
 
   - For the patient flow method, we used the [CMS Hospital Service Area
     files

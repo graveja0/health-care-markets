@@ -31,7 +31,7 @@ In addition, the underlying population data used to define commonly used geograp
 
 Clearly, flows of patients and commuters have changed substantially in many areas in the last 20-30 years. Whether these changes are material to defining geographic boundaries of contemporary health care markets remains an open question we will explore here.
 
-Finally, it is worth mentioning that regulatory and antitrust reviews have drawn on a diverse set of addtional market geography definitions. The history, use and controversies surrounding these definitions are nicely covered in the Department of Justice chapter entitled ["Competition Law: hospitals."](https://www.justice.gov/atr/chapter-4-competition-law-hospitals) 
+Finally, it is worth mentioning that regulatory and antitrust reviews have drawn on a diverse set of additional market geography definitions. The history, use and controversies surrounding these definitions are nicely covered in the Department of Justice chapter entitled ["Competition Law: hospitals."](https://www.justice.gov/atr/chapter-4-competition-law-hospitals) 
 These alternative DOJ market definitions tend to rely on rich  data on prices in health care markets. While in theory such information could be obtained nationwide, in practice the construction of market definitions using price data is contigent on the painstaking collection of local data from relevant market participants. I do not profess to have the human capital or funding resources to undertake such an exercise here. So we will focus on more general market geography definitions that can more easily scale--particularly using publicly-available and relatively low-cost data. 
 
 
@@ -97,6 +97,10 @@ Measures of economic activity (e.g., patient flows, predicted demand, prices) am
 Identification of these clusters is the objective of community-detection algorithms that have been developed to partition a network into "communities" (i.e., markets). A variety of these algorithms have been developed across diverse fields ranging from physics, biology, and sociology. Typically, communities identified via these methods are mutually exclusive--though more [recent work](https://arxiv.org/abs/1110.5813) has expanded into the detection of overlapping communities.  
 
 In this section, we outline a network-analytic approach to defining hospital markets based on community detection. To do so, we focus on ZIP codes and hospitals within a single county: Philadelphia County, PA. As we will show later, with appropriate data, the methodology is easily scalable nationally and to other geographies and health care service types (e.g., physicians, insurers). An interesting path for future work might also look at how markets differ by patient sub-populations defined by disease or service use (e.g., emergency care vs. elective surgery), income, or insurance type. 
+
+In addition to outlining the specifics of our method, we also discuss how our method compares to more common health care market definitions. Interestingly, almost all of the definitions outlined above--including HSAs, commuting zones, and even the hypothetical monopolist test used in antitrust reviews--can be seen as special cases of community detection that fit within the network analytic methods and hierarchical clustering algorithms we employ here. We compare our method with many of these methods, and discuss common ties between them, in more detail below. 
+
+## Some Caveats and Ideas for Future Research
 
 It is important to emphasize that the approach we articulate is not intended as a substitute for market definitions guided by economic theory. Rather, we provide a novel *analytic framework* for defining markets. In other words, just as the multinomial logit provides an analytic framework for estimating consumer demand, our network analytic approach provides a an analytic framework for detecting markets. 
 
@@ -174,7 +178,7 @@ aha <-
       filter(serv==10))) %>% 
   map(~rename_in_list(x = .x, from = "hcfaid", to = "mcrnum")) %>% 
   map(~(.x %>% 
-          select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id, mloczip, sysname,fips_code=fcounty) %>% 
+          select(mname, id, mcrnum , latitude = lat, longitude = long, hrrnum = hrrcode, hsanum = hsacode, admtot, system_id, mloczip, sysname,fips_code=fcounty,mloccity ) %>% 
           mutate(hrrnum = paste0(hrrnum)) %>% 
           mutate(hsanum = paste0(hsanum)) %>% 
           mutate(prvnumgrp = str_pad(mcrnum,width = 6, pad="0")) %>% 
@@ -619,10 +623,41 @@ df_markets_ensemble <-
     mutate(market_label =  market_label$market[zip_code]) %>% 
   mutate(market_ensemble = ensemble_membership[zip_code]) 
 
+# HSA, HRR, CZ Markets for Comparisons Later
+
+zcta_to_hrr_hsa <- read_csv(here("public-data/shape-files/nber-hrr-hsa-pcsa/ziphsahrr2014.csv")) %>% 
+  janitor::clean_names() %>% 
+  rename(zip_code = zipcode ) %>% 
+  filter( zip_code %in% zips_to_show)
+
+market_hsa <- zcta_to_hrr_hsa %>% pull(hsanum) %>% as.numeric()
+names(market_hsa) <- paste0(zcta_to_hrr_hsa$zip_code)
+
+market_hrr <- zcta_to_hrr_hsa %>% pull(hrrnum) %>% as.numeric()
+names(market_hrr) <- paste0(zcta_to_hrr_hsa$zip_code)
+
+county_to_cz <- data.table::fread(here("public-data/shape-files/commuting-zones/counties10-zqvz0r.csv")) %>% 
+  janitor::clean_names() %>% 
+  rename(fips_code = fips) %>% 
+  group_by(out10) %>% 
+  mutate(commuting_zone_population_2010 = sum(pop10, na.rm=TRUE)) %>% 
+  mutate(fips_code = str_pad(paste0(fips_code),width = 5, pad="0")) %>% 
+  select(fips_code,
+         commuting_zone_id_2010 = out10,
+         commuting_zone_population_2010 ) %>% 
+  filter(fips_code=="42101")
+
+market_cz <- rep(county_to_cz$commuting_zone_id_2010,length(market_hsa))
+names(market_cz) <- paste0(zcta_to_hrr_hsa$zip_code)
+
+# Final Hospital Markets Data Frame
 
 df_hosp_markets <- 
   df_hosp_zip %>% 
   left_join(df_markets_ensemble %>% 
+              mutate(market_hrr = market_hrr[zip_code],
+                     market_hsa = market_hsa[zip_code],
+                     market_cz = market_cz[zip_code]) %>% 
               gather(type,market,-zip_code),"zip_code")  %>% 
   group_by(type,market,prvnumgrp) %>% 
   summarise(total_cases = sum(total_cases)) %>% 
@@ -645,7 +680,10 @@ xy_hosp_market <-
 
 sf_markets <- sf_zip_excounty %>% 
   mutate(zip_code = zcta5ce10) %>% 
-  left_join(df_markets_ensemble, "zip_code") 
+  left_join(df_markets_ensemble, "zip_code") %>% 
+  mutate(market_hrr = market_hrr[zip_code],
+                     market_hsa = market_hsa[zip_code],
+                     market_cz = market_cz[zip_code]) 
 ```
 
 The algorithm has identified four distinct communities. In the plot below, we map out each of these communities. Each panel of this plot shows the ZIP codes included in a detected market. The dots again correspond to the geographic location of hospitals visited by individuals from that market. The dot sizes are furthermore scaled to be proportional to patient volume / market share. 
@@ -852,6 +890,84 @@ sf_zip_excounty %>%
   facet_wrap(~market_ensemble) +
   coord_sf(datum=NA) 
 ```
+
+
+## Relationship Between Community Detection and Other Common Market Definition Approaches 
+
+A useful exercise is to think through how other common market definitions (HSAs, HRRs, commuting zones) compare and tie into the network analytic approach articulated above. These market definitions as applied to Philadelphia can be seen in the maps below. 
+
+```{r,fig.cap = "Geographic Markets Identified by HSA, HRR, and Commuting Zone",fig.height = 8, fig.width =8,fig.pos="H", echo = FALSE}
+p_hsa <- sf_zip_excounty %>% 
+  filter(zcta5ce10 != "19112") %>% 
+  ggplot() + geom_sf(alpha = 0.1)  + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) + 
+  theme(legend.position = "none") +
+  geom_sf(data = sf_markets %>% filter(zcta5ce10 != "19112") , aes(fill = "grey"),fill ="lightgrey") + 
+  geom_point(data = xy_hosp_market %>% filter(!is.na(market_hsa)), aes(x=x,y=y,size = total_cases_hsa)) + 
+ # scale_fill_distiller(palette=3) + 
+  facet_wrap(~market_hsa) +
+  coord_sf(datum=NA)  + ggtitle("Hospital Service Area") +
+theme(plot.title = element_text(hjust = 0.5))
+
+p_hrr <- sf_zip_excounty %>% 
+  filter(zcta5ce10 != "19112") %>% 
+  ggplot() + geom_sf(alpha = 0.1)  + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) + 
+  theme(legend.position = "none") +
+  geom_sf(data = sf_markets %>% filter(zcta5ce10 != "19112") , aes(fill = "grey"),fill ="lightgrey") + 
+  geom_point(data = xy_hosp_market %>% filter(!is.na(market_hrr)), aes(x=x,y=y,size = total_cases_hrr)) + 
+ # scale_fill_distiller(palette=3) + 
+  facet_wrap(~market_hrr) +
+  coord_sf(datum=NA) + ggtitle("Hospital Referral Region") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p_cz <- sf_zip_excounty %>% 
+  filter(zcta5ce10 != "19112") %>% 
+  ggplot() + geom_sf(alpha = 0.1)  + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) + 
+  theme(legend.position = "none") +
+  geom_sf(data = sf_markets %>% filter(zcta5ce10 != "19112") , aes(fill = "grey"),fill ="lightgrey") + 
+  geom_point(data = xy_hosp_market %>% filter(!is.na(market_cz)), aes(x=x,y=y,size = total_cases_cz)) + 
+ # scale_fill_distiller(palette=3) + 
+  facet_wrap(~market_cz) +
+  coord_sf(datum=NA) + ggtitle("Commuting Zone") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p_hsa + {p_hrr + p_cz} + plot_layout(ncol=1)
+```
+
+
+### Community Detection vs. Health Service Areas (HSAs)
+
+HSAs are constructed via what is essentially unique community detection algorithm. This algorithm takes as its input a bipartite matrix summarizing patient flows from ZIPs to hospitals. Notably, this bipartite matrix is the same one as used to input into the community detection algorithms above. A key difference is the network analytic method above converts the bipartite (ZIP-Hospital) matrix into a unipartite matrix (ZIP-ZIP) summarizing the total number of hospital connections among ZIP codes. 
+
+Rather than construct the unipartite (ZIP-ZIP) matrix, the HSA method selects, for each row of the bipartite matrix (ZIPs), the column (hospital) with the highest value; this procedure effectively implements the plurality rule used to construct HSAs. Each hospital is mapped to its city/town name, and all ZIPs linked (via the hospital with the plurality of patients) to the same town/city name are grouped into the same HSA. Additional edits are then made by hand to ensure that the ZIPs that comprise the HSA are geographically contiguous. 
+
+### Community Detection vs. Hospital Referral Regions (HRRs)
+
+Hospital Referral Regions (HRRs) are constructed in a similar way. A primary difference is the bipartite matrix used to construct HRRs utilizes patient counts from HSAs to define the rows, rather than patient counts from ZIP codes. Moreover, the patient counts are further restricted to cardiovascular and neurosurgeries to capture procedures that are more elective in nature. Further adjustments are made (by pooling candidate HRRs together) to ensure minimum population sizes (120,000 or above) and to ensure that only contiguous HSAs are used. 
+
+### Community Detection vs. Commuting Zones
+
+In many important ways, the [method used to construct commuting zones](https://usa.ipums.org/usa/resources/volii/cmz90.pdf) echoes the network analytic method outlined above. Commuting zones are defined based on measures of "linkages" between geographies. In this case, those linkages defined in terms of commuting patterns between residental and work county as ascertained in the U.S. Census and American Community Survey (ACS). These linkages are fed through a hierarchical clustering algorithm--much like some of the community detection algorithms use, and that we used in the ensemble approach above.  This process partitions the US into "clusters" of counties where the within county commuting ties are stronger than the between county ties. These clusters are then relabeled as commuting zones, and some are pooled together to meet minimum population targets. 
+
+A key difference with relevance here is the smallest geographic unit used to construct Commuting Zones is the county, rather than the ZIP code. Thus, by construction the entirety of Philadelphia county is included in the same geographic market.
+
+### Community Detection vs. Hypothetical Monopolist Test
+
+As noted in the introduction to this document, antitrust reviews often draw on different market definition methods based on detailed pricing data. A [widely used methodology](https://www.justice.gov/atr/operationalizing-hypothetical-monopolist-test) is the so-called "hypothetical monopolist" or SSNIP (Small but Significant and Non‐transitory Increase in Price) test to define markets. Interestingly, this approach, too, has strong echoes with the network analytic approach discussed above. 
+
+From [Gaynor, Kleiner and Vogt](https://onlinelibrary.wiley.com/doi/full/10.1111/joie.12015), the SSNIP test process is as follows:
+
+>The SSNIP (Small but Significant and Non‐transitory Increase in Price) test begins by defining a narrow market and asking whether a hypothetical monopolist in the defined market could profitably implement a SSNIP (usually a 5% price increase for one year). If sufficient numbers of consumers are likely to switch to alternative products so that the price increase is unprofitable, then the firm or cartel lacks the power to raise price. The relevant market therefore needs to be expanded. The next closest substitute is added and the process is repeated until the point is reached where a hypothetical cartel or monopolist could profitably impose a 5% price increase. The set of products/locations so defined constitutes the relevant market.
+
+This process is essentially another version of hierarchical clustering--again, as employed by several community detection algorithms and in our ensemble-based approach. In this case, the "network" object could be a unipartite network summarizing non-transitory price correlations among hospitals, or possibly predicted patient flows in response to price increases. The SSNIP clustering algorithm begins with the narrowest possible market, and then iterates by folding in additional hospitals until the point where the hypothetical monopolist could profitably impose a 5% price increase.  One could imagine this process tracing out a dendrogram, with stopping points defined by the hypothetical monopolist test criteria rather than a maximum modularity score as we used above. 
 
 # Visualization of Market Definitions for Tennesee
 
