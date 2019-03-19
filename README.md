@@ -204,7 +204,7 @@ geographic markets we might be interested in identifying clusters of ZIP
 codes in which we observe patients utilizing a common set of hospitals.
 Alternatively, we may be interested in clustering hospitals into groups
 based on strong economic ties among them (e.g., identifying “competing”
-hosptials that draw patients from similar ZIP codes).
+hospitals that draw patients from similar ZIP codes).
 
 Identification of these clusters is the objective of
 commmunity-detection algorithms that have been developed to partition a
@@ -232,6 +232,17 @@ subject to endogeneity concerns, which will affect the market
 definitions identified. However, in principle, any economic “linkage”
 measure (e.g., patient demand estimated using exogenous variation) could
 just as easily be plugged in.
+
+Finally, in a similar vein, our data on patient flows is drawn from
+publically-available hospital service data from CMS. These data
+summarize *overall* patient flows among fee-for-service Medicare
+patients. But in principle, flows of other patient populations–defined
+by service type (e.g., emergency patients, cardiovascular patients,
+etc.) or population (e.g., low-income patients, commercially-insured
+patients) could just as easily be used. That is, data on patient
+sub-populations coudl be used to partition geographies or hospitals into
+*different* markets. Future research on how market definitions vary for
+different patient populations would be quite useful.
 
 ## ZIP Codes and Hospitals in Philadelphia County, PA
 
