@@ -2,7 +2,7 @@
 output: github_document
 editor_options: 
   chunk_output_type: console
-bibliography: ../../../box/Research-Provider_Networks/manuscripts/networks-r01-bibliography.bib
+bibliography: ../Research-Provider_Networks/manuscripts/networks-r01-bibliography.bib
 ---
 
 ```{r setup, include=FALSE}
