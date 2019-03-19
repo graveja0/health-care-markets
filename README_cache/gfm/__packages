@@ -1,4 +1,10 @@
 base
+methods
+datasets
+utils
+grDevices
+graphics
+stats
 tidyverse
 ggplot2
 tibble
@@ -10,6 +16,7 @@ stringr
 forcats
 here
 devtools
+usethis
 rlang
 knitr
 xml2
@@ -30,5 +37,6 @@ fs
 aws.s3
 future
 furrr
+ggdendro
 ggrepel
 bindrcpp

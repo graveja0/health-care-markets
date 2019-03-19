@@ -195,8 +195,8 @@ U.S. Department of Agriculture (USDA) is useful:
 
 Measures of economic activity (e.g., patient flows, predicted demand)
 between individuals or geographies and health care service providers can
-be used to construct a bipartite network summarizing their economic
-links. This network can then be used to construct unipartite networks of
+be used to construct a bipartite network summarizing economic links.
+This network can then be coonverted into unipartite networks of
 geographies that are linked via common ties with health care providers.
 Alternatively, the same biparite matrix can also be used to construct a
 unipartite network of hospitals that are linked because they draw
@@ -207,14 +207,13 @@ health care providers.
 
 This section walks through such a process for identifying geographic
 markets for hospital services. To do so, we focus on ZIP codes and
-hospitals within a single county: Philadelphia County, PA (which, not
-surprisingly, contains the city of Philadelphia). As we will show later,
-the methodology is easily scalable nationally and to other geographies
-and health care service types (e.g., physicians, insurers).
+hospitals within a single county: Philadelphia County, PA. As we will
+show, the methodology is easily scalable nationally and to other
+geographies and health care service types (e.g., physicians, insurers).
 
 ## ZIP Codes and Hospitals in Philadelphia County, PA
 
-In this plot, we map the ZIP codes with geographic centroids contained
+We begin by plotting the ZIP codes with geographic centroids contained
 within Philadelphia County, PA. In addition, we plot the location and
 market share (point size) of all hospitals based on the treatment
 patterns observed among traditional Medicare patients in 2015. In order
@@ -307,7 +306,7 @@ ZIP Codes](README_files/figure-gfm/unnamed-chunk-13-1.png)
 
 Our next step is to use this network representation of hospital use to
 “detect” markets for hospital services. A nice feature of this
-approach is that we can detect markets from any perspective: the
+approach is that we can detect markets from two perspectives: the
 geography (i.e., what ZIP codes tend to send patients to similar
 hospitals) or the hospital (i.e., what hospitals tend to draw patients
 from similar ZIP codes?).
@@ -321,10 +320,10 @@ while other ZIP codes (e.g., 19133) straddle different hospital
 
 Over the years a [variety of community detection
 algorithms](https://www.nature.com/articles/srep30750) have been
-developed. Each takes as its input a network as seen here, and returns a
-community membership attribute to each node in the network. The
-algorithms are constructed such that hte network is sub-dividied into
-mutually exclusive communities–though some [more recent
+developed. Each takes as its input a network, and returns a community
+membership attribute to each node in the network. The algorithms are
+constructed such that hte network is sub-dividied into mutually
+exclusive communities–though some [more recent
 work](https://dl.acm.org/citation.cfm?id=2501657) has allowed for nodes
 to be represented in more than one community.
 
@@ -348,7 +347,7 @@ Algorithm](README_files/figure-gfm/unnamed-chunk-17-1.png)
 Because the cluster walktrap algorithm is hierarchical, it’s useful to
 plot out a heatmap and dendogram of the unipartite (ZIP-ZIP) matrix.
 This allows us to visualize not only the strengh of hospital connections
-between two ZIPs, but also the specific clustering hierarchy that gives
+between two ZIPs, but also the specific clustering process that gives
 rise to the detected communities.
 
 ![](output/figures/dendogram-cluster-walktrap.png)
@@ -359,11 +358,21 @@ these are the ZIP codes corresponding to each of the four markets. The
 cell shadings are scaled to visualize the strength of connections
 between ZIPs.
 
-For example, in total 1,182 patients from ZIP 19128 are treated at 2
-hospitals, 29% at Chetnut Hill hospital (390026) and 71% at Roxborough
-Memorial hospital (390304). By comparison, the 1,807 patients from ZIP
-19144 are treated at Chestnut Hill (21%), Einstein Medical Center (63%;
-ID = 390142) and Roxborough Memorial (16%).
+When parsing this visulation it helps to keep in mind the intuition for
+the objective of community detection. That is, the community detection
+algorithm is designed to detect densely-connected groups of nodes (in
+this case ZIP codes) with many connections within the groups, and fewer
+connections outside of the groups. The heatmap plots the strength of
+shared hospital “connections” between each ZIP pair, while the dendogram
+plots a hierarchy of these connections starting with the most densely
+connected ZIPs at the bottom.
+
+A specific example is also useful. In total, 1,182 patients from ZIP
+19128 are treated at 2 hospitals, 29% at Chestnut Hill hospital (390026)
+and 71% at Roxborough Memorial hospital (390304). By comparison, the
+1,807 patients from ZIP 19144 are treated at Chestnut Hill (21%),
+Einstein Medical Center (63%; ID = 390142) and Roxborough Memorial
+(16%).
 
 | Hospital ID | ZIP 19128 | ZIP 19144  |
 | :---------- | :-------- | :--------- |
@@ -372,50 +381,100 @@ ID = 390142) and Roxborough Memorial (16%).
 | 390304      | 843 (71%) | 296 (16%)  |
 
 From this table we can see that 100% of ZIP 19128’s hospital use is in
-“shared” hospitals as 19144, while 37% of ZIP 19144’s hospital use is
-in “shared” hospitals. This is precisely the information portrayed in
-the cell shadings in the heatmap: the full red shading for row 19128,
-column 19144 (near the top right of the plot) indicates that 100% of
-19128’s patients are treated in similar hospitals as used by patients in
-19144. By comparison, the shading for row 19144, column 19128 is shaded
-a lighter red, reflecting the fact that as noted above, only 37% of
-19144’s patients go to similar hospitals as used by those in 19128.
+“shared” hospitals when paired with 19144, while 37% of ZIP 19144’s
+hospital use is in “shared” hospitals when compared with 19128.
 
-With this shading scheme in mind, we can now turn to the dendogram on
-the righthand side of the plot to see how it shapes together. For
-example, heatmap cells shaded bright red indicate clusters of ZIPs where
-patients essentially go the same hospitals. This results in a pairing
-far down the tree diagram represented in the dendogram. With these
-tightly connected ZIP pairs we can then start to work up the tree,
-bringing in new ZIP codes that share a subtantial, but not 100% share,
-of hospital overlap. Eventually, the four distinct markets shake out:
-this is visible by the four “blocks” running diagonal from southwest to
-northeast in the heatmap.
+This is precisely the information portrayed in the cell shadings in the
+heatmap: the full red shading for row 19128, column 19144 (near the top
+right of the plot) indicates that 100% of 19128’s patients are treated
+in similar hospitals as used by patients in 19144. By comparison, the
+shading for row 19144, column 19128 is shaded a lighter red, reflecting
+the fact that as noted above, only 37% of 19144’s patients go to similar
+hospitals as used by those in 19128.
+
+With this correlation (shading) in mind, we can now focus on the
+dendogram on the righthand side of the plot. For example, heatmap cells
+shaded bright red indicate clusters of ZIPs where patients essentially
+go the same hospitals. This results in a pairing of ZIPs far down the
+tree diagram represented in the dendogram. In other words, sets of ZIP
+codes that essentially use the same hospitals will get paired together
+far down the hierarchy.
+
+With these tightly connected ZIP pairs connected we can then start to
+work up the tree, bringing in new ZIP codes that share a subtantial, but
+not 100% share, of hospital overlap. Eventually, the four distinct
+markets emerge: this is apparent by the four redish “blocks” running
+diagonal from southwest to northeast in the heatmap. But within each
+market are sub-markets of densely connected ZIPs, and the dendogram /
+heatmap is designed such that we can identify these as well.
 
 We can also see in both the network plot and the heatmap plot that there
 are some ZIP codes that straddle markets. That is, these are ZIPs that
-could just as easily be classified in one market vs. another. In the
+could just possibly be classified in one market vs. another. In the
 network reprsentation plot, these ZIP codes (e.g., 19140, 19134) as
-in-between the clusters of ZIP codes. In the heatmap, we see this in hte
+in-between the clusters of ZIP codes. In the heatmap, we see this in the
 isloated pockets of “clustering” off the diagnoal (e.g., in the rows for
 19141 and 19134).
 
-## An Ensemble-Based Approach to Community Detection
+## An Ensemble-Based Approach to Market Detection
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+The example above was shown for a single community detection algorithm
+(the cluster walktrap). But there are many candidate algorithms we can
+draw from. These community detection methods have been developed in
+diverse fields (physics, sociology, biology, etc.), and each method may
+result in a slightly different partitioning of the network. The natural
+question, then, is which method should we use? Or, can we improve market
+detection by deploying an ensemble of approaches, then identifying the
+final market boundaries based on a consensus among this ensemble? That
+is the approach we will lay out here.
 
-| Algorithm    | Modularity |
-| :----------- | ---------: |
-| ensemble     |     0.5294 |
-| walktrap     |     0.5263 |
-| fast\_greedy |     0.5100 |
-| multilevel   |     0.5294 |
-| spinglass    |     0.5294 |
-| infomap      |     0.5263 |
-| louvain      |     0.5294 |
+### Modularity
 
-![Geographic Markets Identified by Cluster Walktrap
-Algorithm](README_files/figure-gfm/unnamed-chunk-22-1.png)
+Before we proceed, we must first establish a measure to asesss the
+relative performance of community detection algorithms in partitioning
+our network into geographic markets. **Modularity** is a widely used
+measure for this purpose.
+
+[Modularity is defined
+as](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1482622/) the fraction
+of *observed* edges that fall within defined groups in a network minus
+the expected fraction of edges within the group if the edges were placed
+at random. Modularity measures between -1 and 1, and will be positive
+when the number of edges within the groups exceeds the expected number
+based on random allocation of edges.
+
+In most applications, the randomization of edges is done while
+preserving the observed \*\*degree\* of each node. Degree is a count of
+the total number of connections a node has. In an unweighted network,
+degree is simply the number of edge (connection) lines coming from the
+node; in a weighted network (as used here) it the sum of the weights
+attached to each of these edges.
+
+In the case of the cluster walktrap method in our example above, we
+achieve a modularity score of 0.5263. We also ran `9` alternative
+community detection algorithms, and their modularity scores are
+summarized in the table below:
+
+| Algorithm     | Modularity |
+| :------------ | ---------: |
+| walktrap      |     0.5263 |
+| fast\_greedy  |     0.5100 |
+| multilevel    |     0.5294 |
+| spinglass     |     0.5294 |
+| infomap       |     0.5263 |
+| louvain       |     0.5294 |
+| eigen         |     0.4749 |
+| label\_prop   |     0.5263 |
+| edge\_between |     0.5294 |
+
+The table shows that some other community detection approaches (e.g.,
+the Multilevel algorithm, the Spinglass algorithm, and the [Louvain
+modularity approach](https://en.wikipedia.org/wiki/Louvain_Modularity))
+
+![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+![Geographic Markets Identified by Ensemble-Based
+Approach](README_files/figure-gfm/unnamed-chunk-22-1.png)
 
 # Visualization of Market Definitions for Tennesee
 
