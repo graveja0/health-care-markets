@@ -786,7 +786,7 @@ gf_F %>%
   theme(axis.text.x=element_text(angle = -90, hjust = 0,size =6),
         axis.text.y= element_text(size =6)) + 
   scale_fill_gradient(low = "white", high = "black", breaks = c(0,3,6,9)) + 
-  labs(fill = "Freqency", x = "ZIP Code", y= "ZIP Code")+
+  labs(fill = "Frequency", x = "ZIP Code", y= "ZIP Code")+
   theme(legend.position ="right")
 ```
 
@@ -825,7 +825,7 @@ data.frame(iteration = 1:length(ensemble_modularity_all), modularity = ensemble_
   labs(colour = "Market Detection Method",y = "Modularity Value",x = "Clustering Iteration")
 ```
 
-We see that modularity is maximized at 0.592, or at about iteration 22. Coincidentally, his is the modularity score for several of the individual algorithms--indicating that these algorithms did as good of a job at identifying the markets as the ensemble method did (but there was no guarantee this would be the case).
+We see that modularity is maximized at 0.592, or at about iteration 22. Coincidentally, this is the modularity score for several of the individual algorithms--indicating that these algorithms did as good of a job at identifying the markets as the ensemble method did (but there was no guarantee this would be the case).
 
 Taking the ZIP market definitions at this iteration and plotting them, we arrive at the following **final** map of hospital markets for Philadelphia county:
 

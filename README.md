@@ -542,7 +542,7 @@ scores from each of the individal market detection algorithms.
 ![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 We see that modularity is maximized at 0.592, or at about iteration 22.
-Coincidentally, his is the modularity score for several of the
+Coincidentally, this is the modularity score for several of the
 individual algorithms–indicating that these algorithms did as good of a
 job at identifying the markets as the ensemble method did (but there was
 no guarantee this would be the case).
