@@ -193,23 +193,45 @@ U.S. Department of Agriculture (USDA) is useful:
 
 # Market Definitions Based on Community Detection
 
-Measures of economic activity (e.g., patient flows, predicted demand)
-between individuals or geographies and health care service providers can
-be used to construct a bipartite network summarizing economic links.
-This network can then be converted into unipartite networks of
-geographies that are linked via common ties with health care providers.
-Alternatively, the same biparite matrix can also be used to construct a
-unipartite network of hospitals that are linked because they draw
-patients from common geographies. These unipartite networks can then be
-fed through an ensemble of community-dection algorithms to identify
-mutually exclusive clusters (i.e., markets) of either geographies or
-health care providers.
+Measures of economic activity (e.g., patient flows, predicted demand,
+prices) among market participants form the essential building blocks for
+defining health care markets. These linkages can be combined into a
+“network” that summarizes the strength of economic linkages between
+relevant market units (e.g., between indiviudals / ZIP codes and health
+care providers). This network, moreover, can also be used to identify
+commonalities *within* market units. For example, for defining
+geographic markets we might be interested in identifying clusters of ZIP
+codes in which we observe patients utilizing a common set of hospitals.
+Alternatively, we may be interested in clustering hospitals into groups
+based on strong economic ties among them (e.g., identifying “competing”
+hosptials that draw patients from similar ZIP codes).
 
-This section walks through such a process for identifying geographic
-markets for hospital services. To do so, we focus on ZIP codes and
-hospitals within a single county: Philadelphia County, PA. As we will
-show, the methodology is easily scalable nationally and to other
-geographies and health care service types (e.g., physicians, insurers).
+Identification of these clusters is the objective of
+commmunity-detection algorithms that have been developed to partition a
+network into mutually exclusive “communities” (i.e., markets). A variety
+of these algorithms have been developed across diverse fields ranging
+from physics, biology, and sociology.
+
+In this section, we outline a network-analytic approach to defnining
+hospital markets based on community detection. To do so, we focus on ZIP
+codes and hospitals within a single county: Philadelphia County, PA.
+However, with appropriate data the methodology is easily scalable
+nationally and to other geographies and health care service types (e.g.,
+physicians, insurers).
+
+Before we begin it is important to emphasize that the approach we
+articulate is not intended as a substitute for market definitions guided
+by economic theory. Rather, our approach is intended to provide an
+analytic framework that takes as its inputs measures of economic
+linkages. Thus, the framework easily accommodates measures of economic
+linkages motivated by theory, produced via estimation of demand, or
+both. In our example, these “linkages” are summarized as simple patient
+counts of the number of patients from each ZIP code who are treated at
+local hospitals. We recognize that these linkages are observational and
+subject to endogeneity concerns, which will affect the market
+definitions identified. However, in principle, any economic “linkage”
+measure (e.g., patient demand estimated using exogenous variation) could
+just as easily be plugged in.
 
 ## ZIP Codes and Hospitals in Philadelphia County, PA
 
