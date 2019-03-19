@@ -897,6 +897,21 @@ sf_zip_excounty %>%
 A useful exercise is to think through how other common market definitions (HSAs, HRRs, commuting zones) compare and tie into the network analytic approach articulated above. These market definitions as applied to Philadelphia can be seen in the maps below. 
 
 ```{r,fig.cap = "Geographic Markets Identified by HSA, HRR, and Commuting Zone",fig.height = 8, fig.width =8,fig.pos="H", echo = FALSE}
+p_ensemble <- sf_zip_excounty %>% 
+  filter(zcta5ce10 != "19112") %>% 
+  ggplot() + geom_sf(alpha = 0.1)  + 
+  remove_all_axes + 
+  geom_sf(data = sf_excounty_alone, colour = "black",lwd = 1, alpha = 0.1) + 
+  geom_text_repel(data = xy_hosp, aes(x=x,y=y,label = mname),cex = 1.5) + 
+  theme(legend.position = "none") +
+  geom_sf(data = sf_markets %>% filter(zcta5ce10 != "19112") , aes(fill = "grey"),fill ="lightgrey") + 
+  geom_point(data = xy_hosp_market %>% filter(!is.na(market_ensemble)), aes(x=x,y=y,size = total_cases_ensemble)) + 
+ # scale_fill_distiller(palette=3) + 
+  facet_wrap(~market_ensemble) +
+  coord_sf(datum=NA)  + #ggtitle("Ensemble Community Detection") +
+theme(plot.title = element_text(hjust = 0.5))
+  
+  
 p_hsa <- sf_zip_excounty %>% 
   filter(zcta5ce10 != "19112") %>% 
   ggplot() + geom_sf(alpha = 0.1)  + 
