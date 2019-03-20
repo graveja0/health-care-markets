@@ -196,52 +196,51 @@ U.S. Department of Agriculture (USDA) is useful:
 Measures of economic activity (e.g., patient flows, predicted demand,
 prices) among market participants form the essential building blocks for
 defining health care markets. These linkages can be combined into a
-“network” that summarizes the strength of economic linkages between
+“network” summarizing the strength of economic linkages between
 relevant market units–for example, linkages between individuals / ZIP
 codes and their health care providers. This network, moreover, can be
 used to identify commonalities *within* market units. For instance, for
-defining geographic markets we might be interested in identifying ZIP
-codes in which patients utilize a common set of hospitals.
-Alternatively, we may be interested in clustering hospitals into groups
-based on economic ties among them (e.g., markets of “competing”
+defining geographic markets we might be interested in identifying
+clusters of ZIP codes that draw upon a common set of hospitals.
+Alternatively, we may be interested in clustering *hospitals* into
+groups based on economic ties among them (e.g., markets of “competing”
 hospitals that draw patients from similar ZIP codes).
 
-Identification of these clusters is the objective of community-detection
-algorithms that have been developed to partition a network into
-“communities” (i.e., markets). A variety of these algorithms have been
-developed across diverse fields ranging from physics, biology, and
-sociology. Typically, communities identified via these methods are
-mutually exclusive–though more [recent
-work](https://arxiv.org/abs/1110.5813) has expanded into the detection
-of overlapping communities.
+Identification of clusters of linked “nodes” in a network is known as
+**community detection.** A variety of community detection algorithms
+have been developed across diverse fields ranging from physics, biology,
+and sociology. As we discuss below, many common approaches to defining
+health care markets–including HSAs, HRRs, commuting zones, and even the
+hypothetical monopolist test used in antitrust reviews–are essentially
+community detection methods.
 
-In this section, we outline a network-analytic approach to defining
-hospital markets based on community detection. To do so, we focus on ZIP
-codes and hospitals within a single county: Philadelphia County, PA. As
-we will show later, with appropriate data, the methodology is easily
-scalable nationally and to other geographies and health care service
-types (e.g., physicians, insurers). An interesting path for future work
-might also look at how markets differ by patient sub-populations defined
-by disease or service use (e.g., emergency care vs. elective surgery),
-income, or insurance type.
+In this section, we outline an
+[ensemble](https://arxiv.org/abs/1309.0242) network-analytic approach to
+defining hospital markets based on community detection. This approach
+fits several different algorithms and then aggregates the information
+they produce to improve market definitions.
 
-In addition to outlining the specifics of our method, we also discuss
-how our method compares to more common health care market definitions.
-Interestingly, almost all of the definitions outlined above–including
-HSAs, commuting zones, and even the hypothetical monopolist test used in
-antitrust reviews–can be seen as special cases of community detection
-that fit within the network analytic methods and hierarchical clustering
-algorithms we employ here. We compare our method with many of these
-methods, and discuss common ties between them, in more detail below.
+We focus on a single example of ZIP codes and hospitals within
+Philadelphia County, Pennsylvania. As we will show later, with
+appropriate data the methodology is easily scalable nationally and to
+other geographies and health care service types (e.g., physicians,
+insurers). An interesting path for future work might also look at how
+markets differ by patient sub-populations defined by disease/condition,
+service use type (e.g., emergency care vs. elective surgery), income, or
+insurance type.
 
 ## Some Caveats and Ideas for Future Research
 
 It is important to emphasize that the approach we articulate is not
 intended as a substitute for market definitions guided by economic
 theory. Rather, we provide a novel *analytic framework* for defining
-markets. In other words, just as the multinomial logit provides an
+markets based on data summarizing economic links among market
+participants. In other words, just as the multinomial logit provides an
 analytic framework for estimating consumer demand, our network analytic
-approach provides a an analytic framework for detecting markets.
+approach provides a an analytic framework for detecting markets. As
+noted abovee, a nice feature of the approach is that common methods for
+defining markets (e.g., HSA, the hypothetical monopolist test, etc.) can
+all be seen as special cases of community deteection.
 
 Once understood in that sense, it is straightforward to see that our
 framework easily accommodates measures of economic linkages motivated by
@@ -250,11 +249,11 @@ examples below, these “linkages” are summarized as patient counts of the
 number of fee-for-service Medicare patients from each ZIP code who are
 treated at local hospitals. We recognize that these linkages are
 observational and subject to endogeneity concerns, which will affect the
-market definitions identified. However, it is important to recognize in
-principle, any economic “linkage” measure (e.g., patient demand
+market definitions identified in the example. However, it is important
+to recognize that *any* economic “linkage” measure (e.g., patient demand
 estimated using exogenous variation, unit price correlations among
 competing hospitals) could be plugged in as the relevant measure of an
-economic “link” among market units.
+economic “linkage” among market units.
 
 Finally, as noted above and in a similar vein, our data on patient flows
 is drawn from
@@ -403,12 +402,12 @@ proportional to patient volume / market share.
 Algorithm](README_files/figure-gfm/unnamed-chunk-17-1.png)
 
 Because the cluster walktrap algorithm is hierarchical, it’s useful to
-plot out a heatmap and dendogram of the unipartite (ZIP-ZIP) matrix.
+plot out a heatmap and dendrogram of the unipartite (ZIP-ZIP) matrix.
 This allows us to visualize not only the strengh of hospital connections
 between two ZIPs, but also the specific clustering process that gives
 rise to the detected communities.
 
-![](output/figures/dendogram-cluster-walktrap.png)
+![](output/figures/dendrogram-cluster-walktrap.png)
 
 In the plot above, the rows have been subdivided (by cell line color)
 into the four total markets identified via community detection. That is,
@@ -421,9 +420,9 @@ the objective of community detection. That is, the community detection
 algorithm is designed to detect densely-connected groups of nodes (in
 this case ZIP codes) with many connections within the groups, and fewer
 connections outside of the groups. The heatmap plots the strength of
-shared hospital “connections” between each ZIP pair, while the dendogram
-plots a hierarchy of these connections starting with the most densely
-connected ZIPs at the bottom.
+shared hospital “connections” between each ZIP pair, while the
+dendrogram plots a hierarchy of these connections starting with the most
+densely connected ZIPs at the bottom.
 
 A specific example is also useful. In total, 1,182 patients from ZIP
 19128 are treated at 2 hospitals, 29% at Chestnut Hill hospital (390026)
@@ -451,10 +450,10 @@ the fact that as noted above, only 37% of 19144’s patients go to similar
 hospitals as used by those in 19128.
 
 With this correlation (shading) in mind, we can now focus on the
-dendogram on the righthand side of the plot. For example, heatmap cells
+dendrogram on the righthand side of the plot. For example, heatmap cells
 shaded bright red indicate clusters of ZIPs where patients essentially
 go the same hospitals. This results in a pairing of ZIPs far down the
-tree diagram represented in the dendogram. In other words, sets of ZIP
+tree diagram represented in the dendrogram. In other words, sets of ZIP
 codes that essentially use the same hospitals will get paired together
 far down the hierarchy.
 
@@ -463,7 +462,7 @@ work up the tree, bringing in new ZIP codes that share a subtantial, but
 not 100% share, of hospital overlap. Eventually, the four distinct
 markets emerge: this is apparent by the four redish “blocks” running
 diagonal from southwest to northeast in the heatmap. But within each
-market are sub-markets of densely connected ZIPs, and the dendogram /
+market are sub-markets of densely connected ZIPs, and the dendrogram /
 heatmap is designed such that we can identify these as well.
 
 We can also see in both the network plot and the heatmap plot that there
@@ -622,6 +621,12 @@ applied to Philadelphia can be seen in the maps below.
 ![Geographic Markets Identified by HSA, HRR, and Commuting
 Zone](README_files/figure-gfm/unnamed-chunk-25-1.png)
 
+As seen in the map, only two HSAs are represented in Philadelphia
+county, while only a single HRR and commuting zone is represented. Thus,
+measures of hospital concentration that draw on these measures will
+include *all* hospitals in the county (plus in neighboring areas also
+inclued in the HSA, HRR, or CZ).
+
 ### Community Detection vs. Health Service Areas (HSAs)
 
 HSAs are constructed via what is essentially unique community detection
@@ -641,6 +646,14 @@ its city/town name, and all ZIPs linked (via the hospital with the
 plurality of patients) to the same town/city name are grouped into the
 same HSA. Additional edits are then made by hand to ensure that the ZIPs
 that comprise the HSA are geographically contiguous.
+
+A major diffrence between HSA detection and community detection as
+outlined here is that for HSA definitions there is only a single
+“connection” allowed: the hospital with the plurality of patients from
+the ZIP. By comparison, under our approach we allow for multiple
+ZIP-hospital connections, so long as at least 10% of the ZIP’s patients
+are treated at the hospital, or 10% of the hospital’s overall volume
+derives from the ZIP.
 
 ### Community Detection vs. Hospital Referral Regions (HRRs)
 
@@ -712,7 +725,24 @@ by folding in additional hospitals until the point where the
 hypothetical monopolist could profitably impose a 5% price increase. One
 could imagine this process tracing out a dendrogram, with stopping
 points defined by the hypothetical monopolist test criteria rather than
-a maximum modularity score as we used above.
+a maximum modularity score as we used
+above.
+
+<!-- ### Modularity Comparisons -->
+
+<!-- Since HSAs, HRRs, commuting zones and the SSNIP test all fall under the community detection umbrella it is useful to calculate modularity scores for them and compare to the modularity  -->
+
+``` r
+df_modularity %>% 
+  mutate(HSA = modularity(net_ex,market_hsa)) %>% 
+  mutate(HRR = modularity(net_ex,market_hrr)) %>% 
+  mutate(commuting_zone = modularity(net_ex,market_cz)) %>% 
+  t() %>% data.frame() %>% 
+  rownames_to_column() %>% 
+  mutate_at(vars(2),round,4) %>% 
+  set_names("Algorithm","Modularity") %>% 
+  kable()
+```
 
 # Visualization of Market Definitions for Tennesee
 
@@ -727,7 +757,13 @@ geographies.
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+``` r
+modularity(net_ex,market_cz)
+```
+
+    ## [1] 0
+
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 # How Do HHI Measures Compare Across Geographic Market Defintions?
 
@@ -1120,7 +1156,7 @@ following specific details.
     defined based on the fraction of geography-level patients who go to
     each hospital.
 
-![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
 
   - For the patient flow method, we used the [CMS Hospital Service Area
     files
