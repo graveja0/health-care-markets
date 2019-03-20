@@ -151,7 +151,7 @@ cent_zip_excounty <-
   sf_zip_excounty %>% 
     st_centroid() 
 
-# Get teh X,Y coordinates of the centroids (bind as extra columns)
+# Get the X,Y coordinates of the centroids (bind as extra columns)
 cent_zip_excounty <-  
   bind_cols(cent_zip_excounty, cent_zip_excounty %>% st_coordinates() %>% tbl_df() %>% set_names(c("x","y")))  %>% 
   ungroup() %>% data.frame() %>% tbl_df()
@@ -756,7 +756,7 @@ grid::grid.newpage()
 
 In the plot above, the rows have been subdivided (by cell line color) into the four total markets identified via community detection. That is, these are the ZIP codes corresponding to each of the four markets. The cell shadings are scaled to visualize the strength of connections between ZIPs. 
 
-When parsing this visulation it helps to keep in mind the intuition for the objective of community detection. That is, the community detection algorithm is designed to detect densely-connected groups of nodes (in this case ZIP codes) with many connections within the groups, and fewer connections outside of the groups. The heatmap plots the strength of shared hospital "connections" between each ZIP pair, while the dendrogram plots a hierarchy of these connections starting with the most densely connected ZIPs at the bottom.
+When parsing this visulation it helps to keep in mind the intuition for the objective of community detection. The community detection algorithm is designed to detect densely-connected groups of nodes (in this case ZIP codes) with many connections within the groups, and fewer connections outside of the groups. The heatmap plots the strength of shared hospital "connections" between each ZIP pair, while the dendrogram plots a hierarchy of these connections starting with the most densely connected ZIPs at the bottom.
 
 A specific example is also useful. In total, 1,182 patients from ZIP 19128 are treated at 2 hospitals, 29% at Chestnut Hill hospital (390026) and 71% at Roxborough Memorial hospital (390304). By comparison, the 1,807 patients from ZIP 19144 are treated at Chestnut Hill (21%), Einstein Medical Center (63%; ID = 390142) and Roxborough Memorial (16%). 
 
@@ -962,7 +962,7 @@ As seen in the map, only two HSAs are represented in Philadelphia county, while 
 
 ### Community Detection vs. Health Service Areas (HSAs)
 
-HSAs are constructed via what is essentially unique community detection algorithm. This algorithm takes as its input a bipartite matrix summarizing patient flows from ZIPs to hospitals. Notably, this bipartite matrix is the same one as used to input into the community detection algorithms above. A key difference is the network analytic method above converts the bipartite (ZIP-Hospital) matrix into a unipartite matrix (ZIP-ZIP) summarizing the total number of hospital connections among ZIP codes. 
+HSAs are constructed via what is essentially a community detection algorithm. This algorithm takes as its input a bipartite matrix summarizing patient flows from ZIPs to hospitals. Notably, this bipartite matrix is the same one as used to input into the community detection algorithms above. A key difference is the network analytic method above converts the bipartite (ZIP-Hospital) matrix into a unipartite matrix (ZIP-ZIP) summarizing the total number of hospital connections among ZIP codes. 
 
 Rather than construct the unipartite (ZIP-ZIP) matrix, the HSA method selects, for each row of the bipartite matrix (ZIPs), the column (hospital) with the highest value; this procedure effectively implements the plurality rule used to construct HSAs. Each hospital is mapped to its city/town name, and all ZIPs linked (via the hospital with the plurality of patients) to the same town/city name are grouped into the same HSA. Additional edits are then made by hand to ensure that the ZIPs that comprise the HSA are geographically contiguous. 
 

@@ -417,9 +417,9 @@ cell shadings are scaled to visualize the strength of connections
 between ZIPs.
 
 When parsing this visulation it helps to keep in mind the intuition for
-the objective of community detection. That is, the community detection
-algorithm is designed to detect densely-connected groups of nodes (in
-this case ZIP codes) with many connections within the groups, and fewer
+the objective of community detection. The community detection algorithm
+is designed to detect densely-connected groups of nodes (in this case
+ZIP codes) with many connections within the groups, and fewer
 connections outside of the groups. The heatmap plots the strength of
 shared hospital “connections” between each ZIP pair, while the
 dendrogram plots a hierarchy of these connections starting with the most
@@ -630,7 +630,7 @@ inclued in the HSA, HRR, or CZ).
 
 ### Community Detection vs. Health Service Areas (HSAs)
 
-HSAs are constructed via what is essentially unique community detection
+HSAs are constructed via what is essentially a community detection
 algorithm. This algorithm takes as its input a bipartite matrix
 summarizing patient flows from ZIPs to hospitals. Notably, this
 bipartite matrix is the same one as used to input into the community
