@@ -253,7 +253,7 @@ market definitions identified in the example. However, it is important
 to recognize that any economic “linkage” measure (e.g., patient demand
 estimated using exogenous variation, unit price correlations among
 competing hospitals) could be plugged in as the relevant measure of an
-economic “linkage” among market units.
+economic connection among market units.
 
 Finally, as noted above and in a similar vein, our data on patient flows
 is drawn from
@@ -282,9 +282,10 @@ the data to avoid plotting the hundreds of hospitals that treated only a
 1 or 2 patients from the example ZIP codes.
 
 Also note that the hospital plotted in red is St. Joseph’s hospital, a
-146 bed hospital that closed on March 11, 2016. We will (eventually) use
-this closing in an event study to validate the market
-classifications–the idea being that hospitals within the market
+146 bed hospital that [closed on
+March 11, 2016](https://philadelphia.cbslocal.com/2015/12/29/st-josephs-hospital-in-north-philadelphia-to-close-in-march-2016/).
+We will (eventually) use this closing in an event study to validate the
+market classifications–the idea being that hospitals within the market
 containing St. Joseph’s should have been more affected by its closing
 (i.e., total FFS Medicare patients goes up) than hospitals outside
 it.
@@ -305,7 +306,7 @@ an out-of-county hospital.
 ![Hospitals Utilized Among FFS Medicare Beneficiaries from Select ZIP
 Codes](README_files/figure-gfm/unnamed-chunk-8-1.png)
 
-The next figure plots all “edge links” among all ZIPs and hospitals in
+The next figure plots “edge links” among all ZIPs and hospitals in
 Philadelphia County. The plotted line width is also proportional to the
 total volume of of patients. That is, a thin line connecting a
 ZIP-hospital pair indicates that only a small fraction of patients from
@@ -732,18 +733,6 @@ above.
 <!-- ### Modularity Comparisons -->
 
 <!-- Since HSAs, HRRs, commuting zones and the SSNIP test all fall under the community detection umbrella it is useful to calculate modularity scores for them and compare to the modularity  -->
-
-``` r
-df_modularity %>% 
-  mutate(HSA = modularity(net_ex,market_hsa)) %>% 
-  mutate(HRR = modularity(net_ex,market_hrr)) %>% 
-  mutate(commuting_zone = modularity(net_ex,market_cz)) %>% 
-  t() %>% data.frame() %>% 
-  rownames_to_column() %>% 
-  mutate_at(vars(2),round,4) %>% 
-  set_names("Algorithm","Modularity") %>% 
-  kable()
-```
 
 # Visualization of Market Definitions for Tennesee
 

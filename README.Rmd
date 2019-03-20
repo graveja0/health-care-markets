@@ -104,7 +104,7 @@ We focus on a single example of ZIP codes and hospitals within Philadelphia Coun
 
 It is important to emphasize that the approach we articulate is not intended as a substitute for market definitions guided by economic theory. Rather, we provide a novel *analytic framework* for defining markets based on data summarizing economic links among market participants. In other words, just as the multinomial logit provides an analytic framework for estimating consumer demand, our network analytic approach provides  an analytic framework for detecting markets. As noted above, a nice feature of the approach is that common methods for defining markets (e.g., HSA, the hypothetical monopolist test, etc.) can all be seen as special cases of community detection. 
 
-Once understood in that sense, it is straightforward to see that our framework easily accommodates measures of economic linkages motivated by theory, produced via estimation of (exogenous) demand, or both. In our examples below, these "linkages" are summarized as patient counts of the number of fee-for-service Medicare patients from each ZIP code who are treated at local hospitals. We recognize that these linkages are observational and subject to endogeneity concerns, which will affect the market definitions identified in the example. However, it is important to recognize that any economic "linkage" measure (e.g., patient demand estimated using exogenous variation, unit price correlations among competing hospitals) could be plugged in as the relevant measure of an economic "linkage" among market units.  
+Once understood in that sense, it is straightforward to see that our framework easily accommodates measures of economic linkages motivated by theory, produced via estimation of (exogenous) demand, or both. In our examples below, these "linkages" are summarized as patient counts of the number of fee-for-service Medicare patients from each ZIP code who are treated at local hospitals. We recognize that these linkages are observational and subject to endogeneity concerns, which will affect the market definitions identified in the example. However, it is important to recognize that any economic "linkage" measure (e.g., patient demand estimated using exogenous variation, unit price correlations among competing hospitals) could be plugged in as the relevant measure of an economic connection among market units.  
 
 Finally, as noted above and in a similar vein, our data on patient flows is drawn from [publically-available](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html) hospital service data from CMS. These data summarize *overall* patient flows to acute care hospitals among fee-for-service Medicare patients. But in principle, data on other patient populations--defined by service type (e.g., emergency patients, cardiovascular patients, etc.) or population (e.g., low-income patients, commercially-insured patients) could be used. That is, data on patient sub-populations could be used to partition geographies or hospitals into different markets. Future research on how market definitions vary for different patient populations would be quite useful.  
 
@@ -263,7 +263,7 @@ xy_hosp <- bind_cols(xy_aha %>% filter(prvnumgrp %in% unique(df_hosp_zip$prvnumg
 
 We begin by plotting the ZIP codes with geographic centroids contained within Philadelphia County, PA. In addition, we plot the location and market share (point size) of all hospitals based on the treatment patterns observed among traditional Medicare patients in 2015. In order for a hospital to be included, at least `r 100*minimum_market_share_zip` percent of ZIP patients, or at least `r 100*minimum_market_share_hosp` percent of the hospital's total FFS Medicare patients, must have been treated. These cutoff thresholds are not required for the approach, but aid in visualization for this example because they trim the data to avoid plotting the hundreds of hospitals that treated only a 1 or 2 patients from the example ZIP codes. 
 
-Also note that the hospital plotted in red is St. Joseph's hospital, a 146 bed hospital that closed on March 11, 2016. We will (eventually) use this closing in an event study to validate the market classifications--the idea being that hospitals within the market containing St. Joseph's should have been more affected by its closing (i.e., total FFS Medicare patients goes up) than hospitals outside it. 
+Also note that the hospital plotted in red is St. Joseph's hospital, a 146 bed hospital that [closed on March 11, 2016](https://philadelphia.cbslocal.com/2015/12/29/st-josephs-hospital-in-north-philadelphia-to-close-in-march-2016/). We will (eventually) use this closing in an event study to validate the market classifications--the idea being that hospitals within the market containing St. Joseph's should have been more affected by its closing (i.e., total FFS Medicare patients goes up) than hospitals outside it. 
 
 ```{r, fig.cap = "Hospitals and ZIP Codes in Philadelphia County, PA, 2015",fig.align = "center",fig.pos="H", fig.height = 4, fig.width = 4, echo = FALSE, echo = FALSE}
 # Map the hospitals
@@ -321,7 +321,7 @@ As seen in the figure, patients from the two example ZIP codes are treated at fu
 
 ```
 
-The next figure plots all "edge links" among all ZIPs and hospitals in Philadelphia County. The plotted line width is also proportional to the total volume of of patients. That is, a thin line connecting a ZIP-hospital pair indicates that only a small fraction of patients from the ZIP code are treated at that particular hospital. 
+The next figure plots  "edge links" among all ZIPs and hospitals in Philadelphia County. The plotted line width is also proportional to the total volume of of patients. That is, a thin line connecting a ZIP-hospital pair indicates that only a small fraction of patients from the ZIP code are treated at that particular hospital. 
 
 While things will become more clear in a later plot, a rough sense of distinct markets for hospital services can be seen  in this simple map-based visualization of patient flows. For example, patients residing in the ZIP codes clustered in the southwest corner of the county all flow into hospitals located there, and there are few "shared" connections among these hospitals with other ZIP codes in the county. 
 
@@ -993,7 +993,7 @@ This process is essentially another version of hierarchical clustering--again, a
 
 <!-- Since HSAs, HRRs, commuting zones and the SSNIP test all fall under the community detection umbrella it is useful to calculate modularity scores for them and compare to the modularity  -->
 
-```{r, eval =  FALSE}
+```{r, eval =  FALSE, echo = FALSE}
 df_modularity %>% 
   mutate(HSA = modularity(net_ex,market_hsa)) %>% 
   mutate(HRR = modularity(net_ex,market_hrr)) %>% 
