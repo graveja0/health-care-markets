@@ -237,10 +237,10 @@ theory. Rather, we provide a novel *analytic framework* for defining
 markets based on data summarizing economic links among market
 participants. In other words, just as the multinomial logit provides an
 analytic framework for estimating consumer demand, our network analytic
-approach provides a an analytic framework for detecting markets. As
-noted abovee, a nice feature of the approach is that common methods for
+approach provides an analytic framework for detecting markets. As noted
+above, a nice feature of the approach is that common methods for
 defining markets (e.g., HSA, the hypothetical monopolist test, etc.) can
-all be seen as special cases of community deteection.
+all be seen as special cases of community detection.
 
 Once understood in that sense, it is straightforward to see that our
 framework easily accommodates measures of economic linkages motivated by
@@ -250,7 +250,7 @@ number of fee-for-service Medicare patients from each ZIP code who are
 treated at local hospitals. We recognize that these linkages are
 observational and subject to endogeneity concerns, which will affect the
 market definitions identified in the example. However, it is important
-to recognize that *any* economic “linkage” measure (e.g., patient demand
+to recognize that any economic “linkage” measure (e.g., patient demand
 estimated using exogenous variation, unit price correlations among
 competing hospitals) could be plugged in as the relevant measure of an
 economic “linkage” among market units.
@@ -260,11 +260,11 @@ is drawn from
 [publically-available](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html)
 hospital service data from CMS. These data summarize *overall* patient
 flows to acute care hospitals among fee-for-service Medicare patients.
-But in principle, flows of other patient populations–defined by service
+But in principle, data on other patient populations–defined by service
 type (e.g., emergency patients, cardiovascular patients, etc.) or
 population (e.g., low-income patients, commercially-insured patients)
 could be used. That is, data on patient sub-populations could be used to
-partition geographies or hospitals into *different* markets. Future
+partition geographies or hospitals into different markets. Future
 research on how market definitions vary for different patient
 populations would be quite useful.
 
@@ -276,9 +276,10 @@ market share (point size) of all hospitals based on the treatment
 patterns observed among traditional Medicare patients in 2015. In order
 for a hospital to be included, at least 10 percent of ZIP patients, or
 at least 10 percent of the hospital’s total FFS Medicare patients, must
-have been treated. These thresholds help trim the data by excluding
-hospitals that treated only a handful of patients from the geographic
-area.
+have been treated. These cutoff thresholds are not required for the
+approach, but aid in visualization for this example because they trim
+the data to avoid plotting the hundreds of hospitals that treated only a
+1 or 2 patients from the example ZIP codes.
 
 Also note that the hospital plotted in red is St. Joseph’s hospital, a
 146 bed hospital that closed on March 11, 2016. We will (eventually) use
