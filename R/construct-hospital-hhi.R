@@ -378,8 +378,7 @@ plan(multiprocess)
   zip_market_shares %>% 
     write_rds(path = here("output/market-comparisons/01_ZIP-market-shares.rds"))
 
-  
-  
+
   ###############################
   ## Hospital-Level HHI Measures
   ###############################
@@ -419,23 +418,49 @@ plan(multiprocess)
       df_hosp_zip_yy %>%
       #left_join(aha_markets[[.x]],"prvnumgrp") %>% 
       select(prvnumgrp,zip_code,total_cases,system_id) %>% 
-      select(-prvnumgrp) %>% 
-      group_by(system_id,zip_code) %>% 
+      select(-system_id) %>% 
+      group_by(prvnumgrp,zip_code) %>% 
       summarise_at(vars(total_cases),function(x) sum(x,na.rm=TRUE)) %>% 
-      spread(system_id, total_cases) %>%
+      spread(prvnumgrp, total_cases) %>%
       convert_to_bipartite(id = zip_code)
     bp_zip_hosp_weighted[is.na(bp_zip_hosp_weighted)] <- 0
     
     cat("Calculating bipartite matrix ...\n")
-    if  (!file.exists(paste0("output/market-comparisons/01_up-weighted-sysid-",yy,".rds"))) {
-      up_sysid_weighted <- t(bp_zip_hosp_weighted>0) %*% bp_zip_hosp_weighted
-      saveRDS(up_sysid_weighted,file=paste0("output/market-comparisons/01_up-weighted-sysid-",yy,".rds"))
+    if  (!file.exists(paste0("output/market-comparisons/01_up-weighted-prvnumgrp-",yy,".rds"))) {
+      up_prvnumgrp_weighted <- t(bp_zip_hosp_weighted>0) %*% bp_zip_hosp_weighted
+      saveRDS(up_prvnumgrp_weighted,file=paste0("output/market-comparisons/01_up-weighted-prvnumgrp-",yy,".rds"))
     } else {
-      up_sysid_weighted <- readRDS(paste0("output/market-comparisons/01_up-weighted-sysid-",yy,".rds"))
+      up_sysid_weighted <- readRDS(paste0("output/market-comparisons/01_up-weighted-prvnumgrp-",yy,".rds"))
     }
     
+    hhi_km2 <- function(bp, threshold = 0.005) {
+      
+      # bp <- bp_zip_hosp_weighted
+      # For every ZIP code of patient residence k = 1, ..., K, the 
+      # predicted probabilities translate into a predicted share of 
+      # patients from zip k going to hospital k.
+      
+      alpha_jk <- 100*t(apply(bp,1,function(x) x/sum(x)))
+      
+      # The predicted HHI for patients in ZIP k is 
+      
+      HHI_k_pat = apply(alpha_jk^2,1,sum)
+      
+      # beta_kj represents the share of hosptial j's predicted demand coming from zip code k
+      
+      beta_kj <- apply(bp,2,function(x) x/sum(x))
+      
+      beta_kj[beta_kj<=threshold] <- 0
+      
+      HHI_k <- apply(apply(beta_kj,2,function(x) x * HHI_k_pat),2,sum)
+      
+      return(HHI_k)
+    }
+    
+    
     cat("Calculating HHI ...\n")
-    hhi_kess_mcclellan <-  hhi_km(bp_zip_hosp_weighted)
+    #hhi_kess_mcclellan <-  hhi_km(bp_zip_hosp_weighted)
+    hhi_kess_mcclellan <- hhi_km2(bp_zip_hosp_weighted)
     hhi_network <- hhi_net(up_sysid_weighted)
     
     # get_hospital_system_hhi <- function(up) {
@@ -450,12 +475,14 @@ plan(multiprocess)
     
     df_hhi_hosp <-
       aha_markets[[yy]] %>% 
-      mutate(hhi_km = hhi_kess_mcclellan[system_id]) %>% 
-      mutate(hhi_net = hhi_network[system_id]) %>% 
+      mutate(hhi_km = hhi_kess_mcclellan[prvnumgrp]) %>% 
+      mutate(hhi_net = hhi_network[prvnumgrp]) %>% 
       mutate(year = yy)
     
     saveRDS(df_hhi_hosp,file=paste0("output/market-comparisons/01_hospital-level-hhi-",yy,".rds"))
   }
+  
+  
   
   hhi_hospital <-   
     hhi_years %>% 
@@ -466,6 +493,12 @@ plan(multiprocess)
         select(-mcrnum)
     )) %>% 
     set_names(hhi_years) 
+  
+  hhi_hospital %>% 
+    bind_rows() %>% 
+    tbl_df() %>% 
+    filter(prvnumgrp=="440039") %>% 
+    select(mname, prvnumgrp, hhi_net)
   
   hhi_hospital %>% 
     bind_rows() %>% 

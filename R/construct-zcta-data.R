@@ -31,7 +31,7 @@ sf_zcta <-  sf::read_sf(here("public-data/shape-files/zcta-2017/tl_2017_us_zcta5
 
 sf_zcta %>% 
   st_simplify(dTolerance = 1000)  %>% 
-  filter(state_01 =="TN") %>% 
+  filter(state_01 =="KY") %>% 
   ggplot() + geom_sf()
 
 #dir.create(here("output/tidy-mapping-files/zcta/"))

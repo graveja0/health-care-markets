@@ -400,7 +400,6 @@ net_bp %>%
   theme(legend.position = "none")  
 ```
 
-
 The underlying market structure of Philadelphia-area hospitals starts to become a  bit more clear in this representation of the data. Again, we see that ZIP codes tend to cluster around certain sets of hospitals.  For example, Holy Reedeemer, Nazareth, Aria-Jefferson and Jeanes hospital all tend to draw on patients from similar ZIP codes. By comparison, Mercy Fitzgerald, the UPenn hospitals, and Lankeneau Medical Center draw patients from a different cluster of ZIPs. 
 
 ```{r, echo = FALSE}
