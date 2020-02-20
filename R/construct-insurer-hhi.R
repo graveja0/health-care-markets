@@ -9,13 +9,14 @@ source(here("R/map-theme.R"))
 source(here("R/shared-objects.R"))
 source(here("R/get-market-from-x-y-coordinates.R"))
 source(here("R/estimate_hhi.R"))
+library(readxl)
 
 threshold_for_inclusion = 0.01
 
 # This file constructs the insurer HHI measures using DRG data.
 
-df_drg<- data.table::fread(file.path(fs::path_home(),"box/Research-Provider_Networks/aim1-breadth/input/drg/drg-mms-2016-2017.csv")) %>% 
-  # filter(year==2017) %>% 
+
+df_drg_16 <-data.table::fread(file.path(fs::path_home(),"box/Research-Provider_Networks/aim1-breadth/input/drg/drg-mms-2016-2017.csv"))  %>% 
   filter(month==7) %>% 
   filter(company_name=="") %>% 
   select(year,fips_code,mco_name,parent_id,total_book,commercial,comm_si, comm_fi,medicare,medicaid,phxind,phxshop) %>% 
@@ -32,8 +33,8 @@ df_drg<- data.table::fread(file.path(fs::path_home(),"box/Research-Provider_Netw
   nest()  %>% 
   mutate(hhi = map(data,~(
     .x %>% 
-    group_by(fips_code) %>% 
-     estimate_hhi(id = parent_id,
+      group_by(fips_code) %>% 
+      estimate_hhi(id = parent_id,
                    weight = enrollment,
                    market=fips_code) 
   ))) %>% 
@@ -43,6 +44,48 @@ df_drg<- data.table::fread(file.path(fs::path_home(),"box/Research-Provider_Netw
   unite(market,var,market) %>% 
   spread(market,value)
 
+df_drg_19 <- 
+  get_aws_files(prefix = "data/drg/") %>% 
+  filter(grepl("mms_county_201901_medical_145088_1568828477.xlsx",value)) %>% 
+  pull(value) %>% 
+  aws.s3::s3read_using(object = ., readxl::read_xlsx,bucket =  "vumc.graves.networks.proj",skip = 14,sheet = 2) %>% 
+  janitor::clean_names() %>% 
+  mutate(year = 2019) %>% 
+  rename(company_name = payer) %>%  
+  rename(mco_name = parent) %>% 
+  rename(total_book = overall) %>% 
+  mutate(fips_code = str_pad(fips_county_code,width = 5, pad="0")) %>% 
+  filter(company_name=="" | is.na(company_name)) %>% 
+  select(year,fips_code,mco_name,parent_id,total_book,commercial,comm_si=commercial_si, 
+         comm_fi = commercial_fi,medicare  = medicare_advantage_part_c,medicaid = payer_managed_medicaid,phxind = public_hix_individual,
+         phxshop = public_hix_shop) %>% 
+  mutate_at(vars(total_book,commercial,comm_si, comm_fi,medicare,medicaid,phxind,phxshop),
+            function(x) ifelse(is.na(x),0,x))  %>% 
+  gather(market,enrollment,-fips_code,-mco_name,-parent_id,-year) %>%
+  unique() %>% 
+  group_by(year,fips_code,market) %>% 
+  mutate(enrollment = suppressWarnings(as.numeric(paste0(enrollment)))) %>% 
+  mutate(pct = enrollment / sum(enrollment,na.rm=TRUE)) %>% 
+  filter(pct > threshold_for_inclusion)  %>% 
+  group_by(year,market) %>% 
+  nest()  %>% 
+  mutate(hhi = map(data,~(
+    .x %>% 
+      group_by(fips_code) %>% 
+      estimate_hhi(id = parent_id,
+                   weight = enrollment,
+                   market=fips_code) 
+  ))) %>% 
+  select(year,market,hhi) %>% 
+  unnest()  %>% 
+  gather(var,value,-fips_code,-market,-year) %>% 
+  unite(market,var,market) %>% 
+  spread(market,value)
+  
+df_drg  <- 
+  df_drg_16 %>% 
+  bind_rows(df_drg_19)
+  
 sf_hrr <- read_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))  %>% 
   st_transform(crs = 4326)
 sf_cz <- read_sf(here("output/tidy-mapping-files/commuting-zone/01_commuting-zone-shape-file.shp")) %>% 
@@ -184,7 +227,7 @@ states_to_map <- c("AL","GA","KY","TN","VA","NC","SC")
 
 
 p1 <- sf_county %>% 
-  left_join(drg_hhi_county %>% filter(year==2017),"fips_code") %>% 
+  left_join(drg_hhi_county %>% filter(year==2019),"fips_code") %>% 
   filter(state %in% states_to_map ) %>% 
   ggplot() + 
   geom_sf(aes(fill =hhi_comm_si)) +
@@ -198,7 +241,7 @@ p1 <- sf_county %>%
 
 
 p2 <- sf_cz %>% 
-  left_join(drg_hhi_cz %>% filter(year==2017) ,"cz_id") %>% 
+  left_join(drg_hhi_cz %>% filter(year==2019) ,"cz_id") %>% 
   filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_comm_si)) +
@@ -212,7 +255,7 @@ p2 <- sf_cz %>%
 
 
 p3 <- sf_hrr %>% 
-  left_join(drg_hhi_hrr %>% filter(year==2017) ,"hrrnum") %>% 
+  left_join(drg_hhi_hrr %>% filter(year==2019) ,"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_comm_si)) +
@@ -225,7 +268,7 @@ p3 <- sf_hrr %>%
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p4 <- sf_ra %>% 
-  left_join(drg_hhi_rating_area %>% filter(year==2017) ,"rating_area") %>% 
+  left_join(drg_hhi_rating_area %>% filter(year==2019) ,"rating_area") %>% 
   filter(state %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_comm_si)) +
@@ -244,7 +287,7 @@ ggsave(filename = here("figs/01_HHI_commercial-self-insured.png"),dpi = 300, sca
 
 p_commercial <- 
   sf_county %>% 
-  left_join(drg_hhi_county  %>% filter(year==2017),"fips_code") %>% 
+  left_join(drg_hhi_county  %>% filter(year==2019),"fips_code") %>% 
   filter(state %in% states_to_map ) %>% 
   ggplot() + 
   geom_sf(aes(fill =hhi_commercial)) +
@@ -258,7 +301,7 @@ p_commercial <-
 
 p_comm_si <- 
   sf_county %>% 
-  left_join(drg_hhi_county %>% filter(year==2017) ,"fips_code") %>% 
+  left_join(drg_hhi_county %>% filter(year==2019) ,"fips_code") %>% 
   filter(state %in% states_to_map ) %>% 
   ggplot() + 
   geom_sf(aes(fill =hhi_comm_si)) +
@@ -272,7 +315,7 @@ p_comm_si <-
   
 p_comm_fi <- 
   sf_county %>% 
-    left_join(drg_hhi_county %>% filter(year==2017) ,"fips_code") %>% 
+    left_join(drg_hhi_county %>% filter(year==2019) ,"fips_code") %>% 
     filter(state %in% states_to_map ) %>% 
     ggplot() + 
     geom_sf(aes(fill =hhi_comm_fi)) +
@@ -286,7 +329,7 @@ p_comm_fi <-
 
 p_phxind <- 
   sf_county %>% 
-  left_join(drg_hhi_county %>% filter(year==2017) ,"fips_code") %>% 
+  left_join(drg_hhi_county %>% filter(year==2019) ,"fips_code") %>% 
   filter(state %in% states_to_map ) %>% 
   ggplot() + 
   geom_sf(aes(fill =hhi_phxind)) +
@@ -300,7 +343,7 @@ p_phxind <-
 
 p_medicaid <- 
   sf_county %>% 
-  left_join(drg_hhi_county  %>% filter(year==2017),"fips_code") %>% 
+  left_join(drg_hhi_county  %>% filter(year==2019),"fips_code") %>% 
   filter(state %in% states_to_map ) %>% 
   ggplot() + 
   geom_sf(aes(fill =hhi_medicaid)) +
@@ -315,7 +358,7 @@ p_medicaid <-
 
 p_medicare <- 
   sf_county %>% 
-  left_join(drg_hhi_county  %>% filter(year==2017),"fips_code") %>% 
+  left_join(drg_hhi_county  %>% filter(year==2019),"fips_code") %>% 
   filter(state %in% states_to_map ) %>% 
   ggplot() + 
   geom_sf(aes(fill =hhi_medicare)) +
@@ -334,7 +377,7 @@ ggsave(filename = here("figs/01_HHI_insurer-by-market-type.png"),dpi = 300, scal
 
 
 sf_cz %>% 
-  left_join(drg_hhi_cz %>% filter(year==2017) ,"cz_id") %>% 
+  left_join(drg_hhi_cz %>% filter(year==2019) ,"cz_id") %>% 
   filter(state_01 %in% states ) %>% 
   filter(!(state_01 %in% c("HI","AK"))) %>% 
   ggplot() + 

@@ -22,21 +22,18 @@ zip_centroid_2 <-
 
 #   Given the limitation that we cannot go over 60 minutes isochrones
 #  These are all the possible travel times that we can use:
-required_travel_times <- list(c("10, 15, 20, 30"), c("40, 45, 50, 60"))
 
 required_travel_times <- list(c("30"), c("60"))
 
 # Parallelize future map code
 plan(multiprocess,workers = availableCores()-1)
 
-problematic_60 <- c("AK","IN","IA","KS","KY","LA","MT","ND","WY")
-problematic_30 <- c("IN","IA","KS","KY","LA","MT","ND","VT","WY")
 
-states_to_run <- c(problematic_30,problematic_60) %>% unique()
+states_to_run <- c("AK") %>% unique()
 
 # Create objects by state for the first 10 states
 for (st in states_to_run) {
-  if (!(st %in% c("IN","IA"))) {
+  if (!(st %in% c("XXXN","XXXXIA"))) {
   # Create an iterable object by state, with longitude and latitudes
   st_zip_centroids_coords <-
     zip_centroid_2 %>%

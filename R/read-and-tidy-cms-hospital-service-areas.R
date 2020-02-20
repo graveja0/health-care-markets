@@ -13,7 +13,8 @@ suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
 # CMS data explorer available at the links at 
 # https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html
 
-hosp_serv_files <- c("2017" = "public-data/cms-hospital-service-area/2017/Hospital_Service_Area_File_-_2017.csv",
+hosp_serv_files <- c("2018" = "public-data/cms-hospital-service-area/2018/Hospital_Service_Area_File_-_2018.csv",
+                     "2017" = "public-data/cms-hospital-service-area/2017/Hospital_Service_Area_File_-_2017.csv",
                      "2016" = "public-data/cms-hospital-service-area/2016/2016_Hospital_Service_Area_File__HSAF_.csv",
                      "2015" = "public-data/cms-hospital-service-area/2015/Hospital_Service_Area_File_-_2015.csv",
                      "2014" = "public-data/cms-hospital-service-area/2014/Hospital_Service_Area_File_-_2014.csv",
@@ -21,7 +22,7 @@ hosp_serv_files <- c("2017" = "public-data/cms-hospital-service-area/2017/Hospit
                      "2012" = "public-data/cms-hospital-service-area/2012/Hospital_Service_Area_File_-_2012.csv",
                      "2011" = "public-data/cms-hospital-service-area/2011/Hospital_Service_Area_File_-_2011.csv",
                      "2010" = "public-data/cms-hospital-service-area/2010/Hospital_Service_Area_File_-_2010.csv")
-hosp_serv_files <- hosp_serv_files[6:8]
+hosp_serv_files <- hosp_serv_files[1]
 df_hosp_serv_zip <- 
   hosp_serv_files %>% 
   map(~(
@@ -53,14 +54,14 @@ names(df_hosp_serv_zip) %>%
 df_zip_to_fips <-
   read_rds(here("output/geographic-crosswalks/zcta-to-fips-county.rds"))
 
-df_hosp_serv17_fips <-
-  df_hosp_serv_zip %>%
+df_hosp_serv18_fips <-
+  df_hosp_serv_zip[[1]] %>%
   left_join(df_zip_to_fips,"zip_code") %>%
   mutate_at(vars(total_days_of_care,total_charges, total_cases), function(x) x * .$pct_of_zip_in_fips) %>%
   group_by(prvnumgrp,fips_code) %>%
   summarise_at(vars(total_days_of_care,total_charges, total_cases),function(x) sum(x,na.rm=TRUE))
 
-write_rds(df_hosp_serv17_fips,path = here("output/hospital-county-patient-data/2017/hospital-county-patient-data.rds"))
+write_rds(df_hosp_serv18_fips,path = here("output/hospital-county-patient-data/2018/hospital-county-patient-data.rds"))
 
 
   

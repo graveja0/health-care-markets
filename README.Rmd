@@ -202,9 +202,6 @@ minimum_market_share_hosp <- 0.10
 
 # Load the hospital-county patient sharing file
 df_hosp_zip <- read_rds(here("output/hospital-county-patient-data/2015/hospital-zip-patient-data.rds")) %>% 
-  #bind_rows(read_rds(here("output/hospital-county-patient-data/2015/hospital-zip-patient-data.rds"))) %>% 
-  #group_by(prvnumgrp,zip_code) %>% 
-  #summarize_at(vars(total_cases),function(x) sum(x,na.rm=TRUE)) %>% 
   group_by(prvnumgrp) %>% 
   mutate(market_share_hosp = total_cases/ sum(total_cases,na.rm=TRUE)) %>% 
   filter(zip_code %in% zips_to_show) %>% 

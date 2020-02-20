@@ -6,6 +6,7 @@
 
 hosp_zip_years <- c("2013","2014","2015","2016",'2017')
 hosp_zip_years <- c("2010","2011","2012")
+hosp_zip_years <- c("2018")
 
 zip_xy <- read_csv(here("public-data/zcta-to-fips-county/zcta-to-fips-county.csv")) %>% 
   janitor::clean_names() %>% 

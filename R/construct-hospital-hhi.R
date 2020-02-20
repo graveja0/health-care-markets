@@ -17,7 +17,9 @@ rename_in_list <- function(x,from, to) {
   x %>% rename_at(vars(contains(from)), funs(sub(from, to, .)))
 }
 
-hhi_years <- c("2010","2011","2012","2013","2014","2015","2016","2017")
+hhi_years <- c("2010","2011","2012","2013","2014","2015","2016","2017","2018")
+
+hhi_years = "2018"
 
 sf_hrr <- read_sf(here("output/tidy-mapping-files/hrr/01_hrr-shape-file.shp"))  %>% 
   st_transform(crs = 4326)
@@ -36,22 +38,23 @@ sf_county <- read_sf(here("output/tidy-mapping-files/county/01_county-shape-file
 
 # Map General Actue Care Hospitals to Markets
 
-if (!file.exists(here("output/market-comparisons/01_aha-markets-2017.rds"))) {
+if (!file.exists(here("output/market-comparisons/01_aha-markets-2018.rds"))) {
   
-  aha_files <- c("2017" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2017/FY2017 ASDB/COMMA/ASPUB17.CSV",
-                 "2016" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2016/FY2016 Annual Survey Database/COMMA/ASPUB16.CSV",
-                 "2015" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2015/FY2015 Annual Survey Database/COMMA/ASPUB15.CSV",
-                 "2014" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2014/FY2014 ASDB/COMMA/ASPUB14.CSV",
-                 "2013" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2013/FY2013 ASDB/COMMA/ASPUB13.CSV",
-                 "2012" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2012/COMMA/ASPUB12.csv",
-                 "2011" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2011/FY2011 ASDB/COMMA/ASPUB11.csv.csv",
-                 "2010" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2010/FY2010 ASDB/COMMA/ASPUB10.csv",
-                 "2009" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2009/FY2009 ASDB/COMMA/ASPUB09.csv",
-                 "2008" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2008/FY2008 ASDB/COMMA/pubas08.csv",
-                 "2007" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2007/FY2007 ASDB/COMMA/pubas07.csv",
-                 "2006" = "../../../box/Research-AHA_Data/data/aha/annual/raw/2006/FY2006 ASDB/COMMA/pubas06.csv"
+  aha_files <- c("2018" = "../../box/Research-AHA_Data/data/aha/annual/raw/2018/ASDB FY 2018/COMMA/ASPUB18.CSV",
+                 "2017" = "../../box/Research-AHA_Data/data/aha/annual/raw/2017/FY2017 ASDB/COMMA/ASPUB17.CSV",
+                 "2016" = "../../box/Research-AHA_Data/data/aha/annual/raw/2016/FY2016 Annual Survey Database/COMMA/ASPUB16.CSV",
+                 "2015" = "../../box/Research-AHA_Data/data/aha/annual/raw/2015/FY2015 Annual Survey Database/COMMA/ASPUB15.CSV",
+                 "2014" = "../../box/Research-AHA_Data/data/aha/annual/raw/2014/FY2014 ASDB/COMMA/ASPUB14.CSV",
+                 "2013" = "../../box/Research-AHA_Data/data/aha/annual/raw/2013/FY2013 ASDB/COMMA/ASPUB13.CSV",
+                 "2012" = "../../box/Research-AHA_Data/data/aha/annual/raw/2012/COMMA/ASPUB12.csv",
+                 "2011" = "../../box/Research-AHA_Data/data/aha/annual/raw/2011/FY2011 ASDB/COMMA/ASPUB11.csv.csv",
+                 "2010" = "../../box/Research-AHA_Data/data/aha/annual/raw/2010/FY2010 ASDB/COMMA/ASPUB10.csv",
+                 "2009" = "../../box/Research-AHA_Data/data/aha/annual/raw/2009/FY2009 ASDB/COMMA/ASPUB09.csv",
+                 "2008" = "../../box/Research-AHA_Data/data/aha/annual/raw/2008/FY2008 ASDB/COMMA/pubas08.csv",
+                 "2007" = "../../box/Research-AHA_Data/data/aha/annual/raw/2007/FY2007 ASDB/COMMA/pubas07.csv",
+                 "2006" = "../../box/Research-AHA_Data/data/aha/annual/raw/2006/FY2006 ASDB/COMMA/pubas06.csv"
   )
-  #aha_files <- aha_files[6:8]
+  aha_files <- aha_files[1]
     
   # Get latitude and longitue of general acute care hospitals in 2017 AHA survey. 
   aha <- 
@@ -183,7 +186,8 @@ df_hosp_zip <-
 # in our exploration below. This ensures that the aggregate market HHIs are based
 # on the same underlying patient count measure (i.e., not admission totals from AHA)
 
-df_ffs_cases <- df_hosp_zip %>% 
+df_ffs_cases <- 
+  df_hosp_zip %>% 
   map(~(.x %>% 
     select(prvnumgrp,total_cases) %>% 
     group_by(prvnumgrp) %>% 
@@ -255,7 +259,8 @@ ms_hrr <-
     mutate(sysname = ifelse(sysname=="",NA,sysname)) %>% 
     mutate(name = coalesce(sysname,mname)) %>% 
     select(hrrnum,name,market_share, hhi, everything())
-  ))
+  )) %>% 
+  set_names(hhi_years)
 
 ms_hrr %>% write_rds(path = here("output/market-comparisons/01_hrr-market-shares.rds"))
 
@@ -341,7 +346,7 @@ ms_cd <-
   )) %>% 
   set_names(hhi_years) 
 
-ms_cz %>% write_rds(path = here("output/market-comparisons/01_congressional-district-market-shares.rds"))
+ms_cd %>% write_rds(path = here("output/market-comparisons/01_congressional-district-market-shares.rds"))
 
 ## ZIP and Hopsital-Level HHIs
 plan(multiprocess)
@@ -774,7 +779,7 @@ states_to_map <- c("KY","TN","VA","NC")
 # ZIP LEVEL MEASURES
 
 p1 =   sf_cz %>% 
-  left_join(hhi_cz[["2017"]],"cz_id") %>% 
+  left_join(hhi_cz[["2018"]],"cz_id") %>% 
   filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_cz)) +
@@ -787,7 +792,7 @@ p1 =   sf_cz %>%
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p2 = sf_cz %>% 
-  left_join(zip_hhi_aggregated_to_cz[["2017"]] ,"cz_id") %>% 
+  left_join(zip_hhi_aggregated_to_cz[["2018"]] ,"cz_id") %>% 
   filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_zip)) +
@@ -800,7 +805,7 @@ p2 = sf_cz %>%
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p3 = sf_cz %>% 
-  left_join(zip_hhi_aggregated_to_cz[["2017"]] ,"cz_id") %>% 
+  left_join(zip_hhi_aggregated_to_cz[["2018"]] ,"cz_id") %>% 
   filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_net)) +
@@ -813,7 +818,7 @@ p3 = sf_cz %>%
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p4 = sf_cz %>% 
-  left_join(zip_hhi_aggregated_to_cz[["2017"]] ,"cz_id") %>% 
+  left_join(zip_hhi_aggregated_to_cz[["2018"]] ,"cz_id") %>% 
   filter(state_01 %in% states_to_map | state_02 %in% states_to_map  | state_03 %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_km)) +
@@ -831,7 +836,7 @@ p1 + p2 + p3 + p4 + plot_layout(ncol=2,nrow=2)
 ggsave(filename = here("figs/01_HHI_commuting-zones.png"),dpi = 300, scale =1,width = 12, height=12)
 
 p1_hrr =   sf_hrr %>% 
-  left_join(hhi_hrr[["2017"]],"hrrnum") %>% 
+  left_join(hhi_hrr[["2018"]],"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_hrr)) +
@@ -844,7 +849,7 @@ p1_hrr =   sf_hrr %>%
   ggthemes::theme_tufte(base_family = "Gill Sans")
 
 p2_hrr = sf_hrr %>% 
-  left_join(hhi_hrr_final %>% filter(year==2017) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
+  left_join(hhi_hrr_final %>% filter(year==2018) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_zip))+
@@ -858,7 +863,7 @@ p2_hrr = sf_hrr %>%
 
 
 p3_hrr = sf_hrr %>% 
-  left_join(hhi_hrr_final %>% filter(year==2017) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
+  left_join(hhi_hrr_final %>% filter(year==2018) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_net))+
@@ -872,7 +877,7 @@ p3_hrr = sf_hrr %>%
 
 
 p4_hrr = sf_hrr %>% 
-  left_join(hhi_hrr_final %>% filter(year==2017) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
+  left_join(hhi_hrr_final %>% filter(year==2018) %>% mutate(hrrnum = as.numeric(paste0(hrrnum))),"hrrnum") %>% 
   filter(hrrstate %in% states_to_map) %>% 
   ggplot() + 
   geom_sf(aes(fill = hhi_km))+

@@ -5,6 +5,15 @@ aws_files <- get_bucket(project_bucket) %>%
   pluck("Key") %>% 
   unlist() %>% 
   tbl_df() 
+
+get_aws_files <- function(project_bucket = "vumc.graves.networks.proj", prefix = "") {
+  get_bucket(project_bucket, prefix = prefix) %>%
+    transpose() %>%
+    purrr::pluck("Key") %>%
+    unlist() %>%
+    tbl_df()
+}
+
 # put_folder("geographic-crosswalks",project_bucket)
 # put_folder("hosptial-county-patient-data",project_bucket)
 # put_folder("market-comparisons",project_bucket)
