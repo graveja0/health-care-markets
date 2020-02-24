@@ -1,0 +1,2 @@
+output/tidy-mapping-files/zcta/01_zcta-shape-file.shp filter=lfs diff=lfs merge=lfs -text
+output/tidy-mapping-files/zcta/01_zcta-shape-file.dbf filter=lfs diff=lfs merge=lfs -text
