@@ -9,7 +9,7 @@ bibliography: ../Research-Provider_Networks/manuscripts/networks-r01-bibliograph
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(message = FALSE)
-suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
+suppressWarnings(suppressMessages(source(here::here("R/manifest.R"))))
 source(here("R/map-theme.R"))
 source(here("R/shared-objects.R"))
 source(here("R/theme-tufte-revised.R"))

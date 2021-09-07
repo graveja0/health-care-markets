@@ -1,3 +1,5 @@
+source("R/manifest.R")
+source("R/shared-objects.R")
 library(rvest)
 library(fuzzyjoin)
 
@@ -20,7 +22,8 @@ for (.x in urls_to_get) {
     rating_areas_raw[[.x]] <-   
       .x %>% 
       read_html() %>% 
-      html_nodes(xpath = '//*[@id="main_content"]/div[1]/table') %>% 
+      # LN edit to test whether the code would work without the line below
+      #html_nodes(xpath = '//*[@id="main_content"]/div[1]/table') %>% 
       html_table(header = TRUE,fill=TRUE) %>% 
       purrr::pluck(1) %>% 
       janitor::clean_names() %>% 
@@ -34,7 +37,8 @@ for (.x in urls_to_get) {
     rating_areas_raw[[.x]] <-   
       .x %>% 
       read_html() %>% 
-      html_nodes(xpath = '//*[@id="offices"]/div/div/div/table') %>% 
+      # LN edit to test whether the code would work without the line below
+      #html_nodes(xpath = '//*[@id="offices"]/div/div/div/table') %>% 
       html_table(header = TRUE,fill=TRUE) %>% 
       purrr::pluck(1) %>% 
       janitor::clean_names() %>% 

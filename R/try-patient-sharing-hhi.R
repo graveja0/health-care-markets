@@ -150,7 +150,8 @@ pcsa_hhi_aggregated_to_county <-
   summarise(hhi_referral = weighted.mean(hhi_referral,weight,na.rm=TRUE))
 
 hhi_foo <- 
-  read_rds(here("output/market-comparisons/01_market-comparisons-county.rds"))  %>% 
+  read_rds(here("output/market-comparisons/01_market-comparisons-county.rds"))  %>%
+  bind_rows() %>%
   left_join(pcsa_hhi_aggregated_to_county, "fips_code")
 
 hhi_foo %>% 

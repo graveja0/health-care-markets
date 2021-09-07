@@ -649,6 +649,9 @@ plan(multiprocess)
     )) %>% 
     set_names(names(zip_hhi_hosp))
   
+
+  
+  
   zip_to_rating_area <- 
     read_rds(here("output/geographic-crosswalks/01_zcta-to-rating-area-all-states.rds"))
   
