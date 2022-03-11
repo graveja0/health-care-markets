@@ -12,3 +12,4 @@ provider_location_shp/
 public-data/
 reference/
 *.html
+README_files/*
