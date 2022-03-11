@@ -135,7 +135,6 @@ cent_zip <- sf_zip %>% st_centroid()
 sf_excounty_alone <- 
   sf_county %>% 
   filter(fips_code=="42101")
-  #filter(fips_code == "47037")
 
 # Zips with centroids within excounty County, TN
 zips_to_show <- cent_zip %>% 
@@ -166,7 +165,7 @@ aha_files <- c("2017" = "../Research-AHA_Data/data/aha/annual/raw/2017/FY2017 AS
                 "2015" = "../Research-AHA_Data/data/aha/annual/raw/2015/FY2015 Annual Survey Database/COMMA/ASPUB15.CSV"
 )
 
-# Get latitude and longitue of general acute care hospitals in 2017 AHA survey. 
+# Get latitude and longitude of general acute care hospitals in 2017 AHA survey. 
 aha <- 
   aha_files %>% 
   map(~(
@@ -188,6 +187,8 @@ aha <-
           filter(!is.na(longitude) & !is.na(latitude))
   )) %>% 
   set_names(names(aha_files)) #%>% 
+
+aha %>% write_rds(here("output/aha/aha-extract.rds"))
 
 # Shape file of x,y coordinates of all hospitals
 xy_aha <- aha[["2016"]] %>% 
@@ -381,8 +382,6 @@ net_bp <-
               select(name = prvnumgrp,mname),"name") %>% 
   mutate(label = ifelse(!is.na(mname),mname,name))
 ```
-
-
 
 ```{r, fig.cap = "Visualization of ZIP-Hospital Patient Flows as a Bipartite Network Object", fig.width = 8, fig.height=8,fig.pos="H", echo = FALSE}
 set.seed(1)

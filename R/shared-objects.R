@@ -1,4 +1,4 @@
-
+if (Sys.getenv("LOGNAME") == "gravesj") source("~/auth-aws.r")
 project_bucket <- "health-care-markets"
 aws_files <- get_bucket(project_bucket) %>% 
   transpose() %>% 

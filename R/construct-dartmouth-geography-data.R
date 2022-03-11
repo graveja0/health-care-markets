@@ -21,7 +21,7 @@
 # polygon data frames and contiguous areas data for any clustering of
 # a smaller geographic unit (e.g., counties to markets). 
 
-suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
+suppressWarnings(suppressMessages(source(here::here("R/manifest.R"))))
 source(here("R/move-ak-hi.R"))
 source(here("R/get-geographic-info.R"))
 source(here("R/map-theme.R"))

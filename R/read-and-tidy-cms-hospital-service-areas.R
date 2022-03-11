@@ -6,14 +6,17 @@ rename_in_list <- function(x,from, to) {
 }
 
 
-suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
+suppressWarnings(suppressMessages(source(here::here("R/manifest.R"))))
 
 # Get the CMS Hospital Service Area Data
 # Note the source of these data are downloaded csv files from the interactive 
 # CMS data explorer available at the links at 
 # https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Hospital-Service-Area-File/index.html
 
-hosp_serv_files <- c("2018" = "public-data/cms-hospital-service-area/2018/Hospital_Service_Area_File_-_2018.csv",
+hosp_serv_files <- c(
+    "2020" = "public-data/cms-hospital-service-area/2020/HSAF_2020_SUPPRESS.csv",
+  "2019" = "public-data/cms-hospital-service-area/2019/HSAF_2019_SUPPRESS.csv",
+  "2018" = "public-data/cms-hospital-service-area/2018/Hospital_Service_Area_File_-_2018.csv",
                      "2017" = "public-data/cms-hospital-service-area/2017/Hospital_Service_Area_File_-_2017.csv",
                      "2016" = "public-data/cms-hospital-service-area/2016/2016_Hospital_Service_Area_File__HSAF_.csv",
                      "2015" = "public-data/cms-hospital-service-area/2015/Hospital_Service_Area_File_-_2015.csv",
@@ -22,7 +25,7 @@ hosp_serv_files <- c("2018" = "public-data/cms-hospital-service-area/2018/Hospit
                      "2012" = "public-data/cms-hospital-service-area/2012/Hospital_Service_Area_File_-_2012.csv",
                      "2011" = "public-data/cms-hospital-service-area/2011/Hospital_Service_Area_File_-_2011.csv",
                      "2010" = "public-data/cms-hospital-service-area/2010/Hospital_Service_Area_File_-_2010.csv")
-hosp_serv_files <- hosp_serv_files[1]
+hosp_serv_files <- hosp_serv_files[1:2]
 df_hosp_serv_zip <- 
   hosp_serv_files %>% 
   map(~(
@@ -33,6 +36,7 @@ df_hosp_serv_zip <-
   map(~rename_in_list(x = .x, from = "medicare_provider_number", to = "prvnumgrp")) %>% 
   map(~rename_in_list(x = .x, from = "medicare_prov_num", to = "prvnumgrp")) %>% 
   map(~rename_in_list(x = .x, from = "zip_code_of_residence", to = "zip_code"))  %>% 
+  map(~rename_in_list(x = .x, from = "zip_cd_of_residence", to = "zip_code"))  %>% 
   map(~(.x %>% 
     mutate(zip_code = str_pad(zip_code, pad = "0",width = 5)) %>% 
     mutate_at(vars(total_days_of_care,total_charges, total_cases), function(x) as.numeric(paste0(x)))

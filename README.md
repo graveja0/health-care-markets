@@ -80,7 +80,7 @@ Medicare beneficiaries. Specifically, a three-step process is used:
     with one hospital, however.
 
 2.  Aggregate all Medicare visits to the hospital (or hospitals, in
-    cases where towns or cities have \> 1 hospital). Using a plurality
+    cases where towns or cities have &gt; 1 hospital). Using a plurality
     rule, assign ZIP codes to the HSA name where the most of its
     residents receive hospital care.
 
@@ -108,9 +108,9 @@ cardiovascular procedures and neurosurgeries. Thus, HSAs serve as the
 basic building block of HRRs. HRRs are also constructed to meet the
 following criteria:
 
-  - Population of at least 120,000.
-  - At least 65% of residents’ services occurred within the region.
-  - Comprised of geographically contiguous HSAs.
+-   Population of at least 120,000.
+-   At least 65% of residents’ services occurred within the region.
+-   Comprised of geographically contiguous HSAs.
 
 In cases where the above criteria were not met, neighboring areas were
 pooled together until all criteria were satisfied. There are 306 HRRs in
@@ -152,7 +152,7 @@ boundaries.
 What this means is there is signficant heterogeneity across states in
 the geographic and population size of rating areas. South Carolina, for
 example, has 46 rating areas – more than *double* the 19 rating areas
-that define California\!
+that define California!
 
 ## Commuting Zones
 
@@ -196,15 +196,15 @@ U.S. Department of Agriculture (USDA) is useful:
 Measures of economic activity (e.g., patient flows, predicted demand,
 prices) among market participants form the essential building blocks for
 defining health care markets. These linkages can be combined into a
-“network” summarizing the strength of economic linkages between
-relevant market units–for example, linkages between individuals / ZIP
-codes and their health care providers. This network, moreover, can be
-used to identify commonalities *within* market units. For instance, for
-defining geographic markets we might be interested in identifying
-clusters of ZIP codes that draw upon a common set of hospitals.
-Alternatively, we may be interested in clustering *hospitals* into
-groups based on economic ties among them (e.g., markets of “competing”
-hospitals that draw patients from similar ZIP codes).
+“network” summarizing the strength of economic linkages between relevant
+market units–for example, linkages between individuals / ZIP codes and
+their health care providers. This network, moreover, can be used to
+identify commonalities *within* market units. For instance, for defining
+geographic markets we might be interested in identifying clusters of ZIP
+codes that draw upon a common set of hospitals. Alternatively, we may be
+interested in clustering *hospitals* into groups based on economic ties
+among them (e.g., markets of “competing” hospitals that draw patients
+from similar ZIP codes).
 
 Identification of clusters of linked “nodes” in a network is known as
 **community detection.** A variety of community detection algorithms
@@ -282,15 +282,21 @@ the data to avoid plotting the hundreds of hospitals that treated only a
 1 or 2 patients from the example ZIP codes.
 
 Also note that the hospital plotted in red is St. Joseph’s hospital, a
-146 bed hospital that [closed on
-March 11, 2016](https://philadelphia.cbslocal.com/2015/12/29/st-josephs-hospital-in-north-philadelphia-to-close-in-march-2016/).
+146 bed hospital that [closed on March 11,
+2016](https://philadelphia.cbslocal.com/2015/12/29/st-josephs-hospital-in-north-philadelphia-to-close-in-march-2016/).
 We will (eventually) use this closing in an event study to validate the
 market classifications–the idea being that hospitals within the market
 containing St. Joseph’s should have been more affected by its closing
-(i.e., total FFS Medicare patients goes up) than hospitals outside
-it.
+(i.e., total FFS Medicare patients goes up) than hospitals outside it.
 
-<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" title="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" alt="Hospitals and ZIP Codes in Philadelphia County, PA, 2015" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+
+<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" alt="Hospitals and ZIP Codes in Philadelphia County, PA, 2015"  />
+<p class="caption">
+Hospitals and ZIP Codes in Philadelphia County, PA, 2015
+</p>
+
+</div>
 
 In the next plot we show the care use patterns among FFS Medicare
 patients who reside in two ZIP codes: 19116 and 19130. Patient flows
@@ -364,11 +370,11 @@ ZIP Codes](README_files/figure-gfm/unnamed-chunk-13-1.png)
 ## Identifying Markets via Community Detection
 
 Our next step is to use this network representation of hospital use to
-“detect” markets for hospital services. A nice feature of this
-approach is that we can detect markets from two perspectives: the
-geography (i.e., what ZIP codes tend to send patients to similar
-hospitals?) or the hospital (i.e., what hospitals tend to draw patients
-from similar ZIP codes?).
+“detect” markets for hospital services. A nice feature of this approach
+is that we can detect markets from two perspectives: the geography
+(i.e., what ZIP codes tend to send patients to similar hospitals?) or
+the hospital (i.e., what hospitals tend to draw patients from similar
+ZIP codes?).
 
 We can see in the representation of Philadelphia that the ZIP code
 geographies tend to cluster around each other–that is, patients from
@@ -434,7 +440,7 @@ Einstein Medical Center (63%; ID = 390142) and Roxborough Memorial
 (16%).
 
 | Hospital ID | ZIP 19128 | ZIP 19144  |
-| :---------- | :-------- | :--------- |
+|:------------|:----------|:-----------|
 | 390026      | 339 (29%) | 381 (21%)  |
 | 390142      | 0 (0%)    | 1130 (63%) |
 | 390304      | 843 (71%) | 296 (16%)  |
@@ -514,7 +520,7 @@ community detection algorithms, and their modularity scores are
 summarized in the table below:
 
 | Algorithm     | Modularity |
-| :------------ | ---------: |
+|:--------------|-----------:|
 | walktrap      |     0.5263 |
 | fast\_greedy  |     0.5100 |
 | multilevel    |     0.5294 |
@@ -537,9 +543,7 @@ We’ll next construct a **frequency matrix** which summarizes the total
 frequency that ZIPs *i* and *j* are assigned to the same market across
 the `9` detection algorithms we will use in the ensemble.
 
-\[
-\mathbf{F} = [F_{ij}]
-\]
+**F** = \[*F*<sub>*i**j*</sub>\]
 
 This frequency matrix is visualized in the heatmap below. What is clear
 from this matrix is that each of the community detection methods groups
@@ -717,21 +721,19 @@ SSNIP test process is as follows:
 > set of products/locations so defined constitutes the relevant market.
 
 This process is essentially another version of hierarchical
-clustering–again, as employed by several community detection
-algorithms and in our ensemble-based approach. In this case, the
-“network” object could be a unipartite network summarizing
-non-transitory price correlations among hospitals, or possibly predicted
-patient flows in response to price increases. The SSNIP clustering
-algorithm begins with the narrowest possible market, and then iterates
-by folding in additional hospitals until the point where the
-hypothetical monopolist could profitably impose a 5% price increase. One
-could imagine this process tracing out a dendrogram, with stopping
-points defined by the hypothetical monopolist test criteria rather than
-a maximum modularity score as we used
-above.
+clustering–again, as employed by several community detection algorithms
+and in our ensemble-based approach. In this case, the “network” object
+could be a unipartite network summarizing non-transitory price
+correlations among hospitals, or possibly predicted patient flows in
+response to price increases. The SSNIP clustering algorithm begins with
+the narrowest possible market, and then iterates by folding in
+additional hospitals until the point where the hypothetical monopolist
+could profitably impose a 5% price increase. One could imagine this
+process tracing out a dendrogram, with stopping points defined by the
+hypothetical monopolist test criteria rather than a maximum modularity
+score as we used above.
 
 <!-- ### Modularity Comparisons -->
-
 <!-- Since HSAs, HRRs, commuting zones and the SSNIP test all fall under the community detection umbrella it is useful to calculate modularity scores for them and compare to the modularity  -->
 
 # Visualization of Market Definitions for Tennesee
@@ -742,8 +744,7 @@ commuting zones, and health insurance rating areas. These market
 geographies are plotted for Tennessee in the figure below (though some
 will also dip into adjacent states). Note that the colors in each
 polygon are arbitrary and only intended to further highlight boundaries
-across
-geographies.
+across geographies.
 
 <!-- https://www.ahrq.gov/sites/default/files/wysiwyg/funding/contracts/HCUP_RFP_References/Wong_et_al_2005.pdf -->
 
@@ -789,9 +790,9 @@ methods will yield different HHI measures for the same market geography*
     total number of patients, or some exogenous prediction of demand)
     from a given geographic unit (e.g., a ZIP code). HHI measures are
     then constructed for each geographic unit and then the
-    hospital’s-specific HHI measure is calculated as a weighted
-    average of these HHIs based on the share of the hospital’s patients
-    that come from each market geography. One can then aggregate these
+    hospital’s-specific HHI measure is calculated as a weighted average
+    of these HHIs based on the share of the hospital’s patients that
+    come from each market geography. One can then aggregate these
     hospital-level HHIs to the market geography level by taking another
     weighted average (again, with weights equivalent to the share of
     patients going to each hospital)
@@ -869,7 +870,7 @@ If we used the geographic location method to construct HHI measures we
 would end up with the following estimates:
 
 |                           | Area A | Area B |
-| ------------------------- | -----: | -----: |
+|:--------------------------|-------:|-------:|
 | Scenario 1                |     NA |   5000 |
 | Scenario 2 (Market Entry) |  10000 |   5556 |
 
@@ -893,7 +894,7 @@ By comparison, the patient flow method does a better job of capturing
 the competitive landscape:
 
 |                           | Area A | Area B |
-| ------------------------- | -----: | -----: |
+|:--------------------------|-------:|-------:|
 | Scenario 1                |  10000 |  10000 |
 | Scenario 2 (Market Entry) |   5000 |  10000 |
 
@@ -928,7 +929,7 @@ Moreover, the population flow method results are unchanged with this
 overall geographic market definition used.*
 
 |                           | Area A | Area B |
-| ------------------------- | -----: | -----: |
+|:--------------------------|-------:|-------:|
 | Scenario 1                |  10000 |  10000 |
 | Scenario 2 (Market Entry) |   5000 |  10000 |
 
@@ -936,7 +937,7 @@ By comparison, if we used the population flow method we would get the
 following:
 
 |                           | Area A | Area B |
-| ------------------------- | -----: | -----: |
+|:--------------------------|-------:|-------:|
 | Scenario 1                |  10000 |  10000 |
 | Scenario 2 (Market Entry) |   5000 |  10000 |
 
@@ -993,13 +994,10 @@ hospital *j*. <!-- \[ -->
 
 <img src="figs/km-eq1.png" width="100px" />
 
-The HHI for hospital \(j\) is therefore equal
-to:
+The HHI for hospital *j* is therefore equal to:
 
 <!-- \[ -->
-
 <!-- HHI_j^{KM} = \sum_{k=1}^K \overbrace{\bigg( \frac{\pi_{kj}}{\sum_{k=1}^K \pi_{kj}} \bigg )}^{\textrm{Share of patients from }k} \overbrace{\bigg [ \sum_{j=1}^J \bigg (100 \cdot  \frac{\pi_{kj}}{\sum_{j=1}^J \pi_{kj}}\bigg)^2 \bigg ]}^{\textrm{HHI for ZIP }k}  -->
-
 <!-- \] -->
 
 <img src="figs/km-eq2.png" width="400px" />
@@ -1034,8 +1032,7 @@ all j = 1, …, J hospitals can be expressed as
 
 <img src="figs/net-eq1.png" width="250px" />
 
-The HHI for hospital *z* is therefore given by the following
-equation:
+The HHI for hospital *z* is therefore given by the following equation:
 
 <!-- HHI^{JC}_{z} = \sum_{j=1}^J \bigg [ \bigg ( 100 \cdot \frac{\gamma_{zj}}{\sum_{j=1}^J \gamma_{zj}}\bigg )^2 \bigg ] -->
 
@@ -1045,7 +1042,7 @@ The hospital-specific HHIs for the example above, and based on these two
 methods, is provided in the table below.
 
 | Hospital |   KM |   JC |
-| :------- | ---: | ---: |
+|:---------|-----:|-----:|
 | HOSP\_A  | 4735 | 3087 |
 | HOSP\_B  | 4505 | 2706 |
 | HOSP\_C  | 3928 | 3450 |
@@ -1127,13 +1124,13 @@ concerns](https://www.modernhealthcare.com/article/20161123/NEWS/161129951).
 To construct these maps the two methods above were used, with the
 following specific details.
 
-  - Sample is general acute care hospitals identified in the 2017 AHA
+-   Sample is general acute care hospitals identified in the 2017 AHA
     Annual Survey data.
 
-  - We define HHI measures at the system level, not the hospital level.
+-   We define HHI measures at the system level, not the hospital level.
     Thus, all HCA hospitals get rolled up into a single HCA row.
 
-  - For the Geographic Location HHI Method, we identify all hospitals
+-   For the Geographic Location HHI Method, we identify all hospitals
     within the geographic area. We then then construct HHI measures
     based on market shares defined by FFS Medicare Patients. Note that
     this allows us to be consistent with the patient definition used in
@@ -1141,16 +1138,16 @@ following specific details.
     nearly identical HHI measures when total admissions were used, as
     shown in the plot below.
 
-  - For the hospital HHI methods we first construct hospital-specific
+-   For the hospital HHI methods we first construct hospital-specific
     HHIs and then construct a weighted mean of these HHIs, with weights
     defined based on the fraction of geography-level patients who go to
     each hospital.
 
 ![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
 
-  - For the patient flow method, we used the [CMS Hospital Service Area
-    files
-    for 2017](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/hospital-Service-Area-File/index.html)
+-   For the patient flow method, we used the [CMS Hospital Service Area
+    files for
+    2017](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/hospital-Service-Area-File/index.html)
     to construct ZIP-level HHI measures. These zip-level HHI measures
     were based on the hospitals visited among FFS Medicare patients in
     each ZIP code. We then aggregated these ZIP level measures to the
@@ -1299,7 +1296,7 @@ obtain physician services. Thus, a geographic location method must be
 adopted, which will result in considerably more variation in HHI
 measures across different geographies (e.g., PCSAs vs. CZs vs. HRRs)
 
-The SK\&A data are the basis of the HHI measures for office-based
+The SK&A data are the basis of the HHI measures for office-based
 physicians, as described in Richards et al. (2017).
 
 From Richards et al. (2017):
@@ -1309,103 +1306,68 @@ From Richards et al. (2017):
 > organization of all physician specialists within a given geographic
 > area. In other words, we capture if an insurer would have relatively
 > few or many physician practices to negotiate with in regard to
-> enrollee access and payments (as well as other contractual
-terms).
+> enrollee access and payments (as well as other contractual terms).
 
 ![](figs/01_HHI_primary-care.png)
 
 <!-- For these plots the HHI measure is constructed using admission-weighted market shares for hospitals within each geographic market. The hospital data are drawn from the 2017 AHA annual survey.  -->
-
 <!-- ![](figs/01_HHI_hrr.png) -->
-
 <!-- ![](figs/01_HHI_rating-area.png) -->
-
 <!-- ![](figs/01_HHI-ZIP-patient-flows-.png) -->
-
 <!-- ![](figs/01_HHI_commuting-zones.png) -->
-
 <!-- ![](figs/01_HHI-ZIP-patient-flows.png) -->
-
 <!-- ## Simpson's Paradox and HHIs -->
-
 <!-- ![](figs/01_HHI_commuting-zones_aggregated-from-zip.png) -->
-
 <!-- Now let's consider the *difference* between HHI measures in a given county for each geographic market definition. That is, if the HHI value using HRRs in 5,000, while it is 1,000 using commuting zones, the difference would be 4,000.  We plot these differences in the maps below. The maps are useful in demonstrating geographic areas where characterizations of market concentration will be highly dependent on the geographic market definition used.  -->
-
 <!-- ![](figs/01_HHI-HRR-vs-commuting-zones.png) -->
-
 <!-- ![](figs/01_HHI-HRR-vs-rating-areas.png) -->
-
 <!-- ![](figs/01_HHI-commuting-zones-vs-rating-areas.png) -->
-
 <!-- # Novel Market Definitions -->
-
 <!-- In this section we will consider several methodological improvements and extensions to the geographic definitions covered above.  These include: -->
-
 <!-- - Updates to HSAs and HRR definitions based on more recent data. -->
-
 <!-- - Geographic market definitions based on community detection algorithms borrowed from social network analytic methods.  -->
-
 <!--     - Based on hospital-ZIP data from Medicare. -->
-
 <!--     - Based on insurer-county data from DRG. -->
-
 <!--     - Based on shared patient networks from Medicare.  -->
-
 <!--     - Based on updates to commuting flows from 2009-2013. Census data [here](https://www.census.gov/data/tables/time-series/demo/commuting/commuting-flows.html). Based on gravity model or based on Dartmouth method (e.g., greatest fraction). -->
-
 <!--     - Based on hospital-specific HHIs. -->
-
 <!-- ### Rural-Urban Commuting -->
-
 <!-- [Rural-Urban Commuting Codes](https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes.aspx) -->
-
 <!-- > The rural-urban commuting area (RUCA) codes classify U.S. census tracts using measures of population density, urbanization, and daily commuting. The most recent RUCA codes are based on data from the 2010 decennial census and the 2006-10 American Community Survey. The classification contains two levels. Whole numbers (1-10) delineate metropolitan, micropolitan, small town, and rural commuting areas based on the size and direction of the primary (largest) commuting flows. These 10 codes are further subdivided based on secondary commuting flows, providing flexibility in combining levels to meet varying definitional needs and preferences.  -->
-
 <!-- 1   Metropolitan area core: primary flow within an urbanized area (UA)  -->
-
 <!-- 2.  Metropolitan area high commuting: primary flow 30% or more to a UA  -->
-
 <!-- 3   Metropolitan area low commuting: primary flow 10% to 30% to a UA    -->
-
 <!-- 4   Micropolitan area core: primary flow within an Urban Cluster of 10,000 to 49,999 (large UC)     -->
-
 <!-- 5   Micropolitan high commuting: primary flow 30% or more to a large UC -->
-
 <!-- 6   Micropolitan low commuting: primary flow 10% to 30% to a large UC   -->
-
 <!-- 7   Small town core: primary flow within an Urban Cluster of 2,500 to 9,999 (small UC)  -->
-
 <!-- 8   Small town high commuting: primary flow 30% or more to a small UC -->
-
 <!-- 9   Small town low commuting: primary flow 10% to 30% to a small UC     -->
-
 <!-- 10. Rural areas: primary flow to a tract outside a UA or UC     -->
-
 <!-- 99. Not coded: Census tract has zero population and no rural-urban identifier information   -->
 
 # File Descriptions
 
-  - [R/manifest.R](R/manifest.R) sets up all libraries and settings.
-  - [R/move-ak-hi.R](R/R/move-ak-hi.R) moves Alaska and Hawaii in a map.
-  - [R/map-theme.R](R/map-theme.R) defines plotting and theme parameters
+-   [R/manifest.R](R/manifest.R) sets up all libraries and settings.
+-   [R/move-ak-hi.R](R/R/move-ak-hi.R) moves Alaska and Hawaii in a map.
+-   [R/map-theme.R](R/map-theme.R) defines plotting and theme parameters
     for mapping.
-  - [R/get-geographic-info.R](R/get-geographic-info.R) obtains centroid
+-   [R/get-geographic-info.R](R/get-geographic-info.R) obtains centroid
     and contiguous geography data for any underlying shape object.
-  - [R/zip-code-crosswalk.R](R/zip-code-crosswalk.R) creates a ZCTA to
+-   [R/zip-code-crosswalk.R](R/zip-code-crosswalk.R) creates a ZCTA to
     FIPS code crosswalk from the [MAPLE geographic crosswalking
     website](http://mcdc.missouri.edu/applications/geocorr2014.html).
 
 ## Geographic Mapping Files
 
-  - The file
+-   The file
     [R/construct-county-map-data.R](R/construct-county-map-data.md)
     constructs ggplot-friendly mapping data for U.S. counties
     (`output/tidy-mapping-files/county/df_county.rds`). It also extracts
     contiguous counties and estimates county centroids
     (`output/tidy-mapping-files/county/df_county_info.rds`).
 
-  - The file
+-   The file
     [R/construct-rating-area-data.R](R/construct-rating-area-data.md)
     constructs ggplot-friendly rating area map data based on the
     marketplace rating area definitions as of 2019-01-23 (these have
@@ -1418,7 +1380,7 @@ terms).
     County also span other counties, requiring some further manipulation
     to get the intersection.
 
-  - The file
+-   The file
     [R/construct-dartmouth-geography-data.R](R/construct-dartmouth-geography-data.md)
     constructs ggplot-friendly mapping data for Dartmouth Atlas
     geographies including hospital Referral Region (HRR), hospital
@@ -1437,7 +1399,7 @@ terms).
     extract contiguous geographies using them, as I can by building up a
     HRR/HSA/PCSA shapefile from a ZCTA map)
 
-  - The file
+-   The file
     [R/construct-commuting-zone-data.R](R/construct-commuting-zone-data.md)
     constructs ggplot-friendly mapping data for Commuting Zones defined
     using the 2000 census. The underying county-to-commuting zone data
@@ -1446,7 +1408,7 @@ terms).
 
 ## Patient Sharing Files
 
-  - The file
+-   The file
     [R/read-and-tidy-cms-hospital-service-areas.R](R/read-and-tidy-cms-hospital-service-areas.R)
     reads in the CMS hospital Service Area file for 2017. Note the
     source of these data are downloaded csv files from the interactive
@@ -1458,47 +1420,47 @@ terms).
 
 ## References to Incorporate
 
-  - [The accuracy of hospital merger screening
+-   [The accuracy of hospital merger screening
     methods](https://onlinelibrary.wiley.com/doi/full/10.1111/1756-2171.12215)
 
-  - [hospital Consolidation And Negotiated PPO
+-   [hospital Consolidation And Negotiated PPO
     Prices](https://www.healthaffairs.org/doi/10.1377/hlthaff.23.2.175)
 
-  - [hospital interdependence in a competitive institutional
+-   [hospital interdependence in a competitive institutional
     environment: Evidence from Italy HEDG HEALTH, ECONOMETRICS AND DATA
     GROUP hospital interdependence in a competitive institutional
     environment: Evidence from
     Italy](https://www.researchgate.net/publication/315653564_hospital_interdependence_in_a_competitive_institutional_environment_Evidence_from_Italy_HEDG_HEALTH_ECONOMETRICS_AND_DATA_GROUP_hospital_interdependence_in_a_competitive_institutional_environment_Evid)
 
-  - [Techniques for defining markets for private healthcare in the UK:
+-   [Techniques for defining markets for private healthcare in the UK:
     literature
     review](https://www.oxera.com/publications/techniques-for-defining-markets-for-private-healthcare-in-the-uk-literature-review/)
 
-  - [Health Care Market Concentration Trends In The United States:
+-   [Health Care Market Concentration Trends In The United States:
     Evidence And Policy
     Responses](https://www.healthaffairs.org/doi/10.1377/hlthaff.2017.0556)
 
-  - [A Structural Approach to Market Definition With an Application to
+-   [A Structural Approach to Market Definition With an Application to
     the hospital
     Industry†](https://onlinelibrary.wiley.com/doi/abs/10.1111/joie.12015)
 
-  - [Getting Market Defintiion Right: hospital Merger Cases and
+-   [Getting Market Defintiion Right: hospital Merger Cases and
     Beyond](https://www.competitionpolicyinternational.com/wp-content/uploads/2017/07/CPI-Gaynor-Pflum.pdf)
 
-  - [Competition and market power in option demand
+-   [Competition and market power in option demand
     markets](https://pdfs.semanticscholar.org/868f/28b7b1f33c170f2f5e3fbeff6d3a4b1ecd7c.pdf)
 
-<div id="refs" class="references">
+<div id="refs" class="references csl-bib-body hanging-indent">
 
-<div id="ref-fulton_health_2017">
+<div id="ref-fulton_health_2017" class="csl-entry">
 
 Fulton, Brent D. 2017. “Health Care Market Concentration Trends in the
 United States: Evidence and Policy Responses.” *Health Affairs* 36 (9):
-1530–8.
+1530–38.
 
 </div>
 
-<div id="ref-richards_physician_2017">
+<div id="ref-richards_physician_2017" class="csl-entry">
 
 Richards, Michael R., Catherine T. Smith, Amy J. Graves, Melinda B.
 Buntin, and Matthew J. Resnick. 2017. “Physician Competition in the Era
@@ -1507,7 +1469,7 @@ of Accountable Care Organizations.” *Health Services Research*, March.
 
 </div>
 
-<div id="ref-trish_how_2015">
+<div id="ref-trish_how_2015" class="csl-entry">
 
 Trish, Erin E., and Bradley J. Herring. 2015. “How Do Health Insurer
 Market Concentration and Bargaining Power with Hospitals Affect Health

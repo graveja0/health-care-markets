@@ -2,7 +2,6 @@ get_contiguous <- function(shp,id) {
   
   id <- enquo(id)
   
-  
   id_names <- shp %>% pull(!!id) 
   
   out <- shp %>% 
@@ -13,8 +12,9 @@ get_contiguous <- function(shp,id) {
     bind_rows(.id = quo_name(id)) %>% 
     group_by(!!id) %>% 
     filter(!!id != contig) %>% 
+    mutate(contig = id_names[contig]) %>% 
     mutate(test = paste0("contig_",str_pad(row_number(),width=2,pad="0"))) %>% 
     spread(test,contig)  %>% 
     ungroup()
-  
+  out
 }

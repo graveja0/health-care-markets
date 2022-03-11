@@ -6,7 +6,7 @@
 # The basis of the COUNTY to COMMUTING ZONE conversion is the crosswalk file downloaded from
 # https://www.ers.usda.gov/data-products/commuting-zones-and-labor-market-areas/ on 2019-01-24.
 
-suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
+suppressWarnings(suppressMessages(source(here::here("R/manifest.R"))))
 source(here("R/move-ak-hi.R"))
 source(here("R/get-geographic-info.R"))
 source(here("R/map-theme.R"))

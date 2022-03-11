@@ -28,7 +28,6 @@ required_travel_times <- list(c("30"), c("60"))
 # Parallelize future map code
 plan(multiprocess,workers = availableCores()-1)
 
-
 states_to_run <- c("AK") %>% unique()
 
 # Create objects by state for the first 10 states

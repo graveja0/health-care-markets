@@ -1,0 +1,148 @@
+---
+title: "Obtaining Population-Weighted County Centroids"
+output:
+  html_document:
+    df_print: paged
+editor_options: 
+  chunk_output_type: console
+---
+
+The objective of this notebook is to estimate population-weighted ZIP centroids.
+
+The basis for the code here is [this](https://stackoverflow.com/questions/23613655/calculating-weighted-polygon-centroids-in-r) stackoverflow comment section.
+
+# Get Census Tract Population
+
+The census tract shapefiles can be downloaded [here](https://www2.census.gov/geo/tiger/TIGER2017/TRACT/).
+
+The census tract populatoin files are avaialble in the american factfinder, but I am using some 2010 values from (here)[https://www.census.gov/data/tables/time-series/dec/metro-micro/tract-change-00-10.html]
+
+```{r}
+
+suppressWarnings(suppressMessages(source(here::here("R/manifest.R"))))
+user <- "john_graves"
+if (user == "john_graves") source("~/Dropbox/setup-aws.R")
+source(here("R/move-ak-hi.R"))
+source(here("R/get-geographic-info.R"))
+source(here("R/map-theme.R"))
+source(here("R/shared-objects.R"))
+
+```
+
+```{r}
+dta_tract <- 
+  data.table::fread(here("./public-data/census-tract/censustract-00-10.csv")) %>% 
+  janitor::clean_names() %>% 
+  as_tibble() %>% 
+  mutate(geoid = str_pad(geoid,width = 11,pad="0"))
+
+sf_tract <- 
+  sf::read_sf(here("public-data/shape-files/census-tract/tl_2017_47_tract/tl_2017_47_tract.shp")) %>% 
+  janitor::clean_names() %>% 
+  inner_join(dta_tract) %>% 
+  st_transform(crs = 4326) 
+
+sf_state <- read_sf(here("./output/tidy-mapping-files/state/01_state-shape-file.shp")) %>% 
+  st_transform(crs = 4326) 
+sf_county <- read_sf(here("./output/tidy-mapping-files/county/01_county-shape-file.shp")) %>% 
+  st_transform(crs = 4326) 
+sf_zip <- read_sf(here("./output/tidy-mapping-files/zcta/01_zcta-shape-file.shp")) %>% 
+  st_transform(crs = 4326) 
+```
+
+
+
+```{r}
+# Centroids of each ZIP
+cent_county <- sf_county %>% st_centroid() %>% 
+    mutate(x = st_coordinates(.)[,1],
+         y = st_coordinates(.)[,2])
+
+
+# Zips with centroids within excounty 
+counties_to_show <- cent_county %>% 
+  #filter(row_number() %in% unlist(st_intersects(sf_county, sf_county))) %>% 
+  pull(fips_code)
+
+# Shapefile of these ZIPS
+sf_county <- sf_county %>% 
+    st_as_sf()
+
+# Centroids of these Counties
+cent_county <- 
+  sf_county %>% 
+    st_centroid() %>% 
+    mutate(x = st_coordinates(.)[,1],
+         y = st_coordinates(.)[,2]) 
+
+sf_tract <- 
+  sf_tract %>% 
+  filter(row_number() %in% unlist(st_intersects(sf_county, sf_tract))) %>% 
+  st_as_sf() 
+  
+df_tract_cent <- 
+  sf_tract %>% 
+  st_centroid() %>% 
+  mutate(x = st_coordinates(.)[,1],
+         y = st_coordinates(.)[,2]) %>% 
+  select(geoid,pop10,x,y) %>% 
+  data.frame() %>% 
+  as_tibble() %>% 
+  select(-geometry)
+
+```
+
+
+```{r}
+
+# int <-as_tibble(st_intersects(sf_zip, sf_tract ,sparse=TRUE))
+
+int <- 
+  st_contains_properly(
+    sf_county,
+    sf_tract %>% 
+      st_centroid() 
+  ) %>% 
+  data.frame() 
+  
+#int$area <- st_area(int$geometry)
+```
+
+```{r}
+sf_county_wtd <- 
+  int %>% 
+  mutate(fips_code = sf_county$fips_code[int$row.id]) %>% 
+  mutate(geoid = sf_tract$geoid[int$col.id]) %>% 
+  left_join(df_tract_cent,"geoid") %>% 
+  mutate(pop10 = as.numeric(gsub(",","",pop10))) %>% 
+  group_by(fips_code) %>% 
+  summarize(x_wtd = weighted.mean(x,pop10),
+            y_wtd = weighted.mean(y,pop10)) %>% 
+  mutate(x = x_wtd, y = y_wtd) %>% 
+  na.omit() %>% 
+  st_as_sf(coords = c("x_wtd", "y_wtd"), crs = 4326)
+
+
+```
+
+```{r}
+
+which_zip = 120
+
+get_first <- 
+  int$col.id[int$row.id==int$row.id[which_zip]] %>% 
+  as.vector()
+
+sf_county %>% 
+  ggplot() + 
+  geom_sf(alpha = 0) + 
+  remove_all_axes + 
+  geom_sf(data = sf_county %>% filter(row_number()==int$row.id[which_zip]),colour = "darkred", alpha =0.1,lwd=0.5) +
+  geom_sf(data = sf_tract %>% filter(row_number() %in% get_first), colour = "black",alpha = 0,lwd=.75) +
+  geom_point(data = sf_county_wtd , aes(x=x,y=y) ,colour="black") + 
+  geom_point(data = cent_county,aes(x=x,y=y),colour="red",pch=3) + 
+  geom_sf(data = sf_zip, colour = "darkred",alpha = 0.5,lwd=0.1)
+
+```
+
+
