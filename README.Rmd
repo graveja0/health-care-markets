@@ -384,16 +384,17 @@ net_bp <-
 ```
 
 ```{r, fig.cap = "Visualization of ZIP-Hospital Patient Flows as a Bipartite Network Object", fig.width = 8, fig.height=8,fig.pos="H", echo = FALSE}
-set.seed(1)
+set.seed(2)
 net_bp %>% 
   ggraph(layout='lgl') + 
   #scale_x_continuous(limits = c(-15,10)) + 
   #scale_y_continuous(limits = c(-20,6)) +
   geom_edge_link(aes(width = weight,alpha=weight),show.legend = FALSE) + 
   geom_node_point(aes(colour=type), cex = 6) +
-  geom_node_text(aes(label = label),cex = 3) +
+  geom_node_text(aes(label = label),cex = 4,repel=TRUE) +
   remove_all_axes  + 
-  theme(legend.position = "none")  
+  theme(legend.position = "none")  +
+  theme(text = element_text(size = 20))          
 ```
 
 The underlying market structure of Philadelphia-area hospitals starts to become a  bit more clear in this representation of the data. Again, we see that ZIP codes tend to cluster around certain sets of hospitals.  For example, Holy Reedeemer, Nazareth, Aria-Jefferson and Jeanes hospital all tend to draw on patients from similar ZIP codes. By comparison, Mercy Fitzgerald, the UPenn hospitals, and Lankeneau Medical Center draw patients from a different cluster of ZIPs. 
@@ -528,6 +529,36 @@ gf_ex %>%
   geom_node_text(aes(label = zip_code)) +
   remove_all_axes  +
   theme(legend.position = "none")
+```
+
+```{r, eval = FALSE}
+library(ggforce)
+
+net_bp2 <- net_bp %>% 
+  activate(nodes) %>% 
+  mutate(market = market_cw$market[name]) %>% 
+  mutate(market = ifelse(is.na(market),0,market))
+
+set.seed(2)
+net_bp2 %>% 
+  ggraph(layout='lgl') + 
+  #scale_x_continuous(limits = c(-15,10)) + 
+  #scale_y_continuous(limits = c(-20,6)) +
+  geom_edge_link(aes(width = weight,alpha=weight),show.legend = FALSE) + 
+  geom_node_point(aes(colour=type), cex = 6) +
+  geom_node_text(aes(label = label),cex = 4,repel=TRUE) +
+  remove_all_axes  + 
+  theme(legend.position = "none")  +
+  theme(text = element_text(size = 20)) -> p
+
+foo <- net_bp2 %>% activate(nodes) %>% data.frame()
+p_ <- cbind.data.frame(ggplot_build(p)$data[[2]],foo)
+
+p + ggforce::geom_mark_ellipse(data = p_, aes(x=x,y =y, fill=factor(market),filter=market!=0),alpha=0.1,
+linetype=0) +
+  ggsci::scale_color_aaas()
+
+
 ```
 
 
@@ -707,7 +738,7 @@ market.dendro <- as.dendrogram(fit)
 dendro.plot <- ggdendrogram(data = market.dendro, rotate = TRUE)  + theme(axis.text.y = element_text(size = 6))
 
 
-heatmap.plot <- 
+df_heatmap.plot <- 
   up_zip_w %>% data.frame() %>% rownames_to_column() %>% 
   rename(zip_code = rowname) %>% 
   gather(zip2,share,-zip_code) %>% 
@@ -717,20 +748,26 @@ heatmap.plot <-
   mutate(zip_code = factor(zip_code, levels = names(membership(fit))[order.dendrogram(market.dendro)])) %>% 
   mutate(zip2 = gsub("X","",zip2))  %>% 
   mutate(zip2 = factor(zip2, levels = names(membership(fit))[order.dendrogram(market.dendro)])) %>% 
-  mutate(share = share*100) %>% 
+  mutate(share = share*100) 
+
+library(ggnewscale)
+heatmap.plot <- 
+  df_heatmap.plot %>% 
   ggplot(aes(x = zip2,y=zip_code)) + 
-  # geom_tile(aes(color = as.factor(market)),alpha = 0.1) +
-  geom_tile(aes(fill = share, colour = as.factor(market))) +
+  geom_tile(aes(fill = share)) +
   scale_fill_gradient2(low="white",high="darkred") +
+  ggnewscale::new_scale_fill() +
+  geom_tile(aes(fill = as.factor(market)),alpha = 0.1) +
+  ggsci::scale_fill_aaas() +
   theme(axis.text.y = element_text(size = 6)) + 
   theme(axis.text.y = element_blank(),
         axis.title.y = element_blank(),
         axis.ticks.y = element_blank(),
         legend.position = "none") +
   theme(axis.text.x=element_text(angle = -90, hjust = 0,size =6))  +
-  labs(fill = "",x ="ZIP Code") +
-  scale_colour_manual(guide=FALSE,values = c("purple","brown","darkblue","green"))
-
+  labs(fill = "",x ="ZIP Code") 
+  #scale_colour_manual(guide=FALSE,values = c("purple","brown","darkblue","green")) + 
+  ; heatmap.plot
 
 postscript(file = here("output/figures/dendrogram-cluster-walktrap.eps"), horiz = FALSE, onefile = FALSE, width = 8, height = 8, fonts=c("serif"))
 grid::grid.newpage()
