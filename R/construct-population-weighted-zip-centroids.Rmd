@@ -20,8 +20,8 @@ The census tract populatoin files are avaialble in the american factfinder, but 
 ```{r}
 
 suppressWarnings(suppressMessages(source(here::here("/R/manifest.R"))))
-user <- "john_graves"
-if (user == "john_graves") source("~/Dropbox/setup-aws.R")
+user <- "lnshuti"
+if (user == "lnshuti") source("~/portfolio/setup-aws.R")
 source(here("R/move-ak-hi.R"))
 source(here("R/get-geographic-info.R"))
 source(here("R/map-theme.R"))

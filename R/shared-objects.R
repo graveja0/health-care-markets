@@ -4,14 +4,14 @@ aws_files <- get_bucket(project_bucket) %>%
   transpose() %>% 
   pluck("Key") %>% 
   unlist() %>% 
-  tbl_df() 
+  as_tibble() 
 
 get_aws_files <- function(project_bucket = "vumc.graves.networks.proj", prefix = "") {
   get_bucket(project_bucket, prefix = prefix) %>%
     transpose() %>%
     purrr::pluck("Key") %>%
     unlist() %>%
-    tbl_df()
+    as_tibble()
 }
 
 # put_folder("geographic-crosswalks",project_bucket)
